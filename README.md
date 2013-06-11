@@ -1,5 +1,7 @@
 # Sequelize-Auto
 
+[![Build Status](https://travis-ci.org/durango/sequelize-auto.png?branch=master)](https://travis-ci.org/durango/sequelize-auto)
+
 Automatically generate models for [SequelizeJS](https://github.com/sequelize/sequelize) via the command line.
 
 ## Install
@@ -22,7 +24,7 @@ Automatically generate models for [SequelizeJS](https://github.com/sequelize/seq
 
 ## Example
 
-    sequelize-auto -o "/Users/daniel/fracture-repo/auto-sequelize/spec/models" -d sequelize_auto_test -h localhost -u daniel -p 5432 -x my_password -e postgres
+    sequelize-auto -o "./models" -d sequelize_auto_test -h localhost -u daniel -p 5432 -x my_password -e postgres
 
 ## Testing
 
@@ -36,6 +38,3 @@ You must setup a database called "sequelize_auto_test" first, edit the spec/conf
 
     # postgres only
     npm run test-buster-postgres
-
-    # postgres-native only
-    npm run test-buster-postgres-native
