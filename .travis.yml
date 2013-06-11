@@ -1,0 +1,19 @@
+before_script:
+  - "mysql -e 'create database sequelize_auto_test;'"
+  - "psql -c 'create database sequelize_auto_test;' -U postgres"
+
+script:
+  - "npm run test-buster-travis"
+
+notifications:
+  email:
+    - me@danieldurante.com
+
+env:
+  - DB=mysql DIALECT=mysql
+  - DB=mysql DIALECT=postgres
+  - DB=mysql DIALECT=sqlite
+
+language: node_js
+node_js:
+  - "0.8"
