@@ -1,16 +1,19 @@
 {
   "name": "sequelize-auto",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Automatically generate bare sequelize models from your database.",
   "main": "index",
-  "keywords": ["mysql", "postgres", "sequelize", "sequelizejs", "mapper"],
+  "keywords": [
+    "mysql",
+    "postgres",
+    "sequelize",
+    "sequelizejs",
+    "mapper"
+  ],
   "bin": {
     "sequelize-auto": "bin/sequelize-auto"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/durango/sequelize-auto"
-  },
+  "repository": "",
   "bugs": {
     "url": "hhttps://github.com/durango/sequelize-auto/issues"
   },
@@ -24,7 +27,6 @@
   "engines": {
     "node": ">=0.4.6"
   },
-  "repository": "",
   "author": "Daniel Durante <me@danieldurante.com>",
   "license": "MIT",
   "dependencies": {
