@@ -11,6 +11,10 @@ buster.spec.expose();
 buster.testRunner.timeout = 1000000;
 
 describe(Helpers.getTestDialectTeaser("sequelize-auto"), function() {
+  after(function(done){
+    Helpers.clearDatabase(this.sequelize, done);
+  });
+
   before(function(done) {
     var self = this
 

@@ -56,13 +56,13 @@ module.exports = {
       .dropAllTables()
       .success(function() {
         sequelize.daoFactoryManager.daos = []
-        fs.readdir(config.directory, function(files){
+        fs.readdir(config.directory, function(err, files){
           if (!files || files.length < 1)
             return callback && callback()
           files.forEach(function(file){
-            var stat = fs.statSync(file);
+            var stat = fs.statSync(config.directory + '/' + file);
             if (stat.isFile())
-              fs.unlinkSync(file);
+              fs.unlinkSync(config.directory + '/' + file);
           });
           callback && callback()
         });
