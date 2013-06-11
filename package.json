@@ -13,9 +13,12 @@
   "bin": {
     "sequelize-auto": "bin/sequelize-auto"
   },
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sequelize/sequelize-auto.git"
+  },
   "bugs": {
-    "url": "hhttps://github.com/durango/sequelize-auto/issues"
+    "url": "https://github.com/sequelize/sequelize-auto/issues"
   },
   "scripts": {
     "test-buster": "npm run test-buster-mysql && npm run test-buster-postgres",
