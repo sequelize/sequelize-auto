@@ -1,6 +1,6 @@
 # Sequelize-Auto
 
-[![Build Status](https://travis-ci.org/durango/sequelize-auto.png?branch=master)](https://travis-ci.org/durango/sequelize-auto)
+[![Build Status](https://travis-ci.org/sequelize/sequelize-auto.png?branch=master)](https://travis-ci.org/sequlize/sequelize-auto)
 
 Automatically generate models for [SequelizeJS](https://github.com/sequelize/sequelize) via the command line.
 
