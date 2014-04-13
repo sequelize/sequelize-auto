@@ -34,8 +34,8 @@
   "license": "MIT",
   "dependencies": {
     "sequelize": "~1.7.0-alpha2",
-    "async": "^0.7.0",
-    "optimist": "^0.6.1"
+    "async": "~0.7.0",
+    "optimist": "~0.6.1"
   },
   "devDependencies": {
     "sqlite3": "~2.1.5",
