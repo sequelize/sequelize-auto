@@ -40,6 +40,11 @@ describe(Helpers.getTestDialectTeaser("sequelize-auto"), function() {
           dateAllowNullTrue: {
             type: DataTypes.DATE,
             allowNull: true
+          },
+
+          defaultValueBoolean: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true
           }
         })
 
