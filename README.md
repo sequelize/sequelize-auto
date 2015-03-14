@@ -64,7 +64,7 @@ Produces a file/files such as ./models/Users.js which looks like:
       });
     };
 
-Which makes it easy for you to simply [Sequelize.import](http://sequelizejs.com/documentation#models-import) it.
+Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models/#import) it.
 
 ## Testing
 
