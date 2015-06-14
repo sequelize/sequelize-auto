@@ -33,14 +33,14 @@
   "author": "Daniel Durante <me@danieldurante.com>",
   "license": "MIT",
   "dependencies": {
-    "sequelize": "~1.7.0-alpha2",
     "async": "~0.7.0",
-    "optimist": "~0.6.1"
+    "optimist": "~0.6.1",
+    "pg": "~0.10.2",
+    "sequelize": "~1.7.0-alpha2"
   },
   "devDependencies": {
     "sqlite3": "~2.1.5",
     "mysql": "~2.0.0-alpha7",
-    "pg": "~0.10.2",
     "buster": "~0.6.3"
   }
 }
