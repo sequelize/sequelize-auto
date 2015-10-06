@@ -2,10 +2,12 @@ if (typeof require === 'function') {
   var buster  = require("buster")
     , testConfig = require('./config')
     , Helpers = require('./buster-helpers')
-    , DataTypes = require(__dirname + '/../node_modules/sequelize/lib/data-types')
     , dialect = Helpers.getTestDialect()
     , exec = require('child_process').exec;
 }
+
+require("referee");
+var expect = buster.referee.expect;
 
 buster.spec.expose();
 buster.testRunner.timeout = 1000000;
@@ -20,50 +22,50 @@ describe(Helpers.getTestDialectTeaser("sequelize-auto"), function() {
 
     Helpers.initTests({
       dialect: dialect,
-      beforeComplete: function(sequelize, DataTypes) {
+      beforeComplete: function(sequelize) {
         self.sequelize = sequelize
         self.User      = sequelize.define('User', {
-          username:  { type: DataTypes.STRING },
-          touchedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-          aNumber:   { type: DataTypes.INTEGER },
-          bNumber:   { type: DataTypes.INTEGER },
+          username:  { type: Helpers.Sequelize.STRING },
+          touchedAt: { type: Helpers.Sequelize.DATE, defaultValue: Helpers.Sequelize.NOW },
+          aNumber:   { type: Helpers.Sequelize.INTEGER },
+          bNumber:   { type: Helpers.Sequelize.INTEGER },
 
           validateTest: {
-            type: DataTypes.INTEGER,
+            type: Helpers.Sequelize.INTEGER,
             allowNull: true
           },
           validateCustom: {
-            type: DataTypes.STRING,
+            type: Helpers.Sequelize.STRING,
             allowNull: false
           },
 
           dateAllowNullTrue: {
-            type: DataTypes.DATE,
+            type: Helpers.Sequelize.DATE,
             allowNull: true
           },
 
           defaultValueBoolean: {
-            type: DataTypes.BOOLEAN,
+            type: Helpers.Sequelize.BOOLEAN,
             defaultValue: true
           }
         })
 
         self.HistoryLog = sequelize.define('HistoryLog', {
-          someText:  { type: DataTypes.STRING },
-          aNumber:   { type: DataTypes.INTEGER },
-          aRandomId: { type: DataTypes.INTEGER }
+          someText:  { type: Helpers.Sequelize.STRING },
+          aNumber:   { type: Helpers.Sequelize.INTEGER },
+          aRandomId: { type: Helpers.Sequelize.INTEGER }
         })
 
         self.ParanoidUser = sequelize.define('ParanoidUser', {
-          username: { type: DataTypes.STRING }
+          username: { type: Helpers.Sequelize.STRING }
         }, {
           paranoid: true
         })
       },
       onComplete: function() {
-        self.User.sync({ force: true }).success(function(){
-          self.HistoryLog.sync({ force: true }).success(function(){
-            self.ParanoidUser.sync({force: true }).success(done)
+        self.User.sync({ force: true }).then(function(){
+          self.HistoryLog.sync({ force: true }).then(function(){
+            self.ParanoidUser.sync({force: true }).then(done)
           });
         });
       }
@@ -94,9 +96,9 @@ describe(Helpers.getTestDialectTeaser("sequelize-auto"), function() {
       setupModels(self, function(err, stdout){
         expect(err).toBeNull();
         if (self.sequelize.options.dialect === "postgres") {
-          expect(stdout.indexOf('SELECT table_name FROM information_schema.tables WHERE table_schema = \'public\';')).toBeGreaterThan(-1);
+          expect(stdout.indexOf('SELECT table_name FROM information_schema.tables WHERE table_schema = \'public\'')).toBeGreaterThan(-1);
           ['Users','HistoryLogs','ParanoidUsers'].forEach(function(tbl){
-            expect(stdout.indexOf('SELECT c.column_name as "Field", c.column_default as "Default", c.is_nullable as "Null", c.data_type as "Type", (SELECT array_agg(e.enumlabel) FROM pg_catalog.pg_type t JOIN pg_catalog.pg_enum e ON t.oid=e.enumtypid WHERE t.typname=c.udt_name) AS special FROM information_schema.columns c WHERE table_name = \'' + tbl +'\';')).toBeGreaterThan(-1);
+            expect(stdout.indexOf('SELECT tc.constraint_type as "Constraint", c.column_name as "Field", c.column_default as "Default", c.is_nullable as "Null", CASE WHEN c.udt_name = \'hstore\' THEN c.udt_name ELSE c.data_type END as "Type", (SELECT array_agg(e.enumlabel) FROM pg_catalog.pg_type t JOIN pg_catalog.pg_enum e ON t.oid=e.enumtypid WHERE t.typname=c.udt_name) AS "special" FROM information_schema.columns c LEFT JOIN information_schema.key_column_usage cu ON c.table_name = cu.table_name AND cu.column_name = c.column_name LEFT JOIN information_schema.table_constraints tc ON c.table_name = tc.table_name AND cu.column_name = c.column_name AND tc.constraint_type = \'PRIMARY KEY\'  WHERE c.table_name = \'' + tbl + '\' AND c.table_schema = \'public\'')).toBeGreaterThan(-1);
           });
         } else {
           expect(stdout.indexOf('Executing: SHOW TABLES;')).toBeGreaterThan(-1);

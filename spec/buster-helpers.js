@@ -1,7 +1,6 @@
 // https://raw.github.com/sequelize/sequelize/master/spec/buster-helpers.js
 var Sequelize = require('sequelize')
     , config    = require(__dirname + "/config")
-    , DataTypes = require(__dirname + '/../node_modules/sequelize/lib/data-types')
     , fs        = require('fs')
     , buster    = require("buster")
 
@@ -17,11 +16,11 @@ module.exports = {
       }
 
       if (options.beforeComplete) {
-        options.beforeComplete(sequelize, DataTypes)
+        options.beforeComplete(sequelize)
       }
 
       if (options.onComplete) {
-        options.onComplete(sequelize, DataTypes)
+        options.onComplete(sequelize)
       }
     })
   },
@@ -54,20 +53,25 @@ module.exports = {
     sequelize
       .getQueryInterface()
       .dropAllTables()
-      .success(function() {
-        sequelize.daoFactoryManager.daos = []
-        fs.readdir(config.directory, function(err, files){
-          if (!files || files.length < 1)
-            return callback && callback()
-          files.forEach(function(file){
-            var stat = fs.statSync(config.directory + '/' + file);
-            if (stat.isFile())
-              fs.unlinkSync(config.directory + '/' + file);
-          });
-          callback && callback()
-        });
+      .then(success, error)
+
+    function success() {
+      fs.readdir(config.directory, function (err, files) {
+        if (!files || files.length < 1)
+          return callback && callback()
+
+        files.forEach(function (file) {
+          var stat = fs.statSync(config.directory + '/' + file);
+          if (stat.isFile())
+            fs.unlinkSync(config.directory + '/' + file);
+        })
+        callback && callback()
       })
-      .error(function(err) { console.log(err) })
+    }
+
+    function error(err) {
+      console.log(err)
+    }
   },
 
   getSupportedDialects: function() {
@@ -79,13 +83,11 @@ module.exports = {
   getTestDialect: function() {
     var envDialect = process.env.DIALECT || 'mysql'
 
-    if (envDialect === 'postgres-native') {
+    if (envDialect === 'postgres-native')
       envDialect = 'postgres'
-    }
 
-    if (this.getSupportedDialects().indexOf(envDialect) === -1) {
+    if (this.getSupportedDialects().indexOf(envDialect) === -1)
       throw new Error('The dialect you have passed is unknown. Did you really mean: ' + envDialect)
-    }
 
     return envDialect
   },

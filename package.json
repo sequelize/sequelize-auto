@@ -28,7 +28,7 @@
     "test-buster-sqlite": "DIALECT=sqlite buster-test"
   },
   "engines": {
-    "node": ">=0.4.6"
+    "node": ">=0.10"
   },
   "author": "Daniel Durante <me@danieldurante.com>",
   "license": "MIT",
@@ -38,10 +38,12 @@
     "sequelize": "^3.3.1"
   },
   "devDependencies": {
-    "buster": "~0.6.3",
+    "buster": "^0.7.18",
+    "buster-test": "^0.7.13",
     "mysql": "^2.7.0",
     "pg": "^4.4.0",
     "pg-hstore": "^2.3.2",
+    "referee": "^1.1.1",
     "sqlite3": "^3.0.8",
     "tedious": "^1.11.2"
   }
