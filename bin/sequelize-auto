@@ -14,6 +14,7 @@ var argv = require('optimist')
   .alias('c', 'config')
   .alias('o', 'output')
   .alias('e', 'dialect')
+  .alias('a', 'aditional')
   .describe('h', 'IP/Hostname for the database.')
   .describe('d', 'Database name.')
   .describe('u', 'Username for database.')
@@ -22,11 +23,20 @@ var argv = require('optimist')
   .describe('c', 'JSON file for sending additional options to the Sequelize object.')
   .describe('o', 'What directory to place the models.')
   .describe('e', 'The dialect/engine that you\'re using: postgres, mysql, sqlite')
+  .describe('a', 'Path to a json file to inject into all models as aditional settings (you can also use the config file with an aditional value)')
   .argv;
 
 var configFile = {};
 if (!!argv.c) {
-  configFile = require(path.resolve(argv.c));
+  configFile = require(path.resolve(argv.c));  
+}
+
+var aditional;
+if (!!argv.a) {
+  aditional = require(path.resolve(argv.a));
+}
+if(!!configFile.aditional) {
+  aditional = configFile.aditional;
 }
 
 configFile.dialect = argv.e || configFile.dialect || 'mysql';
@@ -36,7 +46,7 @@ configFile.host = argv.h || configFile.host || 'localhost';
 var auto = new sequelizeAuto(argv.d, argv.u, (argv.x || null), configFile);
 var dir = argv.o || path.resolve(process.cwd() + '/models');
 
-auto.run({spaces: true, indentation: 2, directory: dir}, function(err){
+auto.run({spaces: true, indentation: 2, directory: dir, aditional : aditional}, function(err){
   if (err) throw err;
   console.log('Done!');
 });
