@@ -1,5 +1,20 @@
 
+language: node_js
+
+node_js:
+  - "0.10"
+  - "0.12"
+  - "iojs-v1"
+  - "iojs-v2"
+
 sudo: false
+
+cache:
+  directories:
+    - node_modules
+
+addons:
+  postgresql: "9.4"
 
 before_script:
   - "mysql -e 'create database sequelize_auto_test;'"
@@ -7,6 +22,10 @@ before_script:
 
 script:
   - "npm run test-buster-travis"
+
+branches:
+  only:
+    - master
 
 notifications:
   email:
@@ -16,7 +35,3 @@ env:
   - DB=mysql DIALECT=mysql
   - DB=mysql DIALECT=postgres
   - DB=mysql DIALECT=sqlite
-
-language: node_js
-node_js:
-  - "0.8"
