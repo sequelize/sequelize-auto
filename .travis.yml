@@ -1,3 +1,6 @@
+
+sudo: false
+
 before_script:
   - "mysql -e 'create database sequelize_auto_test;'"
   - "psql -c 'create database sequelize_auto_test;' -U postgres"
