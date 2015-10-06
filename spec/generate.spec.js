@@ -65,7 +65,9 @@ describe(Helpers.getTestDialectTeaser("sequelize-auto"), function() {
       onComplete: function() {
         self.User.sync({ force: true }).then(function(){
           self.HistoryLog.sync({ force: true }).then(function(){
-            self.ParanoidUser.sync({force: true }).then(done)
+            self.ParanoidUser.sync({force: true }).then(function() {
+              done()
+            }, done)
           });
         });
       }
