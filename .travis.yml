@@ -17,6 +17,8 @@ addons:
   postgresql: "9.4"
 
 before_script:
+  - "npm install -g mysql"
+  - "npm install -g pg pg-hstore"
   - "mysql -e 'create database sequelize_auto_test;'"
   - "psql -c 'create database sequelize_auto_test;' -U postgres"
 
