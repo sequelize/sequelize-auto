@@ -103,7 +103,7 @@ describe(Helpers.getTestDialectTeaser("sequelize-auto"), function() {
             expect(stdout.indexOf('SELECT tc.constraint_type as "Constraint", c.column_name as "Field", c.column_default as "Default", c.is_nullable as "Null", CASE WHEN c.udt_name = \'hstore\' THEN c.udt_name ELSE c.data_type END as "Type", (SELECT array_agg(e.enumlabel) FROM pg_catalog.pg_type t JOIN pg_catalog.pg_enum e ON t.oid=e.enumtypid WHERE t.typname=c.udt_name) AS "special" FROM information_schema.columns c LEFT JOIN information_schema.key_column_usage cu ON c.table_name = cu.table_name AND cu.column_name = c.column_name LEFT JOIN information_schema.table_constraints tc ON c.table_name = tc.table_name AND cu.column_name = c.column_name AND tc.constraint_type = \'PRIMARY KEY\'  WHERE c.table_name = \'' + tbl + '\' AND c.table_schema = \'public\'')).toBeGreaterThan(-1);
           });
         } else {
-          expect(stdout.indexOf('Executing: SHOW TABLES;')).toBeGreaterThan(-1);
+          expect(stdout.indexOf('SHOW TABLES;')).toBeGreaterThan(-1);
         }
         done();
       });

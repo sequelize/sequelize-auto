@@ -70,7 +70,7 @@ module.exports = {
     }
 
     function error(err) {
-      console.log(err)
+      throw err;
     }
   },
 
