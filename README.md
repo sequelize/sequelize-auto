@@ -24,7 +24,7 @@ Example for Sqlite3
 
 `npm install -g sqlite`
 
-Example for MSSQL`
+Example for MSSQL
 
 `npm install -g tedious`
 
@@ -44,7 +44,7 @@ Example for MSSQL`
 
 ## Example
 
-    sequelize-auto -o "./models" -d sequelize_auto_test -h localhost -u daniel -p 5432 -x my_password -e postgres
+    sequelize-auto -o "./models" -d sequelize_auto_test -h localhost -u my_username -p 5432 -x my_password -e postgres
 
 Produces a file/files such as ./models/Users.js which looks like:
 
@@ -84,7 +84,7 @@ Produces a file/files such as ./models/Users.js which looks like:
       });
     };
 
-Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import)it.
+Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import) it.
 
 ## Testing
 
