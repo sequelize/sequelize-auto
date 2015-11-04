@@ -5,7 +5,7 @@ var sequelizeAuto = require('../')
 
 var argv = require('optimist')
   .usage('Usage: sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models]')
-  .demand(['h', 'd', 'u'])
+  .demand(['h', 'd'])
   .alias('h', 'host')
   .alias('d', 'database')
   .alias('u', 'user')
@@ -42,6 +42,7 @@ if(!!configFile.additional) {
 configFile.dialect = argv.e || configFile.dialect || 'mysql';
 configFile.port = argv.p || configFile.port || 3306;
 configFile.host = argv.h || configFile.host || 'localhost';
+configFile.storage = argv.d
 
 var auto = new sequelizeAuto(argv.d, argv.u, (argv.x || null), configFile);
 var dir = argv.o || path.resolve(process.cwd() + '/models');

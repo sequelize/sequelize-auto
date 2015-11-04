@@ -37,6 +37,9 @@ module.exports = {
       port:    config[options.dialect].port
     }
 
+    if (config[options.dialect] && config[options.dialect].storage)
+      sequelizeOptions.storage = config[options.dialect].storage
+
     if (process.env.DIALECT === 'postgres-native') {
       sequelizeOptions.native = true
     }

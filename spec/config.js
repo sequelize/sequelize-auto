@@ -23,6 +23,11 @@ module.exports = {
   },
 
   sqlite: {
+    username: "foo",
+    password: null,
+    host: '127.0.0.1',
+    database: __dirname + "/database.sqlite",
+    storage: __dirname + "/database.sqlite"
   },
 
   postgres: {

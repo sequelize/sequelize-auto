@@ -24,7 +24,7 @@ describe(Helpers.getTestDialectTeaser("sequelize-auto"), function() {
       dialect: dialect,
       beforeComplete: function(sequelize) {
         self.sequelize = sequelize
-        self.User      = sequelize.define('User', {
+        self.User      = self.sequelize.define('User', {
           username:  { type: Helpers.Sequelize.STRING },
           touchedAt: { type: Helpers.Sequelize.DATE, defaultValue: Helpers.Sequelize.NOW },
           aNumber:   { type: Helpers.Sequelize.INTEGER },
@@ -50,43 +50,40 @@ describe(Helpers.getTestDialectTeaser("sequelize-auto"), function() {
           }
         })
 
-        self.HistoryLog = sequelize.define('HistoryLog', {
+        self.HistoryLog = self.sequelize.define('HistoryLog', {
           someText:  { type: Helpers.Sequelize.STRING },
           aNumber:   { type: Helpers.Sequelize.INTEGER },
           aRandomId: { type: Helpers.Sequelize.INTEGER }
         })
 
-        self.ParanoidUser = sequelize.define('ParanoidUser', {
+        self.ParanoidUser = self.sequelize.define('ParanoidUser', {
           username: { type: Helpers.Sequelize.STRING }
         }, {
           paranoid: true
         })
+
+        self.ParanoidUser.belongsTo(self.User)
       },
       onComplete: function() {
-        self.User.sync({ force: true }).then(function(){
-          self.HistoryLog.sync({ force: true }).then(function(){
-            self.ParanoidUser.sync({force: true }).then(function() {
-              done()
-            }, done)
-          });
-        });
+          self.sequelize.sync().then(function () {
+            done()
+          }, done)
       }
     });
   });
 
   var setupModels = function(self, callback) {
     var config = self.sequelize.config;
-    var execString = __dirname + "/../bin/sequelize-auto -o \"" + testConfig.directory + "\" -d " + config.database + " -h " + config.host + " -u " + config.username;
+    var execString = __dirname + "/../bin/sequelize-auto -o \"" + testConfig.directory + "\" -d " + config.database + " -h " + config.host;
 
-    if (!!config.password) {
+    if (!!config.username)
+      execString += " -u " + config.username + " ";
+    if (!!config.password)
       execString += " -x " + config.password + " ";
-    }
-    if (!!config.port) {
+    if (!!config.port)
       execString += " -p " + config.port + " ";
-    }
-    if (!!self.sequelize.options.dialect) {
+    if (!!self.sequelize.options.dialect)
       execString += " -e " + self.sequelize.options.dialect + " ";
-    }
 
     exec(execString, callback);
   }
@@ -102,6 +99,9 @@ describe(Helpers.getTestDialectTeaser("sequelize-auto"), function() {
           ['Users','HistoryLogs','ParanoidUsers'].forEach(function(tbl){
             expect(stdout.indexOf('SELECT tc.constraint_type as "Constraint", c.column_name as "Field", c.column_default as "Default", c.is_nullable as "Null", CASE WHEN c.udt_name = \'hstore\' THEN c.udt_name ELSE c.data_type END as "Type", (SELECT array_agg(e.enumlabel) FROM pg_catalog.pg_type t JOIN pg_catalog.pg_enum e ON t.oid=e.enumtypid WHERE t.typname=c.udt_name) AS "special" FROM information_schema.columns c LEFT JOIN information_schema.key_column_usage cu ON c.table_name = cu.table_name AND cu.column_name = c.column_name LEFT JOIN information_schema.table_constraints tc ON c.table_name = tc.table_name AND cu.column_name = c.column_name AND tc.constraint_type = \'PRIMARY KEY\'  WHERE c.table_name = \'' + tbl + '\' AND c.table_schema = \'public\'')).toBeGreaterThan(-1);
           });
+        }
+        else if (self.sequelize.options.dialect === "sqlite") {
+          expect(stdout.indexOf('FROM `sqlite_master` WHERE type=\'table\'')).toBeGreaterThan(-1);
         } else {
           expect(stdout.indexOf('SHOW TABLES;')).toBeGreaterThan(-1);
         }
