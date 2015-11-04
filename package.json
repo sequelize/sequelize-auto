@@ -1,6 +1,6 @@
 {
   "name": "sequelize-auto",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Automatically generate bare sequelize models from your database.",
   "main": "index",
   "keywords": [
