@@ -44,7 +44,7 @@ configFile.port = argv.p || configFile.port || 3306;
 configFile.host = argv.h || configFile.host || 'localhost';
 configFile.storage = argv.d
 
-var auto = new sequelizeAuto(argv.d, argv.u, (argv.x || null), configFile);
+var auto = new sequelizeAuto(argv.d, argv.u, (!! argv.x ? ('' + argv.x) : null), configFile);
 var dir = argv.o || path.resolve(process.cwd() + '/models');
 
 auto.run({spaces: true, indentation: 2, directory: dir, additional : additional}, function(err){
