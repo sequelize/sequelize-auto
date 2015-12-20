@@ -52,39 +52,67 @@ Produces a file/files such as ./models/Users.js which looks like:
 
     module.exports = function(sequelize, DataTypes) {
       return sequelize.define('Users', {
+        id: {
+          type: DataTypes.INTEGER(11),
+          allowNull: false,
+          primaryKey: true,
+          autoIncrement: true
+        },
         username: {
           type: DataTypes.STRING,
-          allowNull: true,
-          defaultValue: null
+          allowNull: true
         },
         touchedAt: {
           type: DataTypes.DATE,
-          allowNull: true,
-          defaultValue: null
+          allowNull: true
         },
         aNumber: {
-          type: DataTypes.INTEGER,
-          allowNull: true,
-          defaultValue: null
+          type: DataTypes.INTEGER(11),
+          allowNull: true
         },
-        id: {
-          type: DataTypes.INTEGER,
-          primaryKey: true
+        bNumber: {
+          type: DataTypes.INTEGER(11),
+          allowNull: true
+        },
+        validateTest: {
+          type: DataTypes.INTEGER(11),
+          allowNull: true
+        },
+        validateCustom: {
+          type: DataTypes.STRING,
+          allowNull: false
+        },
+        dateAllowNullTrue: {
+          type: DataTypes.DATE,
+          allowNull: true
+        },
+        defaultValueBoolean: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+          defaultValue: '1'
         },
         createdAt: {
           type: DataTypes.DATE,
-          allowNull: false,
-          defaultValue: null
+          allowNull: false
         },
         updatedAt: {
           type: DataTypes.DATE,
-          allowNull: false,
-          defaultValue: null
+          allowNull: false
         }
+      }, {
+        tableName: 'Users',
+        freezeTableName: true
       });
     };
 
+
 Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import) it.
+
+## Configuration options
+
+For the `-c, --config` option the following JSON/configuration parameters are defined by Sequelize's "options" flag within the constructor. For more info:
+
+[https://sequelize.readthedocs.org/en/latest/api/sequelize/](https://sequelize.readthedocs.org/en/latest/api/sequelize/)
 
 ## Testing
 

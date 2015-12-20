@@ -20,10 +20,10 @@ var argv = require('optimist')
   .describe('u', 'Username for database.')
   .describe('x', 'Password for database.')
   .describe('p', 'Port number for database.')
-  .describe('c', 'JSON file for sending additional options to the Sequelize object.')
+  .describe('c', 'JSON file for Sequelize\'s constructor "options" flag object as defined here: https://sequelize.readthedocs.org/en/latest/api/sequelize/')
   .describe('o', 'What directory to place the models.')
   .describe('e', 'The dialect/engine that you\'re using: postgres, mysql, sqlite')
-  .describe('a', 'Path to a json file to inject into all models as additional settings (you can also use the config file with an additional value)')
+  .describe('a', 'Path to a json file containing model definitions (for all tables) which are to be defined within a model\'s configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration')
   .argv;
 
 var configFile = {};
