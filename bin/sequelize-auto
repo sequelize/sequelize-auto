@@ -4,7 +4,7 @@ var sequelizeAuto = require('../')
   , path = require('path');
 
 var argv = require('optimist')
-  .usage('Usage: sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]')
+  .usage('Usage: sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName] -i [true/false]')
   .demand(['h', 'd'])
   .alias('h', 'host')
   .alias('d', 'database')
@@ -16,6 +16,7 @@ var argv = require('optimist')
   .alias('e', 'dialect')
   .alias('a', 'additional')
   .alias('t', 'tables')
+  .alias('i', 'timestamps')
   .describe('h', 'IP/Hostname for the database.')
   .describe('d', 'Database name.')
   .describe('u', 'Username for database.')
@@ -26,6 +27,7 @@ var argv = require('optimist')
   .describe('e', 'The dialect/engine that you\'re using: postgres, mysql, sqlite')
   .describe('a', 'Path to a json file containing model definitions (for all tables) which are to be defined within a model\'s configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration')
   .describe('t', 'Comma-separated names of tables to import')
+  .describe('i', 'Ignore timestamps (createdAt, updatedAt and deletedAt), if you set to false, sequelize not reconize special field and it not auto fill fields')
   .argv;
 
 var configFile = {};
@@ -46,11 +48,12 @@ configFile.port = argv.p || configFile.port || 3306;
 configFile.host = argv.h || configFile.host || 'localhost';
 configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
+configFile.ignoreTimestamps = argv.i || true;
 
 var auto = new sequelizeAuto(argv.d, argv.u, (!! argv.x ? ('' + argv.x) : null), configFile);
 var dir = argv.o || path.resolve(process.cwd() + '/models');
 
-auto.run({spaces: true, indentation: 2, directory: dir, tables : configFile.tables, additional : additional}, function(err){
+auto.run({spaces: true, indentation: 2, directory: dir, tables : configFile.tables, additional : additional, ignoreTimestamps : configFile.ignoreTimestamps}, function(err){
   if (err) throw err;
   console.log('Done!');
 });
