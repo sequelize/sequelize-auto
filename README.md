@@ -41,6 +41,10 @@ Example for MSSQL
       -c, --config    JSON file for sending additional options to the Sequelize object.
       -o, --output    What directory to place the models.
       -e, --dialect   The dialect/engine that you're using: postgres, mysql, sqlite
+      -a, --additional  Path to a json file containing model definitions (for all tables) which are to be 
+      defined within a model's configuration parameter. For more info: 
+      https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration
+
 
 ## Example
 
