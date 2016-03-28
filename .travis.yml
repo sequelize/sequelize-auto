@@ -24,7 +24,7 @@ before_script:
   - "psql -c 'create database sequelize_auto_test;' -U postgres"
 
 script:
-  - "npm run test-buster"
+  - "npm run test"
 
 branches:
   only:

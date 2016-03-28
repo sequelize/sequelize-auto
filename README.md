@@ -1,6 +1,6 @@
 # Sequelize-Auto
 
-[![Build Status](http://img.shields.io/travis/sequelize/sequelize-auto/master.svg)](https://travis-ci.org/sequelize/sequelize-auto) [![Dependency Status](https://david-dm.org/sequelize/sequelize-auto.svg)](https://david-dm.org/sequelize/sequelize-auto) [![Code Climate](https://codeclimate.com/github/sequelize/sequelize-auto/badges/gpa.svg)](https://codeclimate.com/github/sequelize/sequelize-auto)
+[![Build Status](http://img.shields.io/travis/sequelize/sequelize-auto/master.svg)](https://travis-ci.org/sequelize/sequelize-auto) [![Dependency Status](https://david-dm.org/sequelize/sequelize-auto.svg)](https://david-dm.org/sequelize/sequelize-auto) [![Code Climate](https://codeclimate.com/github/sequelize/sequelize-auto/badges/gpa.svg)](https://codeclimate.com/github/sequelize/sequelize-auto) [![Test Coverage](https://codeclimate.com/github/sequelize/sequelize-auto/badges/coverage.svg)](https://codeclimate.com/github/sequelize/sequelize-auto/coverage)
 
 Automatically generate models for [SequelizeJS](https://github.com/sequelize/sequelize) via the command line.
 
@@ -41,8 +41,8 @@ Example for MSSQL
       -c, --config    JSON file for sending additional options to the Sequelize object.
       -o, --output    What directory to place the models.
       -e, --dialect   The dialect/engine that you're using: postgres, mysql, sqlite
-      -a, --additional  Path to a json file containing model definitions (for all tables) which are to be 
-      defined within a model's configuration parameter. For more info: 
+      -a, --additional  Path to a json file containing model definitions (for all tables) which are to be
+      defined within a model's configuration parameter. For more info:
       https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration
 
 
@@ -114,19 +114,25 @@ Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs
 
 ## Configuration options
 
-For the `-c, --config` option the following JSON/configuration parameters are defined by Sequelize's "options" flag within the constructor. For more info:
+For the `-c, --config` option the following JSON/configuration parameters are defined by Sequelize's `options` flag within the constructor. For more info:
 
 [https://sequelize.readthedocs.org/en/latest/api/sequelize/](https://sequelize.readthedocs.org/en/latest/api/sequelize/)
 
 ## Testing
 
-You must setup a database called "sequelize_auto_test" first, edit the spec/config.js file accordingly, and then enter in any of the following:
+You must setup a database called `sequelize_auto_test` first, edit the `test/config.js` file accordingly, and then enter in any of the following:
 
     # for all
-    npm run test-buster
+    npm run test
 
     # mysql only
-    npm run test-buster-mysql
+    npm run test-mysql
 
     # postgres only
-    npm run test-buster-postgres
+    npm run test-postgres
+
+    # postgres native only
+    npm run test-postgres-native
+
+    # sqlite only
+    npm run test-sqlite

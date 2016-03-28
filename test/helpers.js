@@ -1,8 +1,6 @@
-// https://raw.github.com/sequelize/sequelize/master/spec/buster-helpers.js
 var Sequelize = require('sequelize')
     , config    = require(__dirname + "/config")
     , fs        = require('fs')
-    , buster    = require("buster")
 
 module.exports = {
   Sequelize: Sequelize,
@@ -112,13 +110,4 @@ module.exports = {
       throw new Error('Undefined expectation for "' + dialect + '"!')
     }
   },
-
-  assertException: function(block, msg) {
-    try {
-      block()
-      throw new Error('Passed function did not throw an error')
-    } catch(e) {
-      buster.assert.equals(e.message, msg)
-    }
-  }
 }

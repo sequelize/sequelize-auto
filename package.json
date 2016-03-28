@@ -20,12 +20,26 @@
   "bugs": {
     "url": "https://github.com/sequelize/sequelize-auto/issues"
   },
+  "nyc": {
+    "exclude": [
+      "**/test/**.js"
+    ]
+  },
   "scripts": {
-    "test-buster": "npm run test-buster-mysql && npm run test-buster-postgres",
-    "test-buster-mysql": "DIALECT=mysql buster-test",
-    "test-buster-postgres": "DIALECT=postgres buster-test",
-    "test-buster-postgres-native": "DIALECT=postgres-native buster-test",
-    "test-buster-sqlite": "DIALECT=sqlite buster-test"
+    "test": "./node_modules/.bin/mocha --globals setImmediate,clearImmediate --ui tdd --check-leaks --colors -t 15000 --reporter spec 'test/**/*.test.js'",
+    "test-postgres": "DIALECT=postgres npm run test",
+    "test-mysql": "DIALECT=mysql npm run test",
+    "test-sqlite": "DIALECT=sqlite npm run test",
+    "cover": "rm -rf coverage && COVERAGE=true ./node_modules/.bin/nyc -r lcov npm run test",
+    "cover-mysql": "DIALECT=mysql npm run cover && mv coverage coverage-mysql",
+    "cover-sqlite": "DIALECT=sqlite npm run cover && mv coverage coverage-sqlite",
+    "cover-postgres": "DIALECT=postgres npm run cover && mv coverage coverage-postgres",
+    "cover-postgres-native": "DIALECT=postgres-native npm run cover && mv coverage coverage-postgres-native",
+    "cover-all": "npm run cover-mysql && npm run cover-postgres && npm run cover-postgres-native && npm run cover-sqlite && npm run merge-coverage",
+    "merge-coverage": "rm -rf coverage && mkdir coverage && ./node_modules/.bin/lcov-result-merger 'coverage-*/lcov.info' 'coverage/lcov.info'",
+    "codeclimate-send": "npm install -g codeclimate-test-reporter && CODECLIMATE_REPO_TOKEN=b9a25c5bf4c3875fb46ecb6d3a5f99e49f6872e6b92c074e5725d6dc2cd94f22 codeclimate-test-reporter < coverage/lcov.info",
+    "codeclimate": "npm run cover-all && npm run codeclimate-send && npm run clean-coverage",
+    "clean-coverage": "rm -rf coverage && rm -rf coverage-*"
   },
   "engines": {
     "node": ">=0.10"
@@ -35,15 +49,18 @@
   "dependencies": {
     "async": "^1.2.1",
     "optimist": "~0.6.1",
-    "sequelize": "^3.3.1"
+    "sequelize": "^3.20.0"
   },
   "devDependencies": {
-    "buster": "^0.7.18",
-    "buster-test": "^0.7.13",
+    "chai": "^3.5.0",
+    "istanbul": "^0.4.2",
+    "lcov-result-merger": "^1.0.2",
+    "mkdirp": "^0.5.1",
+    "mocha": "^2.4.5",
     "mysql": "^2.7.0",
+    "nyc": "^6.1.1",
     "pg": "^4.4.0",
     "pg-hstore": "^2.3.2",
-    "referee": "^1.1.1",
     "sqlite3": "^3.1.1",
     "tedious": "^1.11.2"
   }

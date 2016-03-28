@@ -1,1 +1,11 @@
-spec/models/*.js
+test/models/*.js
+*.swp
+.idea
+.DS_STORE
+node_modules
+npm-debug.log
+*~
+database.sqlite
+.nyc_output
+coverage/
+coverage-*/
