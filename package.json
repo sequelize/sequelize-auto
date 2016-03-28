@@ -48,6 +48,7 @@
   "license": "MIT",
   "dependencies": {
     "async": "^1.2.1",
+    "mkdirp": "^0.5.1",
     "optimist": "~0.6.1",
     "sequelize": "^3.20.0"
   },

@@ -115,7 +115,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
     it("the model files...", function(done){
       var HistoryLogs = this.sequelize.import(path.join(testConfig.directory , 'HistoryLogs'));
       var ParanoidUsers = this.sequelize.import(path.join(testConfig.directory, 'ParanoidUsers'));
-      var Users = this.sequelize.import(testConfig.directory + '/Users');
+      var Users = this.sequelize.import(path.join(testConfig.directory, '/Users'));
 
       expect(HistoryLogs.tableName).to.equal('HistoryLogs');
       ['someText', 'aNumber', 'aRandomId', 'id'].forEach(function(field){
