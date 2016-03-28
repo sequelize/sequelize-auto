@@ -1,7 +1,8 @@
+
 var path = require('path');
 
 module.exports = {
-  directory: path.resolve(__dirname + '/models'),
+  directory: path.join(__dirname, 'models'),
   username: "root",
   password: null,
   database: 'sequelize_auto_test',
@@ -9,7 +10,7 @@ module.exports = {
   pool: { maxConnections: 5, maxIdleTime: 30000},
 
   rand: function() {
-    return parseInt(Math.random() * 999)
+    return parseInt(Math.random() * 999, 10)
   },
 
   //make maxIdleTime small so that tests exit promptly
@@ -26,8 +27,8 @@ module.exports = {
     username: "foo",
     password: null,
     host: '127.0.0.1',
-    database: __dirname + "/database.sqlite",
-    storage: __dirname + "/database.sqlite"
+    database: path.join(__dirname, "database.sqlite"),
+    storage: path.join(__dirname, "database.sqlite")
   },
 
   postgres: {

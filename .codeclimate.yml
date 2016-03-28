@@ -8,4 +8,4 @@ ratings:
     - "**.js"
     - "**.jsx"
 exclude_paths:
-  - spec/**/*
+  - test/**/*

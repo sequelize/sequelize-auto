@@ -1,13 +1,15 @@
 
 var exec = require('child_process').exec;
+var path = require('path');
 var chai = require('chai');
 var expect = chai.expect;
 var helpers = require('./helpers');
 var dialect = helpers.getTestDialect();
 var testConfig = require('./config');
+var _ = helpers.Sequelize.Utils._;
 
 describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
-  after(function(done){
+  after(function(done) {
     helpers.clearDatabase(this.sequelize, done);
   });
 
@@ -68,15 +70,15 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
 
   var setupModels = function(self, callback) {
     var config = self.sequelize.config;
-    var execString = __dirname + "/../bin/sequelize-auto -o \"" + testConfig.directory + "\" -d " + config.database + " -h " + config.host;
+    var execString = path.join(__dirname, "..", "bin", "sequelize-auto") + " -o \"" + testConfig.directory + "\" -d " + config.database + " -h " + config.host;
 
-    if (!!config.username)
+    if (_.has(config, 'username') && ! _.isNull(config.username))
       execString += " -u " + config.username + " ";
-    if (!!config.password)
+    if (_.has(config, 'password') && ! _.isNull(config.password))
       execString += " -x " + config.password + " ";
-    if (!!config.port)
+    if (_.has(config, 'port') && ! _.isNull(config.port))
       execString += " -p " + config.port + " ";
-    if (!!self.sequelize.options.dialect)
+    if (_.isString(self.sequelize.options.dialect))
       execString += " -e " + self.sequelize.options.dialect + " ";
 
     exec(execString, callback);
@@ -111,8 +113,8 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
     });
 
     it("the model files...", function(done){
-      var HistoryLogs = this.sequelize.import(testConfig.directory + '/HistoryLogs');
-      var ParanoidUsers = this.sequelize.import(testConfig.directory + '/ParanoidUsers');
+      var HistoryLogs = this.sequelize.import(path.join(testConfig.directory , 'HistoryLogs'));
+      var ParanoidUsers = this.sequelize.import(path.join(testConfig.directory, 'ParanoidUsers'));
       var Users = this.sequelize.import(testConfig.directory + '/Users');
 
       expect(HistoryLogs.tableName).to.equal('HistoryLogs');
