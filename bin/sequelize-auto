@@ -28,16 +28,24 @@ var argv = require('optimist')
   .describe('t', 'Comma-separated names of tables to import')
   .argv;
 
-var configFile = {};
-if (!!argv.c) {
+var dir = argv.o || path.resolve(process.cwd() + '/models');
+
+var configFile = {
+  spaces: true,
+  indentation: 2,
+  directory: dir
+};
+
+if (argv.c) {
   configFile = require(path.resolve(argv.c));
 }
 
 var additional = {};
-if (!!argv.a) {
+if (argv.a) {
   additional = require(path.resolve(argv.a));
 }
-if(!!configFile.additional) {
+
+if (configFile.additional) {
   additional = configFile.additional;
 }
 
@@ -48,9 +56,8 @@ configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
 
 var auto = new sequelizeAuto(argv.d, argv.u, (!! argv.x ? ('' + argv.x) : null), configFile);
-var dir = argv.o || path.resolve(process.cwd() + '/models');
 
-auto.run({spaces: true, indentation: 2, directory: dir, tables : configFile.tables, additional : additional}, function(err){
+auto.run(function (err) {
   if (err) throw err;
   console.log('Done!');
 });
