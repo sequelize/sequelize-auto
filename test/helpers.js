@@ -59,9 +59,7 @@ module.exports = {
 
     function success() {
       fs.readdir(config.directory, function (err, files) {
-        if (err) return error(err)
-
-        if (! files || files.length < 1)
+        if (err || ! files || files.length < 1)
           return callback && callback()
 
         files.forEach(function (file) {
