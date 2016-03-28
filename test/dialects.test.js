@@ -9,22 +9,28 @@ var _ = helpers.Sequelize.Utils._
 
 describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
   describe('getForeignKeysQuery', function () {
-    it('should work for mysql', function (done) {
+    it('mysql', function (done) {
       var query = dialects.mysql.getForeignKeysQuery('mytable', 'mydatabase');
       expect(query).to.include('K.TABLE_NAME = \'mytable\'');
       expect(query).to.include('AND K.CONSTRAINT_SCHEMA = \'mydatabase\';');
       done();
     });
 
-    it('should work for sqlite', function (done) {
+    it('sqlite', function (done) {
       var query = dialects.sqlite.getForeignKeysQuery('mytable', 'mydatabase');
       expect(query).to.include('PRAGMA foreign_key_list(mytable);');
       done();
     });
 
-    it('should work for postgres', function (done) {
+    it('postgres', function (done) {
       var query = dialects.postgres.getForeignKeysQuery('mytable', 'mydatabase');
       expect(query).to.include('WHERE o.conrelid = (SELECT oid FROM pg_class WHERE relname = \'mytable\' LIMIT 1)');
+      done();
+    });
+
+    it('mssql', function (done) {
+      var query = dialects.mssql.getForeignKeysQuery('mytable', 'mydatabase');
+      expect(query).to.include('WHERE ccu.table_name = ' + helpers.Sequelize.Utils.addTicks('mytable', "'"));
       done();
     });
   });
@@ -88,7 +94,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
       expect(dialects.postgres.isSerialKey({extra: 'primary'})).to.be.false;
       expect(dialects.postgres.isSerialKey({contype: 'i'})).to.be.false;
       expect(dialects.postgres.isSerialKey({contype: 'p'})).to.be.false;
-      expect(dialects.postgres.isSerialKey({contype: 'p', extra: null})).to.be.true;
+      expect(dialects.postgres.isSerialKey({contype: 'p', extra: null})).to.be.false;
       expect(dialects.postgres.isSerialKey({contype: 'p', extra: 'primary'})).to.be.false;
       expect(dialects.postgres.isSerialKey({contype: 'p', extra: 'nextval(table_seq::regclass)'})).to.be.true;
       done();
