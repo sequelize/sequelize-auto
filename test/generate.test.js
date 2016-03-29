@@ -61,9 +61,9 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
         self.ParanoidUser.belongsTo(self.User)
       },
       onComplete: function() {
-          self.sequelize.sync().then(function () {
-            done()
-          }, done)
+        self.sequelize.sync().then(function () {
+          done();
+        }, done);
       }
     });
   });
