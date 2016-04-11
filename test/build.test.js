@@ -93,7 +93,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
       setupModels(self, function(err, autoSequelize) {
         expect(err).to.be.null;
         expect(autoSequelize).to.include.keys(['tables', 'foreignKeys']);
-        expect(autoSequelize.tables).to.have.members(['Users', 'HistoryLogs', 'ParanoidUsers']);
+        expect(autoSequelize.tables).to.have.keys(['Users', 'HistoryLogs', 'ParanoidUsers']);
 
         if (helpers.getTestDialect() === "sqlite") {
           expect(autoSequelize.foreignKeys).to.have.keys(['ParanoidUsers']);
