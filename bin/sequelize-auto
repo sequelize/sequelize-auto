@@ -49,6 +49,7 @@ if (configFile.additional) {
   additional = configFile.additional;
 }
 
+configFile.additional = additional;
 configFile.dialect = argv.e || configFile.dialect || 'mysql';
 configFile.port = argv.p || configFile.port || 3306;
 configFile.host = argv.h || configFile.host || 'localhost';
