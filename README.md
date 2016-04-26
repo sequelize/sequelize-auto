@@ -30,7 +30,7 @@ Example for MSSQL
 
 ## Usage
 
-    sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]
+    [node] sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]
 
     Options:
       -h, --host        IP/Hostname for the database.   [required]
