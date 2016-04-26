@@ -101,29 +101,24 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
         } else {
           expect(autoSequelize.foreignKeys).to.have.keys(['Users', 'HistoryLogs', 'ParanoidUsers']);
           expect(autoSequelize.foreignKeys.Users).to.include.keys('id');
-          expect(autoSequelize.foreignKeys.Users.id).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isForeignKey', 'isPrimaryKey', 'isSerialKey']);
-          expect(autoSequelize.foreignKeys.Users.id.isForeignKey).to.be.false;
+          expect(autoSequelize.foreignKeys.Users.id).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isPrimaryKey', 'isSerialKey']);
           expect(autoSequelize.foreignKeys.Users.id.isPrimaryKey).to.be.true;
           expect(autoSequelize.foreignKeys.Users.id.isSerialKey).to.be.true;
 
           expect(autoSequelize.foreignKeys.HistoryLogs).to.include.keys('id');
-          expect(autoSequelize.foreignKeys.HistoryLogs.id).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isForeignKey', 'isPrimaryKey', 'isSerialKey']);
-          expect(autoSequelize.foreignKeys.HistoryLogs.id.isForeignKey).to.be.false;
+          expect(autoSequelize.foreignKeys.HistoryLogs.id).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isPrimaryKey', 'isSerialKey']);
           expect(autoSequelize.foreignKeys.HistoryLogs.id.isPrimaryKey).to.be.true;
           expect(autoSequelize.foreignKeys.HistoryLogs.id.isSerialKey).to.be.true;
 
           expect(autoSequelize.foreignKeys.ParanoidUsers).to.include.keys(['id', 'UserId']);
-          expect(autoSequelize.foreignKeys.ParanoidUsers.id).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isForeignKey', 'isPrimaryKey', 'isSerialKey']);
-          expect(autoSequelize.foreignKeys.ParanoidUsers.id.isForeignKey).to.be.false;
+          expect(autoSequelize.foreignKeys.ParanoidUsers.id).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isPrimaryKey', 'isSerialKey']);
           expect(autoSequelize.foreignKeys.ParanoidUsers.id.isPrimaryKey).to.be.true;
           expect(autoSequelize.foreignKeys.ParanoidUsers.id.isSerialKey).to.be.true;
         }
 
-        expect(autoSequelize.foreignKeys.ParanoidUsers.UserId).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isForeignKey', 'isPrimaryKey', 'isSerialKey']);
+        expect(autoSequelize.foreignKeys.ParanoidUsers.UserId).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isForeignKey']);
 
         expect(autoSequelize.foreignKeys.ParanoidUsers.UserId.isForeignKey).to.be.true;
-        expect(autoSequelize.foreignKeys.ParanoidUsers.UserId.isPrimaryKey).to.be.false;
-        expect(autoSequelize.foreignKeys.ParanoidUsers.UserId.isSerialKey).to.be.false;
 
         done();
       });
