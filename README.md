@@ -117,6 +117,20 @@ For the `-c, --config` option the following JSON/configuration parameters are de
 
 [https://sequelize.readthedocs.org/en/latest/api/sequelize/](https://sequelize.readthedocs.org/en/latest/api/sequelize/)
 
+## Programmatic API
+
+```js
+var SequelizeAuto = require('sequelize-auto')
+var auto = new SequelizeAuto('database', 'user', 'pass');
+
+auto.run(function (err) {
+  if (err) throw err;
+
+  console.log(auto.tables); // table list
+  console.log(auto.foreignKeys); // foreign key list
+});
+```
+
 ## Testing
 
 You must setup a database called `sequelize_auto_test` first, edit the `test/config.js` file accordingly, and then enter in any of the following:
