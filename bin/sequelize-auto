@@ -23,7 +23,7 @@ var argv = require('optimist')
   .describe('p', 'Port number for database.')
   .describe('c', 'JSON file for Sequelize\'s constructor "options" flag object as defined here: https://sequelize.readthedocs.org/en/latest/api/sequelize/')
   .describe('o', 'What directory to place the models.')
-  .describe('e', 'The dialect/engine that you\'re using: postgres, mysql, sqlite')
+  .describe('e', 'The dialect/engine that you\'re using: postgres, mysql, sqlite, mssql')
   .describe('a', 'Path to a json file containing model definitions (for all tables) which are to be defined within a model\'s configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration')
   .describe('t', 'Comma-separated names of tables to import')
   .argv;
@@ -55,6 +55,9 @@ configFile.port = argv.p || configFile.port || 3306;
 configFile.host = argv.h || configFile.host || 'localhost';
 configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
+
+if (configFile.dialect.toLowerCase() === 'mssql' && config.port === 3306)
+    configFile.port = 1433; // default port for MSSQL Server is 1433, not 3306
 
 var auto = new sequelizeAuto(argv.d, argv.u, (!! argv.x ? ('' + argv.x) : null), configFile);
 
