@@ -59,7 +59,7 @@ configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
 configFile.nofk = argv.nofk || configFile.nofk || false;
 
-if (configFile.dialect.toLowerCase() === 'mssql' && config.port === 3306)
+if (configFile.dialect.toLowerCase() === 'mssql' && configFile.port === 3306)
     configFile.port = 1433; // default port for MSSQL Server is 1433, not 3306
 
 var auto = new sequelizeAuto(argv.d, argv.u, (!! argv.x ? ('' + argv.x) : null), configFile);
