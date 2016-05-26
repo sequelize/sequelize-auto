@@ -42,19 +42,19 @@ Example for MSSQL
       -o, --output      What directory to place the models.
       -e, --dialect     The dialect/engine that you're using: postgres, mysql, sqlite
       -a, --additional  Path to a json file containing model definitions (for all tables) which are to be defined within a model's configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration
-      -t, --tables      Comma-separated names of tables to import
+      -t, --tables      Comma-separated names of tables to import (also you can additionally specify model name for some/all tables like "TableName as ModelName").
 
 
 ## Example
 
-    sequelize-auto -o "./models" -d sequelize_auto_test -h localhost -u my_username -p 5432 -x my_password -e postgres
+    sequelize-auto -o "./models" -d sequelize_auto_test -h localhost -u my_username -p 5432 -x my_password -e postgres -t "Users as User"
 
-Produces a file/files such as ./models/Users.js which looks like:
+Produces a file/files such as ./models/User.js which looks like:
 
     /* jshint indent: 2 */
 
     module.exports = function(sequelize, DataTypes) {
-      return sequelize.define('Users', {
+      return sequelize.define('User', {
         id: {
           type: DataTypes.INTEGER(11),
           allowNull: false,
@@ -108,6 +108,7 @@ Produces a file/files such as ./models/Users.js which looks like:
       });
     };
 
+Note that model name became 'User' (also same for file name), but table name remain 'Users' via 'tableName' attribute of model.
 
 Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import) it.
 
