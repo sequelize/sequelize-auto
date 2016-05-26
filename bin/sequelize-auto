@@ -25,7 +25,7 @@ var argv = require('optimist')
   .describe('o', 'What directory to place the models.')
   .describe('e', 'The dialect/engine that you\'re using: postgres, mysql, sqlite, mssql')
   .describe('a', 'Path to a json file containing model definitions (for all tables) which are to be defined within a model\'s configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration')
-  .describe('t', 'Comma-separated names of tables to import')
+  .describe('t', 'Comma-separated names of tables to import (also you can additionally specify model name for some/all tables like "TableName as ModelName").')
   .argv;
 
 var dir = argv.o || path.resolve(process.cwd() + '/models');
@@ -55,8 +55,32 @@ configFile.port = argv.p || configFile.port || 3306;
 configFile.host = argv.h || configFile.host || 'localhost';
 configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
+configFile.aliases = [];
 
-if (configFile.dialect.toLowerCase() === 'mssql' && config.port === 3306)
+if (configFile.tables) {
+  var re = /\s* as \s*/;
+  for (var i = 0; i < configFile.tables.length ; i++ ) {
+    var arr = (configFile.tables[i]).split(re,2);
+
+    console.log( 'Arr' + arr + ' table ' + i + ':' + configFile.tables[i]);
+
+    configFile.tables[i] = arr[0];
+    var tableName = arr[0];
+
+    var aliasName = (arr[1]) ? arr[1] : arr[0];
+    var aliasObject = { 'table' : tableName, 'alias': aliasName };
+
+    console.log( 'Alias object: ' + aliasObject.toString() );
+    configFile.aliases.push( aliasObject);
+    //configFile.aliases[ configFile.tables[i] ] = (arr[1]) ? arr[1] : arr[0];
+  }
+}
+
+console.log('== Tables: ')
+console.log( configFile.tables)
+console.log( '>>> Aliases:' + configFile.aliases)
+
+if (configFile.dialect.toLowerCase() === 'mssql' && configFile.port === 3306)
     configFile.port = 1433; // default port for MSSQL Server is 1433, not 3306
 
 var auto = new sequelizeAuto(argv.d, argv.u, (!! argv.x ? ('' + argv.x) : null), configFile);
