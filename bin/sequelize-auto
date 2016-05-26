@@ -16,7 +16,7 @@ var argv = require('optimist')
   .alias('e', 'dialect')
   .alias('a', 'additional')
   .alias('t', 'tables')
-  .alias('nofk', 'foreignKeys')
+  .alias('n', 'nofk')
   .describe('h', 'IP/Hostname for the database.')
   .describe('d', 'Database name.')
   .describe('u', 'Username for database.')
@@ -27,7 +27,7 @@ var argv = require('optimist')
   .describe('e', 'The dialect/engine that you\'re using: postgres, mysql, sqlite, mssql')
   .describe('a', 'Path to a json file containing model definitions (for all tables) which are to be defined within a model\'s configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration')
   .describe('t', 'Comma-separated names of tables to import')
-  .describe('nofk','Suppress generation of foreign key\'s references in models (via references attribute)')
+  .describe('n', 'Suppress generation of foreign key\'s references in models (via references attribute)')
   .argv;
 
 var dir = argv.o || path.resolve(process.cwd() + '/models');
