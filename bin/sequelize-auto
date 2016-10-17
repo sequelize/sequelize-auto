@@ -16,6 +16,7 @@ var argv = require('yargs')
   .alias('e', 'dialect')
   .alias('a', 'additional')
   .alias('t', 'tables')
+  .alias('C', 'camel')
   .describe('h', 'IP/Hostname for the database.')
   .describe('d', 'Database name.')
   .describe('u', 'Username for database.')
@@ -26,6 +27,7 @@ var argv = require('yargs')
   .describe('e', 'The dialect/engine that you\'re using: postgres, mysql, sqlite, mssql')
   .describe('a', 'Path to a json file containing model definitions (for all tables) which are to be defined within a model\'s configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration')
   .describe('t', 'Comma-separated names of tables to import')
+  .describe('C', 'Use camel case to name models and fields')
   .argv;
 
 var dir = argv.o || path.resolve(process.cwd() + '/models');
@@ -55,6 +57,7 @@ configFile.port = argv.p || configFile.port || 3306;
 configFile.host = argv.h || configFile.host || 'localhost';
 configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
+configFile.camelCase = !!argv.C;
 
 if (configFile.dialect.toLowerCase() === 'mssql' && configFile.port === 3306)
     configFile.port = 1433; // default port for MSSQL Server is 1433, not 3306
