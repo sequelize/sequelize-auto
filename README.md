@@ -164,3 +164,7 @@ You must setup a database called `sequelize_auto_test` first, edit the `test/con
 
     # sqlite only
     npm run test-sqlite
+
+## Projects Using Sequelize-Auto
+
+* [Sequelizer](https://github.com/andyforever/sequelizer)
