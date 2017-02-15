@@ -131,10 +131,11 @@ auto.run(function (err) {
   console.log(auto.foreignKeys); // foreign key list
 });
 
-With options: 
+With options:
 var auto = new SequelizeAuto('database', 'user', 'pass', {
     host: 'localhost',
     dialect: 'mysql'|'mariadb'|'sqlite'|'postgres'|'mssql',
+    directory: false, // prevents the program from writing to disk
     port: 'port',
     additional: {
         timestamps: false
