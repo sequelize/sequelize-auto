@@ -17,6 +17,7 @@ var argv = require('yargs')
   .alias('a', 'additional')
   .alias('t', 'tables')
   .alias('C', 'camel')
+  .alias('n', 'no-write')
   .describe('h', 'IP/Hostname for the database.')
   .describe('d', 'Database name.')
   .describe('u', 'Username for database.')
@@ -28,9 +29,10 @@ var argv = require('yargs')
   .describe('a', 'Path to a json file containing model definitions (for all tables) which are to be defined within a model\'s configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration')
   .describe('t', 'Comma-separated names of tables to import')
   .describe('C', 'Use camel case to name models and fields')
+  .describe('n', 'Prevent writing the models to disk.')
   .argv;
 
-var dir = argv.o || path.resolve(process.cwd() + '/models');
+var dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
 
 var configFile = {
   spaces: true,

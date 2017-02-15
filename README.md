@@ -44,7 +44,7 @@ Example for MSSQL
       -a, --additional  Path to a json file containing model definitions (for all tables) which are to be defined within a model's configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration
       -t, --tables      Comma-separated names of tables to import
       -C, --camel       Use camel case to name models and fields
-
+      -n, --no-write    Prevent writing the models to disk.
 
 ## Example
 
@@ -131,10 +131,11 @@ auto.run(function (err) {
   console.log(auto.foreignKeys); // foreign key list
 });
 
-With options: 
+With options:
 var auto = new SequelizeAuto('database', 'user', 'pass', {
     host: 'localhost',
     dialect: 'mysql'|'mariadb'|'sqlite'|'postgres'|'mssql',
+    directory: false, // prevents the program from writing to disk
     port: 'port',
     additional: {
         timestamps: false
