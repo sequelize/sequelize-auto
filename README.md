@@ -44,7 +44,7 @@ Example for MSSQL
       -a, --additional  Path to a json file containing model definitions (for all tables) which are to be defined within a model's configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration
       -t, --tables      Comma-separated names of tables to import
       -C, --camel       Use camel case to name models and fields
-
+      -n, --no-write    Prevent writing the models to disk.
 
 ## Example
 
