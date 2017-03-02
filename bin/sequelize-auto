@@ -16,6 +16,7 @@ var argv = require('yargs')
   .alias('e', 'dialect')
   .alias('a', 'additional')
   .alias('t', 'tables')
+  .alias('T', 'skip-tables')
   .alias('C', 'camel')
   .alias('n', 'no-write')
   .describe('h', 'IP/Hostname for the database.')
@@ -28,6 +29,7 @@ var argv = require('yargs')
   .describe('e', 'The dialect/engine that you\'re using: postgres, mysql, sqlite, mssql')
   .describe('a', 'Path to a json file containing model definitions (for all tables) which are to be defined within a model\'s configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration')
   .describe('t', 'Comma-separated names of tables to import')
+  .describe('T', 'Comma-separated names of tables to skip')
   .describe('C', 'Use camel case to name models and fields')
   .describe('n', 'Prevent writing the models to disk.')
   .argv;
@@ -59,6 +61,7 @@ configFile.port = argv.p || configFile.port || 3306;
 configFile.host = argv.h || configFile.host || 'localhost';
 configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
+configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(',')) || null;
 configFile.camelCase = !!argv.C;
 
 if (configFile.dialect.toLowerCase() === 'mssql' && configFile.port === 3306)
