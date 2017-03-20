@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
-var sequelizeAuto = require('../')
-  , path = require('path');
+var sequelizeAuto = require('../');
+var path = require('path');
+var Sequelize = require('sequelize');
+var _ = Sequelize.Utils._;
 
 var argv = require('yargs')
   .usage('Usage: sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]')
@@ -38,13 +40,14 @@ var dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
 
 var configFile = {
   spaces: true,
-  indentation: 2,
-  directory: dir
-};
+  indentation: 2
+}
 
 if (argv.c) {
   configFile = require(path.resolve(argv.c));
 }
+
+configFile.directory = configFile.directory || dir;
 
 var additional = {};
 if (argv.a) {
@@ -57,15 +60,23 @@ if (configFile.additional) {
 
 configFile.additional = additional;
 configFile.dialect = argv.e || configFile.dialect || 'mysql';
-configFile.port = argv.p || configFile.port || 3306;
+configFile.port = argv.p || configFile.port || getDefaultPort(configFile.dialect);
 configFile.host = argv.h || configFile.host || 'localhost';
 configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
 configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(',')) || null;
 configFile.camelCase = !!argv.C;
 
-if (configFile.dialect.toLowerCase() === 'mssql' && configFile.port === 3306)
-    configFile.port = 1433; // default port for MSSQL Server is 1433, not 3306
+function getDefaultPort(dialect) {
+    switch (dialect.toLowerCase()) {
+    case 'mssql':
+        return 1433;
+    case 'postgres':
+        return 5432;
+    default:
+        return 3306;
+    }
+}
 
 var auto = new sequelizeAuto(argv.d, argv.u, (!! argv.x ? ('' + argv.x) : null), configFile);
 

@@ -6,6 +6,9 @@ All visible changes to this project will be documented in this file as of versio
 
 ### Fixed
 
+* Adds schema support for `postgres` databases.
+* Directory output is now fixed for commands containing a config file as well.
+* Default port number has been added for `postgres`.
 * Mssql should now properly identify `auto increment` and `foreign key` columns.
 
 ## [0.4.22] - 2017-03-20
