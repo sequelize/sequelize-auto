@@ -2,6 +2,12 @@
 
 All visible changes to this project will be documented in this file as of version `0.4.22`
 
+## Master
+
+### Fixes
+
+* The defaultValue is now escape'd
+
 ## [0.4.25] - 2017-03-20
 
 ### Added
