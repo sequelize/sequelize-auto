@@ -2,6 +2,12 @@
 
 All visible changes to this project will be documented in this file as of version `0.4.22`
 
+## Master
+
+### Added
+
+* Adds `unique` support for `postgres`, `mysql`, and `mariadb`.
+
 ## [0.4.24] - 2017-03-20
 
 ### Added
