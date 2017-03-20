@@ -8,6 +8,10 @@ All visible changes to this project will be documented in this file as of versio
 
 * Adds `unique` support for `postgres`, `mysql`, and `mariadb`.
 
+### Fixes
+
+* Fixes `foreign key` and `unique` columns.
+
 ## [0.4.24] - 2017-03-20
 
 ### Added
