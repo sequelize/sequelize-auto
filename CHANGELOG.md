@@ -2,7 +2,7 @@
 
 All visible changes to this project will be documented in this file as of version `0.4.22`
 
-## Master
+## [0.4.25] - 2017-03-20
 
 ### Added
 
