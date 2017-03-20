@@ -11,7 +11,6 @@ var lib = require('../index');
 
 describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
   after(function(done) {
-    return done()
     helpers.clearDatabase(this.sequelize, done);
   });
 
