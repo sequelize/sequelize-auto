@@ -2,6 +2,12 @@
 
 All visible changes to this project will be documented in this file as of version `0.4.22`
 
+## [0.4.24] - 2017-03-20
+
+### Added
+
+* Adds support for `UNSIGNED` and `ZEROFILL` MySQL columns.
+
 ## [0.4.23] - 2017-03-20
 
 ### Fixed
