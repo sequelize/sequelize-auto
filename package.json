@@ -47,7 +47,7 @@
   "author": "Daniel Durante <me@danieldurante.com>",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.1.4",
+    "async": "^2.1.5",
     "graceful-fs-extra": "^2.0.0",
     "mkdirp": "^0.5.1",
     "sequelize": "^3.30.2",
@@ -61,7 +61,7 @@
     "mocha": "^3.2.0",
     "mysql": "^2.13.0",
     "nyc": "^10.1.2",
-    "pg": "^6.1.2",
+    "pg": "^6.1.5",
     "pg-hstore": "^2.3.2",
     "sqlite3": "^3.1.8",
     "tedious": "^1.14.0"
