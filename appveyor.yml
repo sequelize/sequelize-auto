@@ -44,7 +44,7 @@ before_test:
   - mysql -e "create database sequelize_auto_test;" -uroot
 
 test_script:
-  - npm run test-mssql
+  - npm test
 
 branches:
   only:
