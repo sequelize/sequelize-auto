@@ -39,7 +39,7 @@ module.exports = {
   },
 
   mssql: {
-    database: 'master',
+    database: 'sequelize_auto_test',
     username: 'sa',
     password: 'Password12!',
     host: '127.0.0.1',

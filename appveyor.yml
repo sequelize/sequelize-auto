@@ -38,6 +38,7 @@ install:
 build: off
 
 before_test:
+  - ps: sqlcmd -S "(local)" -U "sa" -P "Password12!" -d "master" -Q "CREATE DATABASE [sequelize_auto_test]; ALTER DATABASE [sequelize_auto_test] SET READ_COMMITTED_SNAPSHOT ON;"
   # setup pg databases
   - SET PATH=C:\Program Files\PostgreSQL\9.5\bin;%PATH%
   - createdb sequelize_auto_test
