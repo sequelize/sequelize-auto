@@ -98,6 +98,9 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
         }
         else if (self.sequelize.options.dialect === "sqlite") {
           expect(stdout.indexOf('FROM `sqlite_master` WHERE type=\'table\'')).to.be.at.above(-1);
+        }
+        else if (self.sequelize.options.dialect === "mssql") {
+          expect(stdout.indexOf('SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES')).to.be.at.above(-1);
         } else {
           expect(stdout.indexOf('SHOW TABLES;')).to.be.at.above(-1);
         }
@@ -115,7 +118,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
     it("the model files...", function(done){
       var HistoryLogs = this.sequelize.import(path.join(testConfig.directory , 'HistoryLogs'));
       var ParanoidUsers = this.sequelize.import(path.join(testConfig.directory, 'ParanoidUsers'));
-      var Users = this.sequelize.import(path.join(testConfig.directory, '/Users'));
+      var Users = this.sequelize.import(path.join(testConfig.directory, 'Users'));
 
       expect(HistoryLogs.tableName).to.equal('HistoryLogs');
       ['someText', 'aNumber', 'aRandomId', 'id'].forEach(function(field){
