@@ -6,7 +6,8 @@ platform:
   - x64
 
 services:
-  - mssql2012sp1
+  - SQL2008R2SP2
+  # - mssql2012sp1
   - mysql
   - postgresql
 
