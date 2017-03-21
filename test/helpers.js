@@ -33,6 +33,7 @@ module.exports = {
     var sequelizeOptions = {
       logging: options.logging,
       dialect: options.dialect,
+      host:    config[options.dialect].host,
       port:    config[options.dialect].port
     }
 

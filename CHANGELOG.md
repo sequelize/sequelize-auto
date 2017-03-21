@@ -7,6 +7,7 @@ All visible changes to this project will be documented in this file as of versio
 ### Fixes
 
 * The defaultValue is now escape'd
+* Boolean/Bit columns are now fixed for MSSQL
 
 ## [0.4.25] - 2017-03-20
 
