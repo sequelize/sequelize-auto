@@ -27,10 +27,10 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha --globals setImmediate,clearImmediate --ui tdd --check-leaks --colors -t 15000 --reporter spec 'test/**/*.test.js'",
-    "test-postgres": "DIALECT=postgres npm run test",
-    "test-mysql": "DIALECT=mysql npm run test",
-    "test-sqlite": "DIALECT=sqlite npm run test",
-    "test-mssql": "DIALECT=mssql npm run test",
+    "test-postgres": "./node_modules/.bin/cross-env DIALECT=postgres npm run test",
+    "test-mysql": "./node_modules/.bin/cross-env DIALECT=mysql npm run test",
+    "test-sqlite": "./node_modules/.bin/cross-env DIALECT=sqlite npm run test",
+    "test-mssql": "./node_modules/.bin/cross-env DIALECT=mssql npm run test",
     "cover": "rm -rf coverage && COVERAGE=true ./node_modules/.bin/nyc -r lcov npm run test",
     "cover-mysql": "DIALECT=mysql npm run cover && mv coverage coverage-mysql",
     "cover-sqlite": "DIALECT=sqlite npm run cover && mv coverage coverage-sqlite",
@@ -56,6 +56,7 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "cross-env": "^3.2.4",
     "istanbul": "^0.4.5",
     "lcov-result-merger": "^1.2.0",
     "mkdirp": "^0.5.1",
