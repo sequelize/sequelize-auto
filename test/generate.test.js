@@ -91,7 +91,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
       setupModels(self, function(err, stdout){
         expect(err).to.be.null;
         if (self.sequelize.options.dialect === "postgres") {
-          expect(stdout.indexOf('SELECT table_name FROM information_schema.tables WHERE table_schema = \'public\'')).to.be.at.above(-1);
+          expect(stdout.indexOf('SELECT table_name FROM information_schema.tables WHERE table_schema =')).to.be.at.above(-1);
           ['Users','HistoryLogs','ParanoidUsers'].forEach(function(tbl){
             expect(stdout.indexOf('SELECT tc.constraint_type as "Constraint", c.column_name as "Field", c.column_default as "Default", c.is_nullable as "Null", CASE WHEN c.udt_name = \'hstore\' THEN c.udt_name ELSE c.data_type END as "Type", (SELECT array_agg(e.enumlabel) FROM pg_catalog.pg_type t JOIN pg_catalog.pg_enum e ON t.oid=e.enumtypid WHERE t.typname=c.udt_name) AS "special" FROM information_schema.columns c LEFT JOIN information_schema.key_column_usage cu ON c.table_name = cu.table_name AND cu.column_name = c.column_name LEFT JOIN information_schema.table_constraints tc ON c.table_name = tc.table_name AND cu.column_name = c.column_name AND tc.constraint_type = \'PRIMARY KEY\'  WHERE c.table_name = \'' + tbl + '\' AND c.table_schema = \'public\'')).to.be.at.above(-1);
           });
