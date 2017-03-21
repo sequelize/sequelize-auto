@@ -26,7 +26,7 @@
     ]
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --globals setImmediate,clearImmediate --ui tdd --check-leaks --colors -t 15000 --reporter spec \"test/**/*.test.js\"",
+    "test": "./node_modules/.bin/mocha --globals setImmediate,clearImmediate,__core-js_shared__ --ui tdd --check-leaks --colors -t 15000 --reporter spec \"test/**/*.test.js\"",
     "test-postgres": "./node_modules/.bin/cross-env DIALECT=postgres npm run test",
     "test-mysql": "./node_modules/.bin/cross-env DIALECT=mysql npm run test",
     "test-sqlite": "./node_modules/.bin/cross-env DIALECT=sqlite npm run test",

@@ -70,7 +70,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
 
   var setupModels = function(self, callback) {
     var config = self.sequelize.config;
-    var execString = path.join(__dirname, "..", "bin", "sequelize-auto") + " -o \"" + testConfig.directory + "\" -d " + config.database + " -h " + config.host;
+    var execString = "node " + path.join(__dirname, "..", "bin", "sequelize-auto") + " -o \"" + testConfig.directory + "\" -d " + config.database + " -h " + config.host;
 
     if (_.has(config, 'username') && ! _.isNull(config.username))
       execString += " -u " + config.username + " ";
