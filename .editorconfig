@@ -9,6 +9,6 @@ end_of_line = lf
 insert_final_newline = false
 trim_trailing_whitespace = true
 
-[{*.js,*.json,.esformatter,.eslintrc}]
+[{*.js,*.json,.esformatter,.eslintrc,*.yml}]
 indent_style = space
 indent_size = 2

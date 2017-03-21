@@ -36,5 +36,13 @@ module.exports = {
     username: "postgres",
     port: 5432,
     pool: { maxConnections: 5, maxIdleTime: 30}
+  },
+
+  mssql: {
+    database: 'sequelize_auto_test',
+    username: 'root',
+    password: 'Password12!',
+    host: '127.0.0.1',
+    port: 1433
   }
 }

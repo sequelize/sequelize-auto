@@ -30,6 +30,7 @@
     "test-postgres": "DIALECT=postgres npm run test",
     "test-mysql": "DIALECT=mysql npm run test",
     "test-sqlite": "DIALECT=sqlite npm run test",
+    "test-mssql": "DIALECT=mssql npm run test",
     "cover": "rm -rf coverage && COVERAGE=true ./node_modules/.bin/nyc -r lcov npm run test",
     "cover-mysql": "DIALECT=mysql npm run cover && mv coverage coverage-mysql",
     "cover-sqlite": "DIALECT=sqlite npm run cover && mv coverage coverage-sqlite",
