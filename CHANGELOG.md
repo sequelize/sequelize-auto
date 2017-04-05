@@ -2,12 +2,16 @@
 
 All visible changes to this project will be documented in this file as of version `0.4.22`
 
-## Master
+## [0.4.26] - 2017-04-05
 
 ### Fixes
 
 * The defaultValue is now escape'd
 * Boolean/Bit columns are now fixed for MSSQL
+
+### Added
+
+* Adds schema support for `postgres` with the `s` flag.
 
 ## [0.4.25] - 2017-03-20
 

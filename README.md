@@ -46,6 +46,7 @@ Example for MSSQL
       -T, --skip-tables Comma-separated names of tables to skip
       -C, --camel       Use camel case to name models and fields
       -n, --no-write    Prevent writing the models to disk.
+      -s, --schema      Database schema from which to retrieve tables
 
 ## Example
 
