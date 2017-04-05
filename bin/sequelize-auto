@@ -21,6 +21,7 @@ var argv = require('yargs')
   .alias('T', 'skip-tables')
   .alias('C', 'camel')
   .alias('n', 'no-write')
+  .alias('s', 'schema')
   .describe('h', 'IP/Hostname for the database.')
   .describe('d', 'Database name.')
   .describe('u', 'Username for database.')
@@ -34,6 +35,7 @@ var argv = require('yargs')
   .describe('T', 'Comma-separated names of tables to skip')
   .describe('C', 'Use camel case to name models and fields')
   .describe('n', 'Prevent writing the models to disk.')
+  .describe('s', 'Database schema from which to retrieve tables')
   .argv;
 
 var dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
@@ -66,6 +68,7 @@ configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
 configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(',')) || null;
 configFile.camelCase = !!argv.C;
+configFile.schema = argv.s;
 
 function getDefaultPort(dialect) {
     switch (dialect.toLowerCase()) {
