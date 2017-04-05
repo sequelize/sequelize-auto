@@ -2,6 +2,10 @@
 
 All visible changes to this project will be documented in this file as of version `0.4.22`
 
+## [0.4.27] - 2017-04-05
+
+* Fixes schema support
+
 ## [0.4.26] - 2017-04-05
 
 ### Fixes
