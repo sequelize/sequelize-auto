@@ -68,7 +68,7 @@ configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
 configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(',')) || null;
 configFile.camelCase = !!argv.C;
-configFile.schema = argv.s || configFile.schema || 'public';
+configFile.schema = argv.s || configFile.schema;
 
 function getDefaultPort(dialect) {
     switch (dialect.toLowerCase()) {
