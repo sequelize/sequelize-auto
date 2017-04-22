@@ -2,7 +2,16 @@
 
 All visible changes to this project will be documented in this file as of version `0.4.22`
 
+## [0.4.28] - 2017-04-21
+
+### Fixes
+
+* Fixes for timestamps fields
+* Fixes current_time code error
+
 ## [0.4.27] - 2017-04-05
+
+### Fixes
 
 * Fixes schema support
 
