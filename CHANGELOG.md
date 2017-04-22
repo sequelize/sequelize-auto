@@ -2,22 +2,22 @@
 
 All visible changes to this project will be documented in this file as of version `0.4.22`
 
-## [0.4.28] - 2017-04-21
+## [0.4.28] - 2017-04-22
 
-### Fixes
+### Fixed
 
 * Fixes for timestamps fields
 * Fixes current_time code error
 
 ## [0.4.27] - 2017-04-05
 
-### Fixes
+### Fixed
 
 * Fixes schema support
 
 ## [0.4.26] - 2017-04-05
 
-### Fixes
+### Fixed
 
 * The defaultValue is now escape'd
 * Boolean/Bit columns are now fixed for MSSQL
@@ -32,7 +32,7 @@ All visible changes to this project will be documented in this file as of versio
 
 * Adds `unique` support for `postgres`, `mysql`, and `mariadb`.
 
-### Fixes
+### Fixed
 
 * Fixes `foreign key` and `unique` columns.
 
