@@ -52,11 +52,11 @@
     "graceful-fs-extra": "^2.0.0",
     "mkdirp": "^0.5.1",
     "sequelize": "^3.30.2",
-    "yargs": "^6.6.0"
+    "yargs": "^8.0.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "cross-env": "^3.2.4",
+    "cross-env": "^4.0.0",
     "istanbul": "^0.4.5",
     "lcov-result-merger": "^1.2.0",
     "mkdirp": "^0.5.1",
@@ -66,6 +66,6 @@
     "pg": "^6.1.5",
     "pg-hstore": "^2.3.2",
     "sqlite3": "^3.1.8",
-    "tedious": "^1.14.0"
+    "tedious": "^2.0.0"
   }
 }
