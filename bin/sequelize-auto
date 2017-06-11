@@ -22,6 +22,7 @@ var argv = require('yargs')
   .alias('C', 'camel')
   .alias('n', 'no-write')
   .alias('s', 'schema')
+  .alias('l', 'es6')
   .describe('h', 'IP/Hostname for the database.')
   .describe('d', 'Database name.')
   .describe('u', 'Username for database.')
@@ -36,6 +37,7 @@ var argv = require('yargs')
   .describe('C', 'Use camel case to name models and fields')
   .describe('n', 'Prevent writing the models to disk.')
   .describe('s', 'Database schema from which to retrieve tables')
+  .describe('l', 'Use ES2006 module style.')
   .argv;
 
 var dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
@@ -62,6 +64,7 @@ if (configFile.additional) {
 
 configFile.additional = additional;
 configFile.dialect = argv.e || configFile.dialect || 'mysql';
+configFile.es6 = argv.l || 'es5';
 configFile.port = argv.p || configFile.port || getDefaultPort(configFile.dialect);
 configFile.host = argv.h || configFile.host || 'localhost';
 configFile.storage = argv.d;
