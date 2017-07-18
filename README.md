@@ -156,6 +156,8 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
 Add -z to cli options or `typescript: true` to programmatic options. Model usage in a ts file:
 
 ```js
+...
+const sequelize = db.config.start();
 import * as dbDef from './db/models/db.d';
 const devices:dbDef.DeviceModel = sequelize.import('./db/models/Device');
 devices.findAll({ // the ts definition properly hooks into sequelize methods
