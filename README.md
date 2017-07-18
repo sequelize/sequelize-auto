@@ -49,6 +49,7 @@ Example for MSSQL
       -C, --camel       Use camel case to name models and fields
       -n, --no-write    Prevent writing the models to disk.
       -s, --schema      Database schema from which to retrieve tables
+      -z, --typescript  Output models as typescript with a definitions file.
 
 ## Example
 
