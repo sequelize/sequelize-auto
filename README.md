@@ -155,20 +155,22 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
 
 Add -z to cli options or `typescript: true` to programmatic options. Model usage in a ts file:
 
-    import * as dbDef from './db/models/db.d';
-    const devices:dbDef.DeviceModel = sequelize.import('./db/models/Device');
-    devices.findAll({ // the ts definition properly hooks into sequelize methods
-      where: {
-        DeviceID: 22,
-      },
-      attributes: ['DeviceID'],
-    }).then(results => {              // results = array of DeviceInstance[]
-      for (const device of results){  // device = DeviceInstance
-        console.log(device.DeviceID); // DeviceID = DeviceAttribute.DeviceID:number
-      }
-    }).catch(err => {
-      console.error(err);
-    });
+```js
+import * as dbDef from './db/models/db.d';
+const devices:dbDef.DeviceModel = sequelize.import('./db/models/Device');
+devices.findAll({ // the ts definition properly hooks into sequelize methods
+  where: {
+    DeviceID: 22,
+  },
+  attributes: ['DeviceID'],
+}).then(results => {              // results = array of DeviceInstance[]
+  for (const device of results){  // device = DeviceInstance
+    console.log(device.DeviceID); // DeviceID = DeviceAttribute.DeviceID:number
+  }
+}).catch(err => {
+  console.error(err);
+});
+```
 
 ## Testing
 
