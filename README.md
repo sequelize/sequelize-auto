@@ -151,6 +151,25 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
 })
 ```
 
+## Typescript
+
+Add -z to cli options or `typescript: true` to programmatic options. Model usage in a ts file:
+
+    import * as dbDef from './db/models/db.d';
+    const devices:dbDef.DeviceModel = sequelize.import('./db/models/Device');
+    devices.findAll({ // the ts definition properly hooks into sequelize methods
+      where: {
+        DeviceID: 22,
+      },
+      attributes: ['DeviceID'],
+    }).then(results => {              // results = array of DeviceInstance[]
+      for (const device of results){  // device = DeviceInstance
+        console.log(device.DeviceID); // DeviceID = DeviceAttribute.DeviceID:number
+      }
+    }).catch(err => {
+      console.error(err);
+    });
+
 ## Testing
 
 You must setup a database called `sequelize_auto_test` first, edit the `test/config.js` file accordingly, and then enter in any of the following:
