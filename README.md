@@ -28,7 +28,7 @@ Example for Sqlite3
 
 Example for MSSQL
 
-`npm install -g tedious`
+`npm install -g mssql`
 
 ## Usage
 
