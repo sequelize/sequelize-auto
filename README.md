@@ -49,6 +49,7 @@ Example for MSSQL
       -C, --camel       Use camel case to name models and fields
       -n, --no-write    Prevent writing the models to disk.
       -s, --schema      Database schema from which to retrieve tables
+      -z, --typescript  Output models as typescript with a definitions file.
 
 ## Example
 
@@ -148,6 +149,21 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
     tables: ['table1', 'table2', 'table3']
     //...
 })
+```
+
+## Typescript
+
+Add -z to cli options or `typescript: true` to programmatic options. Model usage in a ts file:
+
+```js
+// All models, can put in or extend to a db object at server init
+import * as dbTables from './models/db.tables';
+const tables = dbTables.getModels(sequelize); //:dbTables.ITable
+tables.Device.findAll
+// Single models
+import * as dbDef from './models/db.d';
+const devices:dbDef.DeviceModel = sequelize.import('./models/Device');
+devices.findAll
 ```
 
 ## Testing
