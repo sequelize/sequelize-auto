@@ -23,6 +23,7 @@ var argv = require('yargs')
   .alias('n', 'no-write')
   .alias('s', 'schema')
   .alias('z', 'typescript')
+  .alias('f', 'camel-file-name')
   .describe('h', 'IP/Hostname for the database.')
   .describe('d', 'Database name.')
   .describe('u', 'Username for database.')
@@ -38,6 +39,7 @@ var argv = require('yargs')
   .describe('n', 'Prevent writing the models to disk.')
   .describe('s', 'Database schema from which to retrieve tables')
   .describe('z', 'Output models as typescript with a definitions file')
+  .describe('f', 'Use camel case for file name')
   .argv;
 
 var dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
@@ -72,6 +74,7 @@ configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(',')) |
 configFile.camelCase = !!argv.C;
 configFile.schema = argv.s || configFile.schema;
 configFile.typescript = argv.z || configFile.typescript || false;
+configFile.camelCaseForFileName = argv.f || configFile.camelCaseForFileName || false;
 
 function getDefaultPort(dialect) {
     switch (dialect.toLowerCase()) {
