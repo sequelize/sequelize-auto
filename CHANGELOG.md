@@ -2,6 +2,19 @@
 
 All visible changes to this project will be documented in this file as of version `0.4.22`
 
+## Master
+
+### Fixed
+
+## [0.4.29] - 2017-10-23
+
+### Fixed
+
+* Sets DATEONLY for DATE types
+* Fix typescript, add missing option for camelcase filenames
+* Fixes JSONB support
+* Fixes TIMESTAMP support
+
 ## [0.4.28] - 2017-04-22
 
 ### Fixed
