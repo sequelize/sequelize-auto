@@ -35,7 +35,7 @@ var argv = require('yargs')
   .describe('a', 'Path to a json file containing model definitions (for all tables) which are to be defined within a model\'s configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration')
   .describe('t', 'Comma-separated names of tables to import')
   .describe('T', 'Comma-separated names of tables to skip')
-  .describe('C', 'Use camel case to name models and fields')
+  .describe('C', 'Use camel case to name models and fields, if you want model name to be "Upper Camel Case" you can use like this: `-C ut`')
   .describe('n', 'Prevent writing the models to disk.')
   .describe('s', 'Database schema from which to retrieve tables')
   .describe('z', 'Output models as typescript with a definitions file')
@@ -71,7 +71,7 @@ configFile.host = argv.h || configFile.host || 'localhost';
 configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
 configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(',')) || null;
-configFile.camelCase = !!argv.C;
+configFile.camelCase = argv.C || configFile.camelCase || false;
 configFile.schema = argv.s || configFile.schema;
 configFile.typescript = argv.z || configFile.typescript || false;
 configFile.camelCaseForFileName = argv.f || configFile.camelCaseForFileName || false;
