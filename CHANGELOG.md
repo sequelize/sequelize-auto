@@ -2,13 +2,35 @@
 
 All visible changes to this project will be documented in this file as of version `0.4.22`
 
+## Master
+
+### Fixed
+
+## [0.4.29] - 2017-10-23
+
+### Fixed
+
+* Sets DATEONLY for DATE types
+* Fix typescript, add missing option for camelcase filenames
+* Fixes JSONB support
+* Fixes TIMESTAMP support
+
+## [0.4.28] - 2017-04-22
+
+### Fixed
+
+* Fixes for timestamps fields
+* Fixes current_time code error
+
 ## [0.4.27] - 2017-04-05
+
+### Fixed
 
 * Fixes schema support
 
 ## [0.4.26] - 2017-04-05
 
-### Fixes
+### Fixed
 
 * The defaultValue is now escape'd
 * Boolean/Bit columns are now fixed for MSSQL
@@ -23,7 +45,7 @@ All visible changes to this project will be documented in this file as of versio
 
 * Adds `unique` support for `postgres`, `mysql`, and `mariadb`.
 
-### Fixes
+### Fixed
 
 * Fixes `foreign key` and `unique` columns.
 

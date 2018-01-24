@@ -1,5 +1,7 @@
 # Sequelize-Auto
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/sequelize/sequelize-auto.svg)](https://greenkeeper.io/)
+
 [![Build Status](http://img.shields.io/travis/sequelize/sequelize-auto/master.svg)](https://travis-ci.org/sequelize/sequelize-auto) [![Build status](https://ci.appveyor.com/api/projects/status/bf9lb89rmpj6iveb?svg=true)](https://ci.appveyor.com/project/durango/sequelize-auto) [![Dependency Status](https://david-dm.org/sequelize/sequelize-auto.svg)](https://david-dm.org/sequelize/sequelize-auto) [![Code Climate](https://codeclimate.com/github/sequelize/sequelize-auto/badges/gpa.svg)](https://codeclimate.com/github/sequelize/sequelize-auto) [![Test Coverage](https://codeclimate.com/github/sequelize/sequelize-auto/badges/coverage.svg)](https://codeclimate.com/github/sequelize/sequelize-auto/coverage)
 
 Automatically generate models for [SequelizeJS](https://github.com/sequelize/sequelize) via the command line.
@@ -26,7 +28,7 @@ Example for Sqlite3
 
 Example for MSSQL
 
-`npm install -g tedious`
+`npm install -g mssql`
 
 ## Usage
 
@@ -47,6 +49,7 @@ Example for MSSQL
       -C, --camel       Use camel case to name models and fields
       -n, --no-write    Prevent writing the models to disk.
       -s, --schema      Database schema from which to retrieve tables
+      -z, --typescript  Output models as typescript with a definitions file.
 
 ## Example
 
@@ -146,6 +149,21 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
     tables: ['table1', 'table2', 'table3']
     //...
 })
+```
+
+## Typescript
+
+Add -z to cli options or `typescript: true` to programmatic options. Model usage in a ts file:
+
+```js
+// All models, can put in or extend to a db object at server init
+import * as dbTables from './models/db.tables';
+const tables = dbTables.getModels(sequelize); //:dbTables.ITable
+tables.Device.findAll
+// Single models
+import * as dbDef from './models/db.d';
+const devices:dbDef.DeviceModel = sequelize.import('./models/Device');
+devices.findAll
 ```
 
 ## Testing
