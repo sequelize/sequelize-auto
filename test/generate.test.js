@@ -6,7 +6,7 @@ var expect = chai.expect;
 var helpers = require('./helpers');
 var dialect = helpers.getTestDialect();
 var testConfig = require('./config');
-var _ = helpers.Sequelize.Utils._;
+var _ = require('lodash');
 
 describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
   after(function(done) {
@@ -89,11 +89,12 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
       var self = this;
 
       setupModels(self, function(err, stdout){
+        console.log(stdout);
         expect(err).to.be.null;
         if (self.sequelize.options.dialect === "postgres") {
           expect(stdout.indexOf('SELECT table_name FROM information_schema.tables WHERE table_schema =')).to.be.at.above(-1);
           ['Users','HistoryLogs','ParanoidUsers'].forEach(function(tbl){
-            expect(stdout.indexOf('SELECT tc.constraint_type as "Constraint", c.column_name as "Field", c.column_default as "Default", c.is_nullable as "Null", CASE WHEN c.udt_name = \'hstore\' THEN c.udt_name ELSE c.data_type END as "Type", (SELECT array_agg(e.enumlabel) FROM pg_catalog.pg_type t JOIN pg_catalog.pg_enum e ON t.oid=e.enumtypid WHERE t.typname=c.udt_name) AS "special" FROM information_schema.columns c LEFT JOIN information_schema.key_column_usage cu ON c.table_name = cu.table_name AND cu.column_name = c.column_name LEFT JOIN information_schema.table_constraints tc ON c.table_name = tc.table_name AND cu.column_name = c.column_name AND tc.constraint_type = \'PRIMARY KEY\'  WHERE c.table_name = \'' + tbl + '\' AND c.table_schema = \'public\'')).to.be.at.above(-1);
+            expect(stdout.indexOf('SELECT pk.constraint_type as "Constraint", c.column_name as "Field", c.column_default as "Default", c.is_nullable as "Null", (CASE WHEN c.udt_name = \'hstore\' THEN c.udt_name ELSE c.data_type END) || (CASE WHEN c.character_maximum_length IS NOT NULL THEN \'(\' || c.character_maximum_length || \')\' ELSE \'\' END) as "Type", (SELECT array_agg(e.enumlabel) FROM pg_catalog.pg_type t JOIN pg_catalog.pg_enum e ON t.oid=e.enumtypid WHERE t.typname=c.udt_name) AS "special" FROM information_schema.columns c LEFT JOIN (SELECT tc.table_schema, tc.table_name, cu.column_name, tc.constraint_type FROM information_schema.TABLE_CONSTRAINTS tc JOIN information_schema.KEY_COLUMN_USAGE  cu ON tc.table_schema=cu.table_schema and tc.table_name=cu.table_name and tc.constraint_name=cu.constraint_name and tc.constraint_type=\'PRIMARY KEY\') pk ON pk.table_schema=c.table_schema AND pk.table_name=c.table_name AND pk.column_name=c.column_name WHERE c.table_name = \'' + tbl + '\' AND c.table_schema = \'public\'')).to.be.at.above(-1);
           });
         }
         else if (self.sequelize.options.dialect === "sqlite") {
