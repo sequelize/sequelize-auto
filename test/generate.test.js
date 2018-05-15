@@ -47,9 +47,9 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
         })
 
         self.HistoryLog = self.sequelize.define('HistoryLog', {
-          someText:  { type: helpers.Sequelize.STRING },
-          aNumber:   { type: helpers.Sequelize.INTEGER },
-          aRandomId: { type: helpers.Sequelize.INTEGER }
+          'some Text':  { type: helpers.Sequelize.STRING },
+          'aNumber':   { type: helpers.Sequelize.INTEGER },
+          'aRandomId': { type: helpers.Sequelize.INTEGER }
         })
 
         self.ParanoidUser = self.sequelize.define('ParanoidUser', {
@@ -121,7 +121,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
       var Users = this.sequelize.import(path.join(testConfig.directory, 'Users'));
 
       expect(HistoryLogs.tableName).to.equal('HistoryLogs');
-      ['someText', 'aNumber', 'aRandomId', 'id'].forEach(function(field){
+      ['some Text', 'aNumber', 'aRandomId', 'id'].forEach(function(field){
         expect(HistoryLogs.rawAttributes[field]).to.exist;
       });
 
@@ -135,7 +135,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
         expect(Users.rawAttributes[field]).to.exist;
       });
 
-      expect(HistoryLogs.rawAttributes.someText.type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
+      expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
       expect(Users.rawAttributes.validateCustom.allowNull).to.be.false;
       expect(Users.rawAttributes.dateAllowNullTrue.allowNull).to.be.true;
       expect(Users.rawAttributes.dateAllowNullTrue.type).to.match(/time/i);
