@@ -44,6 +44,14 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
             type: helpers.Sequelize.BOOLEAN,
             defaultValue: true
           }
+        }, {
+          indexes: [
+            {
+              name: 'index_name_a_b',
+              method: 'BTREE',
+              fields: ['username', 'aNumber', 'bNumber']
+            }
+          ]
         })
 
         self.HistoryLog = self.sequelize.define('HistoryLog', {
@@ -94,15 +102,26 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
           expect(stdout.indexOf('SELECT table_name FROM information_schema.tables WHERE table_schema =')).to.be.at.above(-1);
           ['Users','HistoryLogs','ParanoidUsers'].forEach(function(tbl){
             expect(stdout.indexOf('SELECT tc.constraint_type as "Constraint", c.column_name as "Field", c.column_default as "Default", c.is_nullable as "Null", CASE WHEN c.udt_name = \'hstore\' THEN c.udt_name ELSE c.data_type END as "Type", (SELECT array_agg(e.enumlabel) FROM pg_catalog.pg_type t JOIN pg_catalog.pg_enum e ON t.oid=e.enumtypid WHERE t.typname=c.udt_name) AS "special" FROM information_schema.columns c LEFT JOIN information_schema.key_column_usage cu ON c.table_name = cu.table_name AND cu.column_name = c.column_name LEFT JOIN information_schema.table_constraints tc ON c.table_name = tc.table_name AND cu.column_name = c.column_name AND tc.constraint_type = \'PRIMARY KEY\'  WHERE c.table_name = \'' + tbl + '\' AND c.table_schema = \'public\'')).to.be.at.above(-1);
+            expect(stdout.indexOf('WHERE o.conrelid = (SELECT oid FROM pg_class WHERE relname = \'Users\' LIMIT 1)')).to.be.at.above(-1);
+            expect(stdout.indexOf('LEFT JOIN PG_STAT_ALL_INDEXES E ON F.OID = E.INDEXRELID')).to.be.at.above(-1);
+            expect(stdout.indexOf('AND E.RELNAME = \'Users\'')).to.be.at.above(-1);
           });
         }
         else if (self.sequelize.options.dialect === "sqlite") {
           expect(stdout.indexOf('FROM `sqlite_master` WHERE type=\'table\'')).to.be.at.above(-1);
+          expect(stdout.indexOf('PRAGMA foreign_key_list(Users);')).to.be.at.above(-1);
         }
         else if (self.sequelize.options.dialect === "mssql") {
           expect(stdout.indexOf('SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES')).to.be.at.above(-1);
+          expect(stdout.indexOf('WHERE ccu.table_name = ' + helpers.Sequelize.Utils.addTicks('Users', "'"))).to.be.at.above(-1);
+          expect(stdout.indexOf('JOIN syscolumns d ON b.id = d.id AND b.colid = d.colid')).to.be.at.above(-1);
+          expect(stdout.indexOf('AND c.name = \'Users\'')).to.be.at.above(-1);
         } else {
           expect(stdout.indexOf('SHOW TABLES;')).to.be.at.above(-1);
+          expect(stdout.indexOf('K.TABLE_NAME = \'Users\'')).to.be.at.above(-1);
+          expect(stdout.indexOf('AND K.CONSTRAINT_SCHEMA = \'sequelize_auto_test\';')).to.be.at.above(-1);
+          expect(stdout.indexOf('TABLE_NAME = \'Users\'')).to.be.at.above(-1);
+          expect(stdout.indexOf('TABLE_SCHEMA = \'sequelize_auto_test\'')).to.be.at.above(-1);
         }
         done();
       });
@@ -135,6 +154,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
         expect(Users.rawAttributes[field]).to.exist;
       });
 
+      expect(Users.options.indexes[0]).to.include.keys(["name", "method", "fields", "type", "parser"]);
       expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
       expect(Users.rawAttributes.validateCustom.allowNull).to.be.false;
       expect(Users.rawAttributes.dateAllowNullTrue.allowNull).to.be.true;

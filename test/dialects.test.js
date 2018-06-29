@@ -35,6 +35,35 @@ describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
     });
   });
 
+  describe('getIndexesQuery', function () {
+    it('mysql', function (done) {
+      var query = dialects.mysql.getIndexesQuery('mytable', 'mydatabase');
+      expect(query).to.include('TABLE_NAME = \'mytable\'');
+      expect(query).to.include('TABLE_SCHEMA = \'mydatabase\'');
+      done();
+    });
+
+    it('sqlite', function (done) {
+      var query = dialects.sqlite.getIndexesQuery('mytable', 'mydatabase');
+      expect(query).to.include('SELECT * sqlite_master WHERE type = \'index\' and tbl_name = \'mytable\';');
+      done();
+    });
+
+    it('postgres', function (done) {
+      var query = dialects.postgres.getIndexesQuery('mytable', 'mydatabase');
+      expect(query).to.include('LEFT JOIN PG_STAT_ALL_INDEXES E ON F.OID = E.INDEXRELID');
+      expect(query).to.include('AND E.RELNAME = \'mytable\'');
+      done();
+    });
+
+    it('mssql', function (done) {
+      var query = dialects.mssql.getIndexesQuery('mytable', 'mydatabase');
+      expect(query).to.include('JOIN syscolumns d ON b.id = d.id AND b.colid = d.colid');
+      expect(query).to.include('AND c.name = \'mytable\'');
+      done();
+    });
+  });
+
   describe('isForeignKey', function () {
     it('mysql', function (done) {
       expect(dialects.mysql.isForeignKey(null)).to.be.false;

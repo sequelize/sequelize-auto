@@ -45,6 +45,14 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
             type: helpers.Sequelize.BOOLEAN,
             defaultValue: true
           }
+        }, {
+          indexes: [
+            {
+              name: 'index_name_a_b',
+              method: 'BTREE',
+              fields: ['username', 'aNumber', 'bNumber']
+            }
+          ]
         })
 
         self.HistoryLog = self.sequelize.define('HistoryLog', {
@@ -91,7 +99,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
 
       setupModels(self, function(err, autoSequelize) {
         expect(err).to.be.null;
-        expect(autoSequelize).to.include.keys(['tables', 'foreignKeys']);
+        expect(autoSequelize).to.include.keys(['tables', 'foreignKeys', 'indexes']);
         expect(autoSequelize.tables).to.have.keys(['Users', 'HistoryLogs', 'ParanoidUsers']);
 
         if (helpers.getTestDialect() === "sqlite") {
@@ -113,6 +121,10 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
           expect(autoSequelize.foreignKeys.ParanoidUsers.id).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isPrimaryKey', 'isSerialKey']);
           expect(autoSequelize.foreignKeys.ParanoidUsers.id.isPrimaryKey).to.be.true;
           expect(autoSequelize.foreignKeys.ParanoidUsers.id.isSerialKey).to.be.true;
+
+          expect(autoSequelize.indexes.Users[0].index_name).to.equal('index_name_a_b');
+          expect(autoSequelize.indexes.Users[0].index_type).to.equal('BTREE');
+          expect(autoSequelize.indexes.Users[0].index_fields).to.equal('username,aNumber,bNumber');
         }
 
         expect(autoSequelize.foreignKeys.ParanoidUsers.UserId).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isForeignKey']);

@@ -51,6 +51,7 @@
     "async": "^2.1.5",
     "eslint": "^3.19.0",
     "graceful-fs-extra": "^2.0.0",
+    "logoran-compose": "^1.1.1",
     "mkdirp": "^0.5.1",
     "sequelize": "^3.30.2",
     "yargs": "^8.0.1"
