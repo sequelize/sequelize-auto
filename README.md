@@ -24,7 +24,7 @@ Example for Postgres
 
 Example for Sqlite3
 
-`npm install -g sqlite`
+`npm install -g sqlite3`
 
 Example for MSSQL
 
