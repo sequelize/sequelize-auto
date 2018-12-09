@@ -1,0 +1,20 @@
+version: '3.7'
+x-postgres:
+  &postgres
+  POSTGRES_DB: sequelize_auto_test
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD:
+  POSTGRES_HOST: postgres
+  POSTGRES_SSL: 'false'
+  POSTGRES_PORT: 5432
+  POSTGRES_SCHEMA: public # currently must be "public"
+
+services:
+  postgres:
+    image: postgres:10.5-alpine
+    restart: always
+    environment:
+      <<: *postgres
+    ports:
+      - 5432:5432
+    command: postgres -c 'max_connections=250'
