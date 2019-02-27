@@ -1,12 +1,12 @@
 
-var exec = require('child_process').exec;
-var path = require('path');
-var chai = require('chai');
-var expect = chai.expect;
-var helpers = require('./helpers');
-var dialect = helpers.getTestDialect();
-var testConfig = require('./config');
-var _ = helpers.Sequelize.Utils._;
+let exec = require('child_process').exec
+  , path = require('path')
+  , chai = require('chai')
+  , expect = chai.expect
+  , helpers = require('./helpers')
+  , dialect = helpers.getTestDialect()
+  , testConfig = require('./config')
+  , _ = helpers.Sequelize.Utils._;
 
 describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
   after(function(done) {
@@ -14,12 +14,13 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
   });
 
   before(function(done) {
-    var self = this
+    let self = this;
 
     helpers.initTests({
       dialect: dialect,
       beforeComplete: function(sequelize) {
-        self.sequelize = sequelize
+        self.sequelize = sequelize;
+
         self.User      = self.sequelize.define('User', {
           username:  { type: helpers.Sequelize.STRING },
           touchedAt: { type: helpers.Sequelize.DATE, defaultValue: helpers.Sequelize.NOW },
@@ -44,21 +45,21 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
             type: helpers.Sequelize.BOOLEAN,
             defaultValue: true
           }
-        })
+        });
 
         self.HistoryLog = self.sequelize.define('HistoryLog', {
           'some Text':  { type: helpers.Sequelize.STRING },
           'aNumber':   { type: helpers.Sequelize.INTEGER },
           'aRandomId': { type: helpers.Sequelize.INTEGER }
-        })
+        });
 
         self.ParanoidUser = self.sequelize.define('ParanoidUser', {
           username: { type: helpers.Sequelize.STRING }
         }, {
           paranoid: true
-        })
+        });
 
-        self.ParanoidUser.belongsTo(self.User)
+        self.ParanoidUser.belongsTo(self.User);
       },
       onComplete: function() {
         self.sequelize.sync().then(function () {
@@ -68,9 +69,9 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
     });
   });
 
-  var setupModels = function(self, callback) {
-    var config = self.sequelize.config;
-    var execString = "node " + path.join(__dirname, "..", "bin", "sequelize-auto") + " -o \"" + testConfig.directory + "\" -d " + config.database + " -h " + config.host;
+  let setupModels = function(self, callback) {
+    let config = self.sequelize.config;
+    let execString = "node " + path.join(__dirname, "..", "bin", "sequelize-auto") + " -o \"" + testConfig.directory + "\" -d " + config.database + " -h " + config.host;
 
     if (_.has(config, 'username') && ! _.isNull(config.username))
       execString += " -u " + config.username + " ";
@@ -82,11 +83,11 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
       execString += " -e " + self.sequelize.options.dialect + " ";
 
     exec(execString, callback);
-  }
+  };
 
   describe("should be able to generate", function(){
     it("the model files...", function(done){
-      var self = this;
+      let self = this;
 
       setupModels(self, function(err, stdout){
         expect(err).to.be.null;
@@ -111,14 +112,14 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
 
   describe("should be able to require", function(){
     before(function(done){
-      var self = this;
+      let self = this;
       setupModels(self, done);
     });
 
     it("the model files...", function(done){
-      var HistoryLogs = this.sequelize.import(path.join(testConfig.directory , 'HistoryLogs'));
-      var ParanoidUsers = this.sequelize.import(path.join(testConfig.directory, 'ParanoidUsers'));
-      var Users = this.sequelize.import(path.join(testConfig.directory, 'Users'));
+      let HistoryLogs = this.sequelize.import(path.join(testConfig.directory , 'HistoryLogs'));
+      let ParanoidUsers = this.sequelize.import(path.join(testConfig.directory, 'ParanoidUsers'));
+      let Users = this.sequelize.import(path.join(testConfig.directory, 'Users'));
 
       expect(HistoryLogs.tableName).to.equal('HistoryLogs');
       ['some Text', 'aNumber', 'aRandomId', 'id'].forEach(function(field){

@@ -1,13 +1,13 @@
 
-var exec = require('child_process').exec;
-var path = require('path');
-var chai = require('chai');
-var expect = chai.expect;
-var helpers = require('./helpers');
-var dialect = helpers.getTestDialect();
-var testConfig = require('./config');
-var _ = helpers.Sequelize.Utils._;
-var lib = require('../index');
+let exec = require('child_process').exec
+  , path = require('path')
+  , chai = require('chai')
+  , expect = chai.expect
+  , helpers = require('./helpers')
+  , dialect = helpers.getTestDialect()
+  , testConfig = require('./config')
+  , _ = helpers.Sequelize.Utils._
+  , lib = require('../index');
 
 describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
   after(function(done) {
@@ -15,7 +15,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
   });
 
   before(function(done) {
-    var self = this
+    let self = this;
 
     helpers.initTests({
       dialect: dialect,
@@ -69,8 +69,8 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
     });
   });
 
-  var setupModels = function(self, callback) {
-    var options = _.extend({
+  let setupModels = function(self, callback) {
+    let options = _.extend({
       spaces: true,
       indentation: 2,
       logging: false,
@@ -78,7 +78,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
       dialect: helpers.getTestDialect()
     }, testConfig[helpers.getTestDialect()], self.sequelize.config);
 
-    var autoSequelize = new lib(self.sequelize.config.database, self.sequelize.config.username, self.sequelize.config.password, options);
+    let autoSequelize = new lib(self.sequelize.config.database, self.sequelize.config.username, self.sequelize.config.password, options);
 
     autoSequelize.build(function (err) {
       callback(err, autoSequelize);
@@ -87,7 +87,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
 
   describe("should be able to build", function() {
     it("the models", function(done) {
-      var self = this;
+      let self = this;
 
       setupModels(self, function(err, autoSequelize) {
         expect(err).to.be.null;
