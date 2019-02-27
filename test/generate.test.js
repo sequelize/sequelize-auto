@@ -48,7 +48,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
         });
 
         self.HistoryLog = self.sequelize.define('HistoryLog', {
-          'some Text':  { type: helpers.Sequelize.STRING },
+          'someText':  { type: helpers.Sequelize.STRING },
           'aNumber':   { type: helpers.Sequelize.INTEGER },
           'aRandomId': { type: helpers.Sequelize.INTEGER }
         });

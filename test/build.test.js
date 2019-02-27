@@ -20,7 +20,8 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
     helpers.initTests({
       dialect: dialect,
       beforeComplete: function(sequelize) {
-        self.sequelize = sequelize
+        self.sequelize = sequelize;
+
         self.User      = self.sequelize.define('User', {
           username:  { type: helpers.Sequelize.STRING },
           touchedAt: { type: helpers.Sequelize.DATE, defaultValue: helpers.Sequelize.NOW },
@@ -45,21 +46,21 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
             type: helpers.Sequelize.BOOLEAN,
             defaultValue: true
           }
-        })
+        });
 
         self.HistoryLog = self.sequelize.define('HistoryLog', {
-          someText:  { type: helpers.Sequelize.STRING },
-          aNumber:   { type: helpers.Sequelize.INTEGER },
-          aRandomId: { type: helpers.Sequelize.INTEGER }
-        })
+          'someText':  { type: helpers.Sequelize.STRING },
+          'aNumber':   { type: helpers.Sequelize.INTEGER },
+          'aRandomId': { type: helpers.Sequelize.INTEGER }
+        });
 
         self.ParanoidUser = self.sequelize.define('ParanoidUser', {
           username: { type: helpers.Sequelize.STRING }
         }, {
           paranoid: true
-        })
+        });
 
-        self.ParanoidUser.belongsTo(self.User)
+        self.ParanoidUser.belongsTo(self.User);
       },
       onComplete: function() {
         self.sequelize.sync().then(function () {
