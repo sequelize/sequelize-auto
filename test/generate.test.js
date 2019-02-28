@@ -21,7 +21,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
       beforeComplete: function(sequelize) {
         self.sequelize = sequelize;
 
-        self.User      = self.sequelize.define('User', {
+        self.User = self.sequelize.define('User', {
           username:  { type: helpers.Sequelize.STRING },
           touchedAt: { type: helpers.Sequelize.DATE, defaultValue: helpers.Sequelize.NOW },
           aNumber:   { type: helpers.Sequelize.INTEGER },
@@ -60,6 +60,41 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
         });
 
         self.ParanoidUser.belongsTo(self.User);
+
+        self.sequelize.createSchema('test');
+
+        self.Parent = self.sequelize.define('Parent', {
+          parentId:  {
+            type: helpers.Sequelize.INTEGER,
+            allowNull: false,
+            autoIncrement: true,
+            primaryKey: true,
+            field: 'ParentId'
+          },
+          name:   { type: helpers.Sequelize.STRING, field: 'Name' }
+        }, {
+          timestamps: false,
+          schema: 'test'
+        });
+
+        self.Child = self.sequelize.define('Child', {
+          childId:  {
+            type: helpers.Sequelize.INTEGER,
+            allowNull: false,
+            autoIncrement: true,
+            primaryKey: true,
+            field: 'ChildId'
+          },
+          name:   { type: helpers.Sequelize.STRING, field: 'Name' }
+        }, {
+          tableName: 'Kids',
+          timestamps: false,
+          schema: 'test'
+        });
+
+        self.Child.belongsTo(self.Parent, { foreignKey: 'ParentId' });
+        self.Child.belongsTo(self.User);
+        self.Parent.belongsTo(self.User);
       },
       onComplete: function() {
         self.sequelize.sync().then(function () {
@@ -120,6 +155,8 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
       let HistoryLogs = this.sequelize.import(path.join(testConfig.directory , 'HistoryLogs'));
       let ParanoidUsers = this.sequelize.import(path.join(testConfig.directory, 'ParanoidUsers'));
       let Users = this.sequelize.import(path.join(testConfig.directory, 'Users'));
+      let Parents = this.sequelize.import(path.join(testConfig.directory, 'Parents'));
+      let Kids = this.sequelize.import(path.join(testConfig.directory, 'Kids'));
 
       expect(HistoryLogs.tableName).to.equal('HistoryLogs');
       ['some Text', 'aNumber', 'aRandomId', 'id'].forEach(function(field){
@@ -135,6 +172,19 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
       ['username', 'touchedAt', 'aNumber', 'bNumber', 'validateTest', 'validateCustom', 'dateAllowNullTrue', 'id', 'createdAt', 'updatedAt'].forEach(function(field){
         expect(Users.rawAttributes[field]).to.exist;
       });
+
+      expect(Parents.tableName).to.equal('Parents');
+      ['ParentId', 'Name', 'UserId'].forEach(function(field){
+        expect(Parents.rawAttributes[field]).to.exist;
+      });
+
+      expect(Kids.tableName).to.equal('Kids');
+      ['ChildId', 'Name', 'ParentId', 'UserId'].forEach(function(field){
+        expect(Kids.rawAttributes[field]).to.exist;
+      });
+
+      expect(Parents.$schema).to.equal('test');
+      expect(Kids.$schema).to.equal('test');
 
       expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
       expect(Users.rawAttributes.validateCustom.allowNull).to.be.false;
