@@ -60,40 +60,43 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
 
         self.ParanoidUser.belongsTo(self.User);
 
-        self.sequelize.createSchema('test');
+        // Only create schema test for MSSQL platform
+        if (helpers.getTestDialect() === 'mssql') {
+          self.sequelize.createSchema('test');
 
-        self.Parent = self.sequelize.define('Parent', {
-          parentId:  {
-            type: helpers.Sequelize.INTEGER,
-            allowNull: false,
-            autoIncrement: true,
-            primaryKey: true,
-            field: 'ParentId'
-          },
-          name:   { type: helpers.Sequelize.STRING, field: 'Name' }
-        }, {
-          timestamps: false,
-          schema: 'test'
-        });
+          self.Parent = self.sequelize.define('Parent', {
+            parentId:  {
+              type: helpers.Sequelize.INTEGER,
+              allowNull: false,
+              autoIncrement: true,
+              primaryKey: true,
+              field: 'ParentId'
+            },
+            name:   { type: helpers.Sequelize.STRING, field: 'Name' }
+          }, {
+            timestamps: false,
+            schema: 'test'
+          });
 
-        self.Child = self.sequelize.define('Child', {
-          childId:  {
-            type: helpers.Sequelize.INTEGER,
-            allowNull: false,
-            autoIncrement: true,
-            primaryKey: true,
-            field: 'ChildId'
-          },
-          name:   { type: helpers.Sequelize.STRING, field: 'Name' }
-        }, {
-          tableName: 'Kids',
-          timestamps: false,
-          schema: 'test'
-        });
+          self.Child = self.sequelize.define('Child', {
+            childId:  {
+              type: helpers.Sequelize.INTEGER,
+              allowNull: false,
+              autoIncrement: true,
+              primaryKey: true,
+              field: 'ChildId'
+            },
+            name:   { type: helpers.Sequelize.STRING, field: 'Name' }
+          }, {
+            tableName: 'Kids',
+            timestamps: false,
+            schema: 'test'
+          });
 
-        self.Child.belongsTo(self.Parent, { foreignKey: 'ParentId' });
-        self.Child.belongsTo(self.User);
-        self.Parent.belongsTo(self.User);
+          self.Child.belongsTo(self.Parent, { foreignKey: 'ParentId' });
+          self.Child.belongsTo(self.User);
+          self.Parent.belongsTo(self.User);
+        }
       },
       onComplete: function() {
         self.sequelize.sync().then(function () {
@@ -154,8 +157,6 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
       var HistoryLogs = this.sequelize.import(path.join(testConfig.directory , 'HistoryLogs'));
       var ParanoidUsers = this.sequelize.import(path.join(testConfig.directory, 'ParanoidUsers'));
       var Users = this.sequelize.import(path.join(testConfig.directory, 'Users'));
-      var Parents = this.sequelize.import(path.join(testConfig.directory, 'Parents'));
-      var Kids = this.sequelize.import(path.join(testConfig.directory, 'Kids'));
 
       expect(HistoryLogs.tableName).to.equal('HistoryLogs');
       ['some Text', 'aNumber', 'aRandomId', 'id'].forEach(function(field){
@@ -172,23 +173,28 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
         expect(Users.rawAttributes[field]).to.exist;
       });
 
-      expect(Parents.tableName).to.equal('Parents');
-      ['ParentId', 'Name', 'UserId'].forEach(function(field){
-        expect(Parents.rawAttributes[field]).to.exist;
-      });
-
-      expect(Kids.tableName).to.equal('Kids');
-      ['ChildId', 'Name', 'ParentId', 'UserId'].forEach(function(field){
-        expect(Kids.rawAttributes[field]).to.exist;
-      });
-
-      expect(Parents.$schema).to.equal('test');
-      expect(Kids.$schema).to.equal('test');
-
       expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
       expect(Users.rawAttributes.validateCustom.allowNull).to.be.false;
       expect(Users.rawAttributes.dateAllowNullTrue.allowNull).to.be.true;
       expect(Users.rawAttributes.dateAllowNullTrue.type).to.match(/time/i);
+
+      if (helpers.getTestDialect() === 'mssql') {
+        const Parents = this.sequelize.import(path.join(testConfig.directory, 'Parents'));
+        const Kids = this.sequelize.import(path.join(testConfig.directory, 'Kids'));
+
+        expect(Parents.tableName).to.equal('Parents');
+        ['ParentId', 'Name', 'UserId'].forEach(function(field){
+          expect(Parents.rawAttributes[field]).to.exist;
+        });
+
+        expect(Kids.tableName).to.equal('Kids');
+        ['ChildId', 'Name', 'ParentId', 'UserId'].forEach(function(field){
+          expect(Kids.rawAttributes[field]).to.exist;
+        });
+
+        expect(Parents.$schema).to.equal('test');
+        expect(Kids.$schema).to.equal('test');
+      }
 
       done();
     });
