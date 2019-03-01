@@ -1,5 +1,4 @@
-
-let exec = require('child_process').exec
+var exec = require('child_process').exec
   , path = require('path')
   , chai = require('chai')
   , expect = chai.expect
@@ -14,7 +13,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
   });
 
   before(function(done) {
-    let self = this;
+    var self = this;
 
     helpers.initTests({
       dialect: dialect,
@@ -104,9 +103,9 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
     });
   });
 
-  let setupModels = function(self, callback) {
-    let config = self.sequelize.config;
-    let execString = "node " + path.join(__dirname, "..", "bin", "sequelize-auto") + " -o \"" + testConfig.directory + "\" -d " + config.database + " -h " + config.host;
+  var setupModels = function(self, callback) {
+    var config = self.sequelize.config;
+    var execString = "node " + path.join(__dirname, "..", "bin", "sequelize-auto") + " -o \"" + testConfig.directory + "\" -d " + config.database + " -h " + config.host;
 
     if (_.has(config, 'username') && ! _.isNull(config.username))
       execString += " -u " + config.username + " ";
@@ -122,7 +121,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
 
   describe("should be able to generate", function(){
     it("the model files...", function(done){
-      let self = this;
+      var self = this;
 
       setupModels(self, function(err, stdout){
         expect(err).to.be.null;
@@ -147,16 +146,16 @@ describe(helpers.getTestDialectTeaser("sequelize-auto"), function() {
 
   describe("should be able to require", function(){
     before(function(done){
-      let self = this;
+      var self = this;
       setupModels(self, done);
     });
 
     it("the model files...", function(done){
-      let HistoryLogs = this.sequelize.import(path.join(testConfig.directory , 'HistoryLogs'));
-      let ParanoidUsers = this.sequelize.import(path.join(testConfig.directory, 'ParanoidUsers'));
-      let Users = this.sequelize.import(path.join(testConfig.directory, 'Users'));
-      let Parents = this.sequelize.import(path.join(testConfig.directory, 'Parents'));
-      let Kids = this.sequelize.import(path.join(testConfig.directory, 'Kids'));
+      var HistoryLogs = this.sequelize.import(path.join(testConfig.directory , 'HistoryLogs'));
+      var ParanoidUsers = this.sequelize.import(path.join(testConfig.directory, 'ParanoidUsers'));
+      var Users = this.sequelize.import(path.join(testConfig.directory, 'Users'));
+      var Parents = this.sequelize.import(path.join(testConfig.directory, 'Parents'));
+      var Kids = this.sequelize.import(path.join(testConfig.directory, 'Kids'));
 
       expect(HistoryLogs.tableName).to.equal('HistoryLogs');
       ['some Text', 'aNumber', 'aRandomId', 'id'].forEach(function(field){

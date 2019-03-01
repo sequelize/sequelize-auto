@@ -1,5 +1,4 @@
-
-let exec = require('child_process').exec
+var exec = require('child_process').exec
   , path = require('path')
   , chai = require('chai')
   , expect = chai.expect
@@ -15,7 +14,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
   });
 
   before(function(done) {
-    let self = this;
+    var self = this;
 
     helpers.initTests({
       dialect: dialect,
@@ -105,8 +104,8 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
     });
   });
 
-  let setupModels = function(self, callback) {
-    let options = _.extend({
+  var setupModels = function(self, callback) {
+    const options = _.extend({
       spaces: true,
       indentation: 2,
       logging: false,
@@ -114,7 +113,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
       dialect: helpers.getTestDialect()
     }, testConfig[helpers.getTestDialect()], self.sequelize.config);
 
-    let autoSequelize = new lib(self.sequelize.config.database, self.sequelize.config.username, self.sequelize.config.password, options);
+    var autoSequelize = new lib(self.sequelize.config.database, self.sequelize.config.username, self.sequelize.config.password, options);
 
     autoSequelize.build(function (err) {
       callback(err, autoSequelize);
@@ -123,7 +122,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
 
   describe("should be able to build", function() {
     it("the models", function(done) {
-      let self = this;
+      var self = this;
 
       setupModels(self, function(err, autoSequelize) {
         expect(err).to.be.null;

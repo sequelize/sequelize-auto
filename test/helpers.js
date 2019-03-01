@@ -1,4 +1,4 @@
-let Sequelize = require('sequelize')
+var Sequelize = require('sequelize')
   , path      = require('path')
   , config    = require(path.join(__dirname, "config"))
   , fs        = require('fs');
@@ -7,7 +7,7 @@ module.exports = {
   Sequelize: Sequelize,
 
   initTests: function(options) {
-    let sequelize = this.createSequelizeInstance(options);
+    var sequelize = this.createSequelizeInstance(options);
 
     this.clearDatabase(sequelize, function() {
       if (options.context) {
@@ -30,7 +30,7 @@ module.exports = {
     options.dialect = options.dialect || 'mysql';
     options.logging = (options.hasOwnProperty('logging') ? options.logging : false);
 
-    let sequelizeOptions = {
+    var sequelizeOptions = {
       logging: options.logging,
       dialect: options.dialect,
       host:    config[options.dialect].host,
@@ -64,7 +64,7 @@ module.exports = {
           return callback && callback();
 
         files.forEach(function (file) {
-          let stat = fs.statSync(config.directory + '/' + file);
+          var stat = fs.statSync(config.directory + '/' + file);
           if (stat.isFile())
             fs.unlinkSync(config.directory + '/' + file);
         })
@@ -84,7 +84,7 @@ module.exports = {
   },
 
   getTestDialect: function() {
-    let envDialect = process.env.DIALECT || 'mysql';
+    var envDialect = process.env.DIALECT || 'mysql';
 
     if (envDialect === 'postgres-native')
       envDialect = 'postgres';
@@ -96,7 +96,7 @@ module.exports = {
   },
 
   getTestDialectTeaser: function(moduleName) {
-    let dialect = this.getTestDialect();
+    var dialect = this.getTestDialect();
 
     if (process.env.DIALECT === 'postgres-native') {
       dialect = 'postgres-native';
