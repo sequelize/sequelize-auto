@@ -11,7 +11,7 @@ All visible changes to this project will be documented in this file as of versio
 ### Fixed
 
 * Sets DATEONLY for DATE types
-* Fix typescript, add missing option for camelcase filenames
+* Fix typescript, add missing option for camelcase filenames...
 * Fixes JSONB support
 * Fixes TIMESTAMP support
 
