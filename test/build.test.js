@@ -1,12 +1,14 @@
 
-var exec = require('child_process').exec;
-var path = require('path');
-var chai = require('chai');
+// var exec = require('child_process').exec;
+// var path = require('path');
+const {describe, before, after, it} = require('mocha');
+// const describe = mocha.describe;
+const chai = require('chai');
 var expect = chai.expect;
 var helpers = require('./helpers');
 var dialect = helpers.getTestDialect();
 var testConfig = require('./config');
-var _ = helpers.Sequelize.Utils._;
+var _ = require('lodash');
 var lib = require('../index');
 
 describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
