@@ -1,6 +1,10 @@
-# Changelog
+# sequelize-auto-v2 change log
 
-All visible changes to this project will be documented in this file as of version `0.4.22`
+## 0.5.0
+- Forked from sequelize-auto
+- Many edits, published as sequelize-auto-v2
+- It's probably broken
+
 
 ## Master
 
