@@ -10,7 +10,8 @@ describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
     it('mysql', function(done) {
       const query = dialects.mysql.getForeignKeysQuery('mytable_a', 'mydatabase_a');
       expect(query).to.include("K.TABLE_NAME = 'mytable_a'");
-      expect(query).to.include("AND K.CONSTRAINT_SCHEMA = 'mydatabase_a';");
+      expect(query).to.include("AND K.CONSTRAINT_SCHEMA = 'mydatabase_a'");
+      expect(query).to.include("AND C.TABLE_SCHEMA = 'mydatabase_a'");
       done();
     });
 

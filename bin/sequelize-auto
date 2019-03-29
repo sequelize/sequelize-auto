@@ -1,12 +1,11 @@
 #!/usr/bin/env node
+const sequelizeAuto = require('../');
+const path = require('path');
 
-var sequelizeAuto = require('../');
-var path = require('path');
-var Sequelize = require('sequelize');
-var _ = Sequelize.Utils._;
-
-var argv = require('yargs')
-  .usage('Usage: sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]')
+const argv = require('yargs')
+  .usage(
+    'Usage: sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]'
+  )
   .demand(['h', 'd'])
   .alias('h', 'host')
   .alias('d', 'database')
@@ -29,25 +28,30 @@ var argv = require('yargs')
   .describe('u', 'Username for database.')
   .describe('x', 'Password for database.')
   .describe('p', 'Port number for database. It is not for sqlite. ex) MySQL/MariaDB: 3306, Postgres: 5432, MSSQL: 1433')
-  .describe('c', 'JSON file for Sequelize\'s constructor "options" flag object as defined here: https://sequelize.readthedocs.org/en/latest/api/sequelize/')
+  .describe(
+    'c',
+    'JSON file for Sequelize\'s constructor "options" flag object as defined here: https://sequelize.readthedocs.org/en/latest/api/sequelize/'
+  )
   .describe('o', 'What directory to place the models.')
-  .describe('e', 'The dialect/engine that you\'re using: postgres, mysql, sqlite, mssql')
-  .describe('a', 'Path to a json file containing model definitions (for all tables) which are to be defined within a model\'s configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration')
+  .describe('e', "The dialect/engine that you're using: postgres, mysql, sqlite, mssql")
+  .describe(
+    'a',
+    "Path to a json file containing model definitions (for all tables) which are to be defined within a model's configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration"
+  )
   .describe('t', 'Comma-separated names of tables to import')
   .describe('T', 'Comma-separated names of tables to skip')
   .describe('C', 'Use camel case to name models and fields')
   .describe('n', 'Prevent writing the models to disk.')
   .describe('s', 'Database schema from which to retrieve tables')
   .describe('z', 'Output models as typescript with a definitions file')
-  .describe('f', 'Use camel case for file name')
-  .argv;
+  .describe('f', 'Use camel case for file name').argv;
 
-var dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
+const dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
 
-var configFile = {
+let configFile = {
   spaces: true,
   indentation: 2
-}
+};
 
 if (argv.c) {
   configFile = require(path.resolve(argv.c));
@@ -55,7 +59,7 @@ if (argv.c) {
 
 configFile.directory = configFile.directory || dir;
 
-var additional = {};
+let additional = {};
 if (argv.a) {
   additional = require(path.resolve(argv.a));
 }
@@ -77,19 +81,20 @@ configFile.typescript = argv.z || configFile.typescript || false;
 configFile.camelCaseForFileName = argv.f || configFile.camelCaseForFileName || false;
 
 function getDefaultPort(dialect) {
-    switch (dialect.toLowerCase()) {
+  switch (dialect.toLowerCase()) {
     case 'mssql':
-        return 1433;
+      return 1433;
     case 'postgres':
-        return 5432;
+      return 5432;
     default:
-        return 3306;
-    }
+      return 3306;
+  }
 }
 
-var auto = new sequelizeAuto(argv.d, argv.u, (!! argv.x ? ('' + argv.x) : null), configFile);
-
-auto.run(function (err) {
-  if (err) throw err;
+const auto = new sequelizeAuto(argv.d, argv.u, !!argv.x ? '' + argv.x : null, configFile);
+auto.run(function(err) {
+  if (err) {
+    throw err;
+  }
   console.log('Done!');
 });

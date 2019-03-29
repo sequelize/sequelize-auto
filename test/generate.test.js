@@ -1,5 +1,6 @@
-const {describe, before, after, it} = require('mocha');
-const exec = require('child_process').exec;
+const { describe, before, after, it } = require('mocha');
+const { exec } = require('child_process');
+const debug = require('debug')('sequelize-auto:generate-tests');
 const path = require('path');
 const chai = require('chai');
 const expect = chai.expect;
@@ -16,7 +17,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
   before(function(done) {
     const self = this;
 
-    // Create some tables to test against.
+    debug('Creating tables to run tests against.');
     helpers.initTests({
       dialect: dialect,
       beforeComplete: function(sequelize) {
@@ -87,28 +88,35 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
     if (_.isString(self.sequelize.options.dialect)) {
       execString += ` -e ${self.sequelize.options.dialect}`;
     }
-    console.log(execString);
+    debug('Starting child process:', execString);
     exec(execString, callback);
   };
 
   describe('should be able to generate', function() {
     it('the model files...', function(done) {
       const self = this;
-
-      setupModels(self, function(err, stdout) {
+      const db = self.sequelize.config.database;
+      const testTables = ['Users', 'HistoryLogs', 'ParanoidUsers'];
+      
+      setupModels(self, function(err, stdout, stderr) {
         expect(err).to.be.null;
+        if (stderr) {
+          console.log(stderr);
+        }
+        expect(stderr).to.be.empty;
+
+        // Cleanup whitespace and linebreaks!
+        stdout = stdout.replace(/\s+/g, ' ');
+
+        // Check the output
         if (self.sequelize.options.dialect === 'postgres') {
-          expect(
-            stdout.indexOf('SELECT table_name FROM information_schema.tables WHERE table_schema =')
-          ).to.be.at.above(-1);
-          ['Users', 'HistoryLogs', 'ParanoidUsers'].forEach(function(tbl) {
-            expect(
-              stdout.indexOf(
-                'SELECT tc.constraint_type as "Constraint", c.column_name as "Field", c.column_default as "Default", c.is_nullable as "Null", CASE WHEN c.udt_name = \'hstore\' THEN c.udt_name ELSE c.data_type END as "Type", (SELECT array_agg(e.enumlabel) FROM pg_catalog.pg_type t JOIN pg_catalog.pg_enum e ON t.oid=e.enumtypid WHERE t.typname=c.udt_name) AS "special" FROM information_schema.columns c LEFT JOIN information_schema.key_column_usage cu ON c.table_name = cu.table_name AND cu.column_name = c.column_name LEFT JOIN information_schema.table_constraints tc ON c.table_name = tc.table_name AND cu.column_name = c.column_name AND tc.constraint_type = \'PRIMARY KEY\'  WHERE c.table_name = \'' +
-                  tbl +
-                  "' AND c.table_schema = 'public'"
-              )
-            ).to.be.at.above(-1);
+          const defaultSchema = 'public';
+          const qry = `WHERE table_schema = '${defaultSchema}' AND table_type LIKE '%TABLE' AND table_name != 'spatial_ref_sys';`;
+          expect(stdout.indexOf(qry)).to.be.at.above(-1);
+
+          testTables.forEach(function(tbl) {
+            const query = `WHERE o.conrelid = (SELECT oid FROM pg_class WHERE relname = '${tbl}' LIMIT 1)`;
+            expect(stdout.indexOf(query)).to.be.at.above(-1);
           });
         } else if (self.sequelize.options.dialect === 'sqlite') {
           expect(stdout.indexOf("FROM `sqlite_master` WHERE type='table'")).to.be.at.above(-1);
@@ -116,6 +124,11 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
           expect(stdout.indexOf('SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES')).to.be.at.above(-1);
         } else {
           expect(stdout.indexOf('SHOW TABLES;')).to.be.at.above(-1);
+
+          testTables.forEach(function(tbl) {
+            const query = `WHERE K.TABLE_NAME = '${tbl}' AND K.CONSTRAINT_SCHEMA = '${db}' AND C.TABLE_SCHEMA = '${db}';`
+            expect(stdout.indexOf(query)).to.be.at.above(-1);
+          });
         }
         done();
       });
