@@ -1,10 +1,11 @@
-# Sequelize-Auto
+# Sequelize-Auto-v2
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/sequelize/sequelize-auto.svg)](https://greenkeeper.io/)
-
-[![Build Status](http://img.shields.io/travis/sequelize/sequelize-auto/master.svg)](https://travis-ci.org/sequelize/sequelize-auto) [![Build status](https://ci.appveyor.com/api/projects/status/bf9lb89rmpj6iveb?svg=true)](https://ci.appveyor.com/project/durango/sequelize-auto) [![Dependency Status](https://david-dm.org/sequelize/sequelize-auto.svg)](https://david-dm.org/sequelize/sequelize-auto) [![Code Climate](https://codeclimate.com/github/sequelize/sequelize-auto/badges/gpa.svg)](https://codeclimate.com/github/sequelize/sequelize-auto) [![Test Coverage](https://codeclimate.com/github/sequelize/sequelize-auto/badges/coverage.svg)](https://codeclimate.com/github/sequelize/sequelize-auto/coverage)
 
 Automatically generate models for [SequelizeJS](https://github.com/sequelize/sequelize) via the command line.
+
+## Why v2?
+
+I ran into issues with the published sequelize-auto and it was two major versions behind Sequelize. 
 
 ## Install
 
@@ -16,7 +17,7 @@ You will need to install the correct dialect binding globally before using seque
 
 Example for MySQL/MariaDB
 
-`npm install -g mysql`
+`npm install -g mysql2`
 
 Example for Postgres
 
@@ -185,6 +186,5 @@ You must setup a database called `sequelize_auto_test` first, edit the `test/con
     # sqlite only
     npm run test-sqlite
 
-## Projects Using Sequelize-Auto
 
-* [Sequelizer](https://github.com/andyforever/sequelizer)
+## Credit to previous author and contributors

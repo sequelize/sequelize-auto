@@ -1,11 +1,12 @@
 
 language: node_js
 
-node_js:
-  - "4"
-  - "6"
-
 sudo: false
+
+node_js:
+  - "10"
+  - "8"
+  - "6"
 
 cache:
   directories:
@@ -24,16 +25,9 @@ before_script:
 script:
   - "npm run test"
 
-branches:
-  only:
-    - master
-    - /^greenkeeper/.*$/
-
-notifications:
-  email:
-    - me@danieldurante.com
-
 env:
   - DB=mysql DIALECT=mysql
   - DB=mysql DIALECT=postgres
   - DB=mysql DIALECT=sqlite
+
+after_success: npm run coveralls
