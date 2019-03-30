@@ -139,7 +139,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
               const query = `WHERE K.TABLE_NAME = '${tbl}' AND K.CONSTRAINT_SCHEMA = '${db}' AND C.TABLE_SCHEMA = '${db}';`
               const queryPos = stdout.indexOf(query);
               debug('mysql queryPos:', queryPos, 'query:', query);
-              expect().to.be.at.above(-1);
+              expect(queryPos).to.be.at.above(-1);
             });
             debug('***');
           }
