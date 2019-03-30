@@ -22,7 +22,7 @@
   },
   "nyc": {
     "exclude": [
-      "**/test/**.js"
+      "**/test/*"
     ]
   },
   "scripts": {
