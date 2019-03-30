@@ -142,40 +142,60 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
     });
 
     it('the model files...', function(done) {
-      const HistoryLogs = this.sequelize.import(path.join(testConfig.directory, 'HistoryLogs'));
-      const ParanoidUsers = this.sequelize.import(path.join(testConfig.directory, 'ParanoidUsers'));
-      const Users = this.sequelize.import(path.join(testConfig.directory, 'Users'));
+      try {
+        const historyModel = path.join(testConfig.directory, 'HistoryLogs');
+        debug('Importing:', historyModel);
 
-      expect(HistoryLogs.tableName).to.equal('HistoryLogs');
-      ['some Text', 'aNumber', 'aRandomId', 'id'].forEach(function(field) {
-        expect(HistoryLogs.rawAttributes[field]).to.exist;
-      });
+        const HistoryLogs = this.sequelize.import(historyModel);
+        expect(HistoryLogs.tableName).to.equal('HistoryLogs');
+        ['some Text', 'aNumber', 'aRandomId', 'id'].forEach(function(field) {
+          expect(HistoryLogs.rawAttributes[field]).to.exist;
+        });
+      } catch (err) {
+        console.log('Failed to load HistoryLogs model:', err);     
+        throw err;   
+      }
 
-      expect(ParanoidUsers.tableName).to.equal('ParanoidUsers');
-      ['username', 'id', 'createdAt', 'updatedAt', 'deletedAt'].forEach(function(field) {
-        expect(ParanoidUsers.rawAttributes[field]).to.exist;
-      });
+      try {
+        const pUsers = path.join(testConfig.directory, 'ParanoidUsers');
+        debug('Importing:', pUsers);
 
-      expect(Users.tableName).to.equal('Users');
-      [
-        'username',
-        'touchedAt',
-        'aNumber',
-        'bNumber',
-        'validateTest',
-        'validateCustom',
-        'dateAllowNullTrue',
-        'id',
-        'createdAt',
-        'updatedAt'
-      ].forEach(function(field) {
-        expect(Users.rawAttributes[field]).to.exist;
-      });
+        const ParanoidUsers = this.sequelize.import(pUsers);
+        expect(ParanoidUsers.tableName).to.equal('ParanoidUsers');
+        ['username', 'id', 'createdAt', 'updatedAt', 'deletedAt'].forEach(function(field) {
+          expect(ParanoidUsers.rawAttributes[field]).to.exist;
+        });
+      } catch (err) {
+        console.log('Failed to load ParanoidUsers model:', err);        
+        throw err;   
+      }
 
-      expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
-      expect(Users.rawAttributes.validateCustom.allowNull).to.be.false;
-      expect(Users.rawAttributes.dateAllowNullTrue.allowNull).to.be.true;
-      expect(Users.rawAttributes.dateAllowNullTrue.type).to.match(/time/i);
+      try {
+        const users = path.join(testConfig.directory, 'Users');
+        debug('Importing:', users);
+
+        const Users = this.sequelize.import(users);
+        expect(Users.tableName).to.equal('Users');
+        ['username',
+          'touchedAt',
+          'aNumber',
+          'bNumber',
+          'validateTest',
+          'validateCustom',
+          'dateAllowNullTrue',
+          'id',
+          'createdAt',
+          'updatedAt'].forEach(function(field) {
+          expect(Users.rawAttributes[field]).to.exist;
+        });
+        expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
+        expect(Users.rawAttributes.validateCustom.allowNull).to.be.false;
+        expect(Users.rawAttributes.dateAllowNullTrue.allowNull).to.be.true;
+        expect(Users.rawAttributes.dateAllowNullTrue.type).to.match(/time/i);
+      } catch (err) {
+        console.log('Failed to load Users model:', err);
+        throw err;   
+      }
 
       done();
     });
