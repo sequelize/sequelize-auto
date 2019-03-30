@@ -101,7 +101,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
       const self = this;
       const db = self.sequelize.config.database;
       const testTables = ['Users', 'HistoryLogs', 'ParanoidUsers'];
-      
+
       try {   
         setupModels(self, function(err, stdout, stderr) {
           expect(err).to.be.null;
@@ -163,7 +163,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
       setupModels(self, done);
     });
 
-    it('the model files...', function(done) {
+    it('the HistoryLogs model', function(done) {
       try {
         const historyModel = path.join(testConfig.directory, 'HistoryLogs');
         debug('Importing:', historyModel);
@@ -174,11 +174,13 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
           expect(HistoryLogs.rawAttributes[field]).to.exist;
         });
         expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
+        done();
       } catch (err) {
         console.log('Failed to load HistoryLogs model:', err);     
-        throw err;   
       }
+    });
 
+    it('the ParanoidUsers model', function(done) {
       try {
         const pUsers = path.join(testConfig.directory, 'ParanoidUsers');
         debug('Importing:', pUsers);
@@ -188,11 +190,13 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         ['username', 'id', 'createdAt', 'updatedAt', 'deletedAt'].forEach(function(field) {
           expect(ParanoidUsers.rawAttributes[field]).to.exist;
         });
+        done();
       } catch (err) {
         console.log('Failed to load ParanoidUsers model:', err);        
-        throw err;   
       }
+    });
 
+    it('the Users model', function(done) {
       try {
         const users = path.join(testConfig.directory, 'Users');
         debug('Importing:', users);
@@ -214,12 +218,10 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         expect(Users.rawAttributes.validateCustom.allowNull).to.be.false;
         expect(Users.rawAttributes.dateAllowNullTrue.allowNull).to.be.true;
         expect(Users.rawAttributes.dateAllowNullTrue.type).to.match(/time/i);
+        done();
       } catch (err) {
         console.log('Failed to load Users model:', err);
-        throw err;   
       }
-
-      done();
     });
   });
 });
