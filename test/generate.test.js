@@ -151,6 +151,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         ['some Text', 'aNumber', 'aRandomId', 'id'].forEach(function(field) {
           expect(HistoryLogs.rawAttributes[field]).to.exist;
         });
+        expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
       } catch (err) {
         console.log('Failed to load HistoryLogs model:', err);     
         throw err;   
@@ -188,7 +189,6 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
           'updatedAt'].forEach(function(field) {
           expect(Users.rawAttributes[field]).to.exist;
         });
-        expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
         expect(Users.rawAttributes.validateCustom.allowNull).to.be.false;
         expect(Users.rawAttributes.dateAllowNullTrue.allowNull).to.be.true;
         expect(Users.rawAttributes.dateAllowNullTrue.type).to.match(/time/i);
