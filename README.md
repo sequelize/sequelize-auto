@@ -1,5 +1,7 @@
 # Sequelize-Auto-v2
 
+[![Build Status](https://travis-ci.org/4umfreak/sequelize-auto-v2.svg?branch=master)](https://travis-ci.org/4umfreak/sequelize-auto-v2)
+[![Coverage Status](https://coveralls.io/repos/github/4umfreak/sequelize-auto-v2/badge.svg?branch=master)](https://coveralls.io/github/4umfreak/sequelize-auto-v2?branch=master)
 
 Automatically generate models for [SequelizeJS](https://github.com/sequelize/sequelize) via the command line.
 
@@ -9,7 +11,7 @@ I ran into issues with the published sequelize-auto and it was two major version
 
 ## Install
 
-    npm install -g sequelize-auto
+    npm install -g sequelize-auto-v2
 
 ## Prerequisites
 
