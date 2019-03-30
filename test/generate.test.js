@@ -98,7 +98,8 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
 
   describe('should be able to generate', function() {
     it('the model files.', function(done) {
-      try { 
+      console.log('A------------');      
+      try {
         const self = this;
         const db = self.sequelize.config.database;
         const testTables = ['Users', 'HistoryLogs', 'ParanoidUsers'];
@@ -106,10 +107,10 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         setupModels(self, function(err, stdout, stderr) {
           expect(err).to.be.null;
           
-          console.log('------------');
-          console.log('Error::', err);
-          console.log('stdout::', stdout);
-          console.log('------------');
+          // console.log('------------');
+          // console.log('Error::', err);
+          // console.log('stdout::', stdout);
+          // console.log('------------');
 
           if (stderr) {
             console.log(stderr);
@@ -155,6 +156,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
             throw err;
           }
           done();
+          console.log('B------------');      
         });
       } catch (err) {
         console.log("Ack:", err);
@@ -165,8 +167,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
 
   describe('should be able to require', function() {
     before(function(done) {
-      const self = this;
-      setupModels(self, done);
+      setupModels(this, done);
     });
 
     it('the HistoryLogs model', function(done) {
