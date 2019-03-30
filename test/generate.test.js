@@ -97,14 +97,20 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
   };
 
   describe('should be able to generate', function() {
-    it('the model files...', function(done) {
-      const self = this;
-      const db = self.sequelize.config.database;
-      const testTables = ['Users', 'HistoryLogs', 'ParanoidUsers'];
-
-      try {   
+    it('the model files.', function(done) {
+      try { 
+        const self = this;
+        const db = self.sequelize.config.database;
+        const testTables = ['Users', 'HistoryLogs', 'ParanoidUsers'];
+  
         setupModels(self, function(err, stdout, stderr) {
           expect(err).to.be.null;
+          
+          console.log('------------');
+          console.log('Error::', err);
+          console.log('stdout::', stdout);
+          console.log('------------');
+
           if (stderr) {
             console.log(stderr);
           }
