@@ -102,54 +102,58 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
       const db = self.sequelize.config.database;
       const testTables = ['Users', 'HistoryLogs', 'ParanoidUsers'];
       
-      setupModels(self, function(err, stdout, stderr) {
-        expect(err).to.be.null;
-        if (stderr) {
-          console.log(stderr);
-        }
-        expect(stderr).to.be.empty;
-
-        // Cleanup whitespace and linebreaks!
-        stdout = stdout.replace(/\s+/g, ' ');
-
-        debug('Checking the output for', self.sequelize.options.dialect);
-
-        try {
-          // Check the output
-          if (self.sequelize.options.dialect === 'postgres') {
-            const defaultSchema = 'public';
-            const qry = `WHERE table_schema = '${defaultSchema}' AND table_type LIKE '%TABLE' AND table_name != 'spatial_ref_sys';`;
-            expect(stdout.indexOf(qry)).to.be.at.above(-1);
-
-            testTables.forEach(function(tbl) {
-              const query = `WHERE o.conrelid = (SELECT oid FROM pg_class WHERE relname = '${tbl}' LIMIT 1)`;
-              expect(stdout.indexOf(query)).to.be.at.above(-1);
-            });
-          } else if (self.sequelize.options.dialect === 'sqlite') {
-            expect(stdout.indexOf("FROM `sqlite_master` WHERE type='table'")).to.be.at.above(-1);
-          } else if (self.sequelize.options.dialect === 'mssql') {
-            expect(stdout.indexOf('SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES')).to.be.at.above(-1);
-          } else {
-
-            const showPos = stdout.indexOf('SHOW TABLES;');
-            debug('mysql showPos:', showPos);
-            expect(showPos).to.be.at.above(-1);
-
-            testTables.forEach(function(tbl) {
-              const query = `WHERE K.TABLE_NAME = '${tbl}' AND K.CONSTRAINT_SCHEMA = '${db}' AND C.TABLE_SCHEMA = '${db}';`
-              const queryPos = stdout.indexOf(query);
-              debug('mysql queryPos:', queryPos, 'query:', query);
-              expect(queryPos).to.be.at.above(-1);
-            });
-            debug('***');
+      try {   
+        setupModels(self, function(err, stdout, stderr) {
+          expect(err).to.be.null;
+          if (stderr) {
+            console.log(stderr);
           }
-        } catch (err) {
-          console.log("Error checking stdout:", err);
-          throw err;
-        }
-        done();
-      });
+          expect(stderr).to.be.empty;
 
+          // Cleanup whitespace and linebreaks!
+          stdout = stdout.replace(/\s+/g, ' ');
+
+          debug('Checking the output for', self.sequelize.options.dialect);
+
+          try {
+            // Check the output
+            if (self.sequelize.options.dialect === 'postgres') {
+              const defaultSchema = 'public';
+              const qry = `WHERE table_schema = '${defaultSchema}' AND table_type LIKE '%TABLE' AND table_name != 'spatial_ref_sys';`;
+              expect(stdout.indexOf(qry)).to.be.at.above(-1);
+
+              testTables.forEach(function(tbl) {
+                const query = `WHERE o.conrelid = (SELECT oid FROM pg_class WHERE relname = '${tbl}' LIMIT 1)`;
+                expect(stdout.indexOf(query)).to.be.at.above(-1);
+              });
+            } else if (self.sequelize.options.dialect === 'sqlite') {
+              expect(stdout.indexOf("FROM `sqlite_master` WHERE type='table'")).to.be.at.above(-1);
+            } else if (self.sequelize.options.dialect === 'mssql') {
+              expect(stdout.indexOf('SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES')).to.be.at.above(-1);
+            } else {
+
+              const showPos = stdout.indexOf('SHOW TABLES;');
+              debug('mysql showPos:', showPos);
+              expect(showPos).to.be.at.above(-1);
+
+              testTables.forEach(function(tbl) {
+                const query = `WHERE K.TABLE_NAME = '${tbl}' AND K.CONSTRAINT_SCHEMA = '${db}' AND C.TABLE_SCHEMA = '${db}';`
+                const queryPos = stdout.indexOf(query);
+                debug('mysql queryPos:', queryPos, 'query:', query);
+                expect(queryPos).to.be.at.above(-1);
+              });
+              debug('***');
+            }
+          } catch (err) {
+            console.log("Error checking stdout:", err);
+            throw err;
+          }
+          done();
+        });
+      } catch (err) {
+        console.log("Ack:", err);
+        throw err;    
+      }
     });
   });
 
