@@ -114,31 +114,36 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
 
         debug('Checking the output for', self.sequelize.options.dialect);
 
-        // Check the output
-        if (self.sequelize.options.dialect === 'postgres') {
-          const defaultSchema = 'public';
-          const qry = `WHERE table_schema = '${defaultSchema}' AND table_type LIKE '%TABLE' AND table_name != 'spatial_ref_sys';`;
-          expect(stdout.indexOf(qry)).to.be.at.above(-1);
+        try {
+          // Check the output
+          if (self.sequelize.options.dialect === 'postgres') {
+            const defaultSchema = 'public';
+            const qry = `WHERE table_schema = '${defaultSchema}' AND table_type LIKE '%TABLE' AND table_name != 'spatial_ref_sys';`;
+            expect(stdout.indexOf(qry)).to.be.at.above(-1);
 
-          testTables.forEach(function(tbl) {
-            const query = `WHERE o.conrelid = (SELECT oid FROM pg_class WHERE relname = '${tbl}' LIMIT 1)`;
-            expect(stdout.indexOf(query)).to.be.at.above(-1);
-          });
-        } else if (self.sequelize.options.dialect === 'sqlite') {
-          expect(stdout.indexOf("FROM `sqlite_master` WHERE type='table'")).to.be.at.above(-1);
-        } else if (self.sequelize.options.dialect === 'mssql') {
-          expect(stdout.indexOf('SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES')).to.be.at.above(-1);
-        } else {
-          expect(stdout.indexOf('SHOW TABLES;')).to.be.at.above(-1);
+            testTables.forEach(function(tbl) {
+              const query = `WHERE o.conrelid = (SELECT oid FROM pg_class WHERE relname = '${tbl}' LIMIT 1)`;
+              expect(stdout.indexOf(query)).to.be.at.above(-1);
+            });
+          } else if (self.sequelize.options.dialect === 'sqlite') {
+            expect(stdout.indexOf("FROM `sqlite_master` WHERE type='table'")).to.be.at.above(-1);
+          } else if (self.sequelize.options.dialect === 'mssql') {
+            expect(stdout.indexOf('SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES')).to.be.at.above(-1);
+          } else {
+            expect(stdout.indexOf('SHOW TABLES;')).to.be.at.above(-1);
 
-          testTables.forEach(function(tbl) {
-            const query = `WHERE K.TABLE_NAME = '${tbl}' AND K.CONSTRAINT_SCHEMA = '${db}' AND C.TABLE_SCHEMA = '${db}';`
-            expect(stdout.indexOf(query)).to.be.at.above(-1);
-          });
+            testTables.forEach(function(tbl) {
+              const query = `WHERE K.TABLE_NAME = '${tbl}' AND K.CONSTRAINT_SCHEMA = '${db}' AND C.TABLE_SCHEMA = '${db}';`
+              expect(stdout.indexOf(query)).to.be.at.above(-1);
+            });
+          }
+        } catch (err) {
+          console.log("Error checking stdout:", err);
+          throw err;
         }
         done();
       });
-      
+
     });
   });
 
