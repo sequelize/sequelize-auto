@@ -98,6 +98,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
 
   describe('should be able to generate', function() {
     it('the model files.', function(done) {
+      this.timeout(10000); // failing on Node 8 + 10 at 2000.
       console.log('A------------');      
       try {
         const self = this;
