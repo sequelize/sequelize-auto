@@ -36,7 +36,7 @@
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "engines": {
-    "node": ">6"
+    "node": ">= 6"
   },
   "author": "Mark Voorberg <4umfreak@gmail.com>",
   "license": "MIT",

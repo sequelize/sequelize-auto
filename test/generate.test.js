@@ -74,22 +74,26 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
   const setupModels = function(self, callback) {
     const config = self.sequelize.config;
     const autoBin = path.join(__dirname, '..', 'bin', 'sequelize-auto');
-    let execString = `node ${autoBin} -o "${testConfig.directory}" -d ${config.database} -h ${config.host}`;
-
-    if (_.has(config, 'username') && !_.isNull(config.username)) {
-      execString += ` -u ${config.username}`;
+    try {
+      let execString = `node ${autoBin} -o "${testConfig.directory}" -d ${config.database} -h ${config.host}`;
+      if (_.has(config, 'username') && !_.isNull(config.username)) {
+        execString += ` -u ${config.username}`;
+      }
+      if (_.has(config, 'password') && config.password != null) {
+        execString += ` -x ${config.password}`;
+      }
+      if (_.has(config, 'port') && !_.isNull(config.port)) {
+        execString += ` -p ${config.port}`;
+      }
+      if (_.isString(self.sequelize.options.dialect)) {
+        execString += ` -e ${self.sequelize.options.dialect}`;
+      }
+      debug('Starting child process:', execString);
+      exec(execString, callback);
+    } catch (err) {
+      console.log('Error:', err);
+      throw err;
     }
-    if (_.has(config, 'password') && !_.isNull(config.password)) {
-      execString += ` -x ${config.password}`;
-    }
-    if (_.has(config, 'port') && !_.isNull(config.port)) {
-      execString += ` -p ${config.port}`;
-    }
-    if (_.isString(self.sequelize.options.dialect)) {
-      execString += ` -e ${self.sequelize.options.dialect}`;
-    }
-    debug('Starting child process:', execString);
-    exec(execString, callback);
   };
 
   describe('should be able to generate', function() {
@@ -107,6 +111,8 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
 
         // Cleanup whitespace and linebreaks!
         stdout = stdout.replace(/\s+/g, ' ');
+
+        debug('Checking the output for', self.sequelize.options.dialect);
 
         // Check the output
         if (self.sequelize.options.dialect === 'postgres') {
@@ -132,6 +138,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         }
         done();
       });
+      
     });
   });
 
