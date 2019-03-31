@@ -99,7 +99,6 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
   describe('should be able to generate', function() {
     it('the model files.', function(done) {
       this.timeout(10000); // failing on Node 8 + 10 at 2000.
-      console.log('A------------');      
       try {
         const self = this;
         const db = self.sequelize.config.database;
@@ -150,14 +149,12 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
                 debug('mysql queryPos:', queryPos, 'query:', query);
                 expect(queryPos).to.be.at.above(-1);
               });
-              debug('***');
             }
           } catch (err) {
             console.log("Error checking stdout:", err);
             throw err;
           }
           done();
-          console.log('B------------');      
         });
       } catch (err) {
         console.log("Ack:", err);
