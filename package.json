@@ -43,10 +43,10 @@
   "dependencies": {
     "async": "^2.1.5",
     "debug": "^4.1.1",
-    "eslint": "^5.15.3",
+    "eslint": "^5.16.0",
     "graceful-fs-extra": "^2.0.0",
     "mkdirp": "^0.5.1",
-    "sequelize": "^5.2.3",
+    "sequelize": "^5.2.8",
     "yargs": "^13.2.2"
   },
   "devDependencies": {
