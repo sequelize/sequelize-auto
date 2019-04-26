@@ -52,7 +52,7 @@
     "eslint": "^3.19.0",
     "graceful-fs-extra": "^2.0.0",
     "mkdirp": "^0.5.1",
-    "sequelize": "^3.30.2",
+    "sequelize": "^5.7.6",
     "yargs": "^8.0.1"
   },
   "devDependencies": {
