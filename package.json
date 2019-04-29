@@ -13,10 +13,6 @@
   "bin": {
     "sequelize-auto": "bin/sequelize-auto"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sequelize/sequelize-auto.git"
-  },
   "bugs": {
     "url": "https://github.com/sequelize/sequelize-auto/issues"
   },
