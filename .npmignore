@@ -1,4 +1,5 @@
 test/models/*.js
+.git
 *.swp
 .idea
 .DS_STORE
