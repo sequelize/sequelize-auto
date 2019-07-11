@@ -51,6 +51,7 @@
     "sequelize": "^5.9.4"
   },
   "dependencies": {
+    "lodash": "^4.17.14",
     "async": "^2.1.5",
     "eslint": "^3.19.0",
     "graceful-fs-extra": "^2.0.0",
