@@ -47,12 +47,14 @@
   },
   "author": "Daniel Durante <me@danieldurante.com>",
   "license": "MIT",
+  "peerDependencies": {
+    "sequelize": "^5.9.4"
+  },
   "dependencies": {
     "async": "^2.1.5",
     "eslint": "^3.19.0",
     "graceful-fs-extra": "^2.0.0",
     "mkdirp": "^0.5.1",
-    "sequelize": "^3.30.2",
     "yargs": "^8.0.1"
   },
   "devDependencies": {
