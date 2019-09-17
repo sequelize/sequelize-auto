@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "chai": "^4.0.1",
-    "cross-env": "^5.0.0",
+    "cross-env": "^6.0.0",
     "istanbul": "^0.4.5",
     "lcov-result-merger": "^2.0.0",
     "mkdirp": "^0.5.1",
