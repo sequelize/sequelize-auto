@@ -1,6 +1,6 @@
 {
   "name": "sequelize-auto",
-  "version": "0.4.29",
+  "version": "0.5.0",
   "description": "Automatically generate bare sequelize models from your database.",
   "repository": "https://github.com/sequelize/sequelize-auto.git",
   "main": "index",
@@ -48,24 +48,23 @@
     "async": "^2.1.5",
     "eslint": "^3.19.0",
     "graceful-fs-extra": "^2.0.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "mkdirp": "^0.5.1",
     "mysql2": "^1.6.5",
-    "sequelize": "^4.12.0",
+    "sequelize": "^5.15.1",
     "yargs": "^8.0.1"
   },
   "devDependencies": {
     "chai": "^4.0.1",
     "cross-env": "^5.0.0",
-    "istanbul": "^0.4.5",
-    "lcov-result-merger": "^2.0.0",
+    "lcov-result-merger": "^3.1.0",
     "mkdirp": "^0.5.1",
     "mocha": "^4.0.0",
     "mysql": "^2.13.0",
-    "nyc": "^11.0.1",
+    "nyc": "^11.9.0",
     "pg": "^6.1.5",
     "pg-hstore": "^2.3.2",
-    "sqlite3": "^4.0.0",
+    "sqlite3": "^4.1.0",
     "tedious": "^2.0.0"
   }
 }
