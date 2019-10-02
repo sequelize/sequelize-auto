@@ -51,7 +51,7 @@
     "lodash": "^4.17.15",
     "mkdirp": "^0.5.1",
     "mysql2": "^1.6.5",
-    "sequelize": "^5.15.1",
+    "sequelize": "^4.44.3",
     "yargs": "^8.0.1"
   },
   "devDependencies": {
