@@ -142,6 +142,8 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
     dialect: 'mysql'|'mariadb'|'sqlite'|'postgres'|'mssql',
     directory: false, // prevents the program from writing to disk
     port: 'port',
+    camelCase: true, // sequelize field names use userId format (default is user_id) for db columns named as user_id 
+    camelCaseForFileName: true, // file names created for each model use camelCase.js not snake_case.js
     additional: {
         timestamps: false
         //...
