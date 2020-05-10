@@ -1,11 +1,8 @@
 #!/usr/bin/env node
 
-var sequelizeAuto = require('../');
-var path = require('path');
-var Sequelize = require('sequelize');
-var _ = Sequelize.Utils._;
-
-var argv = require('yargs')
+const sequelizeAuto = require('../');
+const path = require('path');
+const argv = require('yargs')
   .usage('Usage: sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]')
   .demand(['h', 'd'])
   .alias('h', 'host')
@@ -42,9 +39,9 @@ var argv = require('yargs')
   .describe('f', 'Use camel case for file name')
   .argv;
 
-var dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
+let dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
 
-var configFile = {
+let configFile = {
   spaces: true,
   indentation: 2
 }
@@ -55,7 +52,7 @@ if (argv.c) {
 
 configFile.directory = configFile.directory || dir;
 
-var additional = {};
+let additional = {};
 if (argv.a) {
   additional = require(path.resolve(argv.a));
 }
@@ -87,7 +84,7 @@ function getDefaultPort(dialect) {
     }
 }
 
-var auto = new sequelizeAuto(argv.d, argv.u, (!! argv.x ? ('' + argv.x) : null), configFile);
+const auto = new sequelizeAuto(argv.d, argv.u, (!! argv.x ? ('' + argv.x) : null), configFile);
 
 auto.run(function (err) {
   if (err) throw err;

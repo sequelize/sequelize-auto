@@ -16,7 +16,7 @@ module.exports = {
   //make maxIdleTime small so that tests exit promptly
   mysql: {
     username: "root",
-    password: null,
+    password: "mM123456",
     database: 'sequelize_auto_test',
     host: '127.0.0.1',
     port: 3306,

@@ -6,7 +6,7 @@ var expect = chai.expect;
 var helpers = require('./helpers');
 var dialect = helpers.getTestDialect();
 var testConfig = require('./config');
-var _ = helpers.Sequelize.Utils._;
+var _ = require('lodash');
 var lib = require('../index');
 
 describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
@@ -70,7 +70,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
   });
 
   var setupModels = function(self, callback) {
-    var options = _.extend({
+    var options = Object.assign({
       spaces: true,
       indentation: 2,
       logging: false,
