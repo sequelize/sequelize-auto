@@ -9,3 +9,4 @@ database.sqlite
 .nyc_output
 coverage/
 coverage-*/
+models
