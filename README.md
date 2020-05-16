@@ -8,7 +8,7 @@ Automatically generate models for [SequelizeJS](https://github.com/sequelize/seq
 
 ## Install
 
-    npm install -g sequelize-auto
+    npm install -g @puti94/sequelize-auto
 
 ## Prerequisites
 

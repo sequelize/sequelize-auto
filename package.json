@@ -1,6 +1,6 @@
 {
-  "name": "sequelize-auto",
-  "version": "0.4.29",
+  "name": "@puti94/sequelize-auto",
+  "version": "0.1.1",
   "description": "Automatically generate bare sequelize models from your database.",
   "main": "index",
   "keywords": [
@@ -12,6 +12,9 @@
   ],
   "bin": {
     "sequelize-auto": "bin/sequelize-auto"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   },
   "repository": {
     "type": "git",
