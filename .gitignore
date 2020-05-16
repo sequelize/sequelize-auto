@@ -10,3 +10,5 @@ database.sqlite
 coverage/
 coverage-*/
 models
+testServer.js
+yarn.lock
