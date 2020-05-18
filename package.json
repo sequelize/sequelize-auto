@@ -57,19 +57,20 @@
     "yargs": "^8.0.1"
   },
   "devDependencies": {
-    "chai": "^4.0.1",
-    "express": "^4.17.1",
-    "graphql-adapter": "^0.1.4",
     "apollo-server-express": "^2.12.0",
+    "chai": "^4.0.1",
     "cross-env": "^5.0.0",
+    "express": "^4.17.1",
+    "fast-text-encoding": "^1.0.2",
+    "graphql-adapter": "^0.2.2",
     "istanbul": "^0.4.5",
     "mkdirp": "^0.5.1",
-    "sequelize": "latest",
     "mocha": "^4.0.0",
     "mysql2": "^2.1.0",
     "nyc": "^11.0.1",
     "pg": "^8.1.0",
     "pg-hstore": "^2.3.2",
+    "sequelize": "^5.21.9",
     "sqlite3": "^4.2.0",
     "tedious": "^8.3.0"
   }
