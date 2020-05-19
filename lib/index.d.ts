@@ -1,4 +1,4 @@
-import {Sequelize} from 'sequelize'
+import {Sequelize, Options} from 'sequelize'
 
 export declare class AutoSequelize {
     constructor(database: string, username: string, password: string, options?: {
@@ -10,7 +10,7 @@ export declare class AutoSequelize {
         isEgg?: boolean;
         camelCase?: boolean;
         camelCaseForFileName?: boolean;
-    });
+    } & Options);
     constructor(sequelize: Sequelize);
 
     sequelize: Sequelize;
