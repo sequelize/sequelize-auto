@@ -1,6 +1,6 @@
 {
   "name": "@puti94/sequelize-auto",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Automatically generate bare sequelize models from your database.",
   "main": "index",
   "types": "lib/index.d.ts",
@@ -63,7 +63,7 @@
     "cross-env": "^5.0.0",
     "express": "^4.17.1",
     "fast-text-encoding": "^1.0.2",
-    "graphql-adapter": "^0.2.2",
+    "graphql-adapter": "^0.2.8",
     "istanbul": "^0.4.5",
     "mkdirp": "^0.5.1",
     "mocha": "^4.0.0",
