@@ -57,62 +57,50 @@ Example for MSSQL
 
 Produces a file/files such as ./models/Users.js which looks like:
 
-    /* jshint indent: 2 */
-
-    module.exports = function(sequelize, DataTypes) {
-      return sequelize.define('Users', {
-        'id': {
-          type: DataTypes.INTEGER(11),
-          allowNull: false,
-          primaryKey: true,
-          autoIncrement: true
-        },
-        'username': {
-          type: DataTypes.STRING,
-          allowNull: true
-        },
-        'touchedAt': {
-          type: DataTypes.DATE,
-          allowNull: true
-        },
-        'aNumber': {
-          type: DataTypes.INTEGER(11),
-          allowNull: true
-        },
-        'bNumber': {
-          type: DataTypes.INTEGER(11),
-          allowNull: true
-        },
-        'validateTest': {
-          type: DataTypes.INTEGER(11),
-          allowNull: true
-        },
-        'validateCustom': {
-          type: DataTypes.STRING,
-          allowNull: false
-        },
-        'dateAllowNullTrue': {
-          type: DataTypes.DATE,
-          allowNull: true
-        },
-        'defaultValueBoolean': {
-          type: DataTypes.BOOLEAN,
-          allowNull: true,
-          defaultValue: '1'
-        },
-        'createdAt': {
-          type: DataTypes.DATE,
-          allowNull: false
-        },
-        'updatedAt': {
-          type: DataTypes.DATE,
-          allowNull: false
-        }
-      }, {
-        tableName: 'Users',
-        freezeTableName: true
-      });
+    /* jshint indent: 1*/
+    module.exports = function (sequelize, DataTypes) {
+    	const Model = sequelize.define('sysRole', {
+        roleId: {
+    			type: DataTypes.BIGINT,
+    			allowNull: false,
+    			primaryKey: true,
+    			autoIncrement: true,
+    			field: 'role_id'
+    		},
+    		roleName: {
+    			type: DataTypes.STRING(100),
+    			comment: '角色名称',
+    			field: 'role_name'
+    		},
+    		remark: {
+    			type: DataTypes.STRING(100),
+    			comment: '备注'
+    		},
+    		createUserId: {
+    			type: DataTypes.BIGINT,
+    			comment: '创建者ID',
+    			field: 'create_user_id'
+    		},
+    		createTime: {
+    			type: DataTypes.DATE,
+    			comment: '创建时间',
+    			field: 'create_time'
+    		},
+    		deptId: {
+    			type: DataTypes.BIGINT,
+    			comment: '部门ID',
+    			field: 'dept_id'
+    		}
+    	}, {
+    		tableName: 'sys_role',
+    		comment: '角色'
+    	});
+    	Model.associate = function (models) {
+    	//  Model.hasMany(models.xx, {sourceKey: "xx", foreignKey: "xx"});
+    	};
+    	return Model;
     };
+
 
 
 Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import) it.
@@ -126,17 +114,20 @@ For the `-c, --config` option the following JSON/configuration parameters are de
 ## Programmatic API
 
 ```js
-var SequelizeAuto = require('sequelize-auto')
-var auto = new SequelizeAuto('database', 'user', 'pass');
+var {AutoSequelize} = require('@puti94/sequelize-auto')
+var auto = new AutoSequelize('database', 'user', 'pass');
 
-auto.run(function (err) {
-  if (err) throw err;
-
+auto.prepare().then(()=> {
   console.log(auto.tables); // table list
   console.log(auto.foreignKeys); // foreign key list
+  
+  // 可以使用这个方法自动调用 注入 models
+  auto.initModels();
+  
+  auto.outputFiles().then(()=>console.log('success'))
 });
 
-With options:
+//With options:
 var auto = new SequelizeAuto('database', 'user', 'pass', {
     host: 'localhost',
     dialect: 'mysql'|'mariadb'|'sqlite'|'postgres'|'mssql',
@@ -149,21 +140,6 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
     tables: ['table1', 'table2', 'table3']
     //...
 })
-```
-
-## Typescript
-
-Add -z to cli options or `typescript: true` to programmatic options. Model usage in a ts file:
-
-```js
-// All models, can put in or extend to a db object at server init
-import * as dbTables from './models/db.tables';
-const tables = dbTables.getModels(sequelize); //:dbTables.ITable
-tables.Device.findAll
-// Single models
-import * as dbDef from './models/db.d';
-const devices:dbDef.DeviceModel = sequelize.import('./models/Device');
-devices.findAll
 ```
 
 ## Testing

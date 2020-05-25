@@ -1,6 +1,6 @@
 {
   "name": "@puti94/sequelize-auto",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Automatically generate bare sequelize models from your database.",
   "main": "index",
   "types": "lib/index.d.ts",
@@ -54,6 +54,7 @@
   "dependencies": {
     "async": "^2.1.5",
     "eslint": "^3.19.0",
+    "lodash": "^4.17.15",
     "mkdirp": "^0.5.1",
     "yargs": "^8.0.1"
   },

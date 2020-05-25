@@ -7,33 +7,7 @@ var dialect = helpers.getTestDialect();
 var dialects = require('../lib/dialects');
 
 describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
-  describe('getForeignKeysQuery', function () {
-    it('mysql', function (done) {
-      var query = dialects.mysql.getForeignKeysQuery('mytable', 'mydatabase');
-      expect(query).to.include('K.TABLE_NAME = \'mytable\'');
-      expect(query).to.include('AND K.CONSTRAINT_SCHEMA = \'mydatabase\';');
-      done();
-    });
-
-    it('sqlite', function (done) {
-      var query = dialects.sqlite.getForeignKeysQuery('mytable', 'mydatabase');
-      expect(query).to.include('PRAGMA foreign_key_list(mytable);');
-      done();
-    });
-
-    it('postgres', function (done) {
-      var query = dialects.postgres.getForeignKeysQuery('mytable', 'mydatabase');
-      expect(query).to.include('WHERE o.conrelid = (SELECT oid FROM pg_class WHERE relname = \'mytable\' LIMIT 1)');
-      done();
-    });
-
-    it('mssql', function (done) {
-      var query = dialects.mssql.getForeignKeysQuery('mytable', 'mydatabase');
-      expect(query).to.include('WHERE ccu.table_name = ' + helpers.Sequelize.Utils.addTicks('mytable', "'"));
-      done();
-    });
-  });
-
+ 
   describe('isForeignKey', function () {
     it('mysql', function (done) {
       expect(dialects.mysql.isForeignKey(null)).to.be.false;
