@@ -1,50 +1,50 @@
 #!/usr/bin/env node
 
-const {AutoSequelize} = require('../');
-const path = require('path');
-const argv = require('yargs')
-    .usage('Usage: sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]')
-    .demand(['h', 'd'])
-    .alias('h', 'host')
-    .alias('d', 'database')
-    .alias('u', 'user')
-    .alias('x', 'pass')
-    .alias('p', 'port')
-    .alias('c', 'config')
-    .alias('o', 'output')
-    .alias('e', 'dialect')
-    .alias('a', 'additional')
-    .alias('t', 'tables')
-    .alias('T', 'skip-tables')
-    .alias('C', 'camel')
-    .alias('n', 'no-write')
-    .alias('s', 'schema')
-    .alias('z', 'typescript')
-    .alias('f', 'camel-file-name')
-    .describe('h', 'IP/Hostname for the database.')
-    .describe('d', 'Database name.')
-    .describe('u', 'Username for database.')
-    .describe('x', 'Password for database.')
-    .describe('p', 'Port number for database. It is not for sqlite. ex) MySQL/MariaDB: 3306, Postgres: 5432, MSSQL: 1433')
-    .describe('c', 'JSON file for Sequelize\'s constructor "options" flag object as defined here: https://sequelize.readthedocs.org/en/latest/api/sequelize/')
-    .describe('o', 'What directory to place the models.')
-    .describe('e', 'The dialect/engine that you\'re using: postgres, mysql, sqlite, mssql')
-    .describe('a', 'Path to a json file containing model definitions (for all tables) which are to be defined within a model\'s configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration')
-    .describe('t', 'Comma-separated names of tables to import')
-    .describe('T', 'Comma-separated names of tables to skip')
-    .describe('C', 'Use camel case to name models and fields')
-    .describe('n', 'Prevent writing the models to disk.')
-    .describe('s', 'Database schema from which to retrieve tables')
-    .describe('z', 'Output models as typescript with a definitions file')
-    .describe('f', 'Use camel case for file name')
-    .argv;
+const { AutoSequelize } = require("../");
+const { Sequelize } = require("sequelize");
+const path = require("path");
+const argv = require("yargs")
+  .usage("Usage: sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]")
+  // .demand(["h", "d"])
+  .alias("url", "url")
+  .alias("h", "host")
+  .alias("d", "database")
+  .alias("u", "user")
+  .alias("x", "pass")
+  .alias("p", "port")
+  .alias("c", "config")
+  .alias("o", "output")
+  .alias("e", "dialect")
+  .alias("a", "additional")
+  .alias("t", "tables")
+  .alias("T", "skip-tables")
+  .alias("C", "camel")
+  .alias("n", "no-write")
+  .alias("s", "schema")
+  .alias("z", "typescript")
+  .alias("f", "camel-file-name")
+  .describe("url", "Database connect url. Such as: mysql://root:123456@localhost:3306/test")
+  .describe("h", "IP/Hostname for the database.")
+  .describe("d", "Database name.")
+  .describe("u", "Username for database.")
+  .describe("x", "Password for database.")
+  .describe("p", "Port number for database. It is not for sqlite. ex) MySQL/MariaDB: 3306, Postgres: 5432, MSSQL: 1433")
+  .describe("c", "JSON file for Sequelize's constructor \"options\" flag object as defined here: https://sequelize.readthedocs.org/en/latest/api/sequelize/")
+  .describe("o", "What directory to place the models.")
+  .describe("e", "The dialect/engine that you're using: postgres, mysql, sqlite, mssql")
+  .describe("a", "Path to a json file containing model definitions (for all tables) which are to be defined within a model's configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration")
+  .describe("t", "Comma-separated names of tables to import")
+  .describe("T", "Comma-separated names of tables to skip")
+  .describe("C", "Use camel case to name models and fields")
+  .describe("n", "Prevent writing the models to disk.")
+  .describe("s", "Database schema from which to retrieve tables")
+  .describe("z", "Output models as typescript with a definitions file")
+  .describe("f", "Use camel case for file name")
+  .argv;
 
-let dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
+let dir = !argv.n && (argv.o || path.resolve(process.cwd() + "/models"));
 
-let configFile = {
-  spaces: true,
-  indentation: 2
-}
+let configFile = {};
 
 if (argv.c) {
   configFile = require(path.resolve(argv.c));
@@ -62,12 +62,12 @@ if (configFile.additional) {
 }
 
 configFile.additional = additional;
-configFile.dialect = argv.e || configFile.dialect || 'mysql';
+configFile.dialect = argv.e || configFile.dialect || "mysql";
 configFile.port = argv.p || configFile.port || getDefaultPort(configFile.dialect);
-configFile.host = argv.h || configFile.host || 'localhost';
+configFile.host = argv.h || configFile.host || "localhost";
 configFile.storage = argv.d;
-configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
-configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(',')) || null;
+configFile.tables = configFile.tables || (argv.t && argv.t.split(",")) || null;
+configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(",")) || null;
 configFile.camelCase = !!argv.C;
 configFile.schema = argv.s || configFile.schema;
 configFile.typescript = argv.z || configFile.typescript || false;
@@ -75,15 +75,23 @@ configFile.camelCaseForFileName = argv.f || configFile.camelCaseForFileName || f
 
 function getDefaultPort(dialect) {
   switch (dialect.toLowerCase()) {
-    case 'mssql':
+    case "mssql":
       return 1433;
-    case 'postgres':
+    case "postgres":
       return 5432;
     default:
       return 3306;
   }
 }
 
-const auto = new AutoSequelize(argv.d, argv.u, (!!argv.x ? ('' + argv.x) : null), configFile);
+let auto;
+if (argv.url) {
+  auto = new AutoSequelize(new Sequelize(argv.url), configFile);
+} else if (argv.d) {
+  auto = new AutoSequelize(argv.d, argv.u, (!!argv.x ? ("" + argv.x) : null), configFile);
+} else {
+  console.warn("need --url or --d --u --h");
+}
 
-auto.prepare().then(() => auto.outputFiles()).then(() => console.log('Done!'));
+
+auto.prepare().then(() => auto.outputFiles()).then(() => console.log("Done!"));

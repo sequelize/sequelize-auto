@@ -1,15 +1,13 @@
-import {Sequelize, Options} from 'sequelize'
+import {Sequelize, Options, ModelOptions,ModelAttributes} from 'sequelize'
 
 type AutoOptions = {
-    spaces?: boolean;
-    indentation?: number;
     directory?: string;
-    additional?: object;
-    freezeTableName?: boolean;
+    additional?: ModelOptions;
     tables?: string[];
     skipTables?: string[];
     isEgg?: boolean;
     camelCase?: boolean;
+    typescript?: boolean;
     camelCaseForFileName?: boolean;
 } & Options;
 
@@ -31,7 +29,11 @@ export declare class AutoSequelize {
 
     sequelize: Sequelize;
     tables: { [tableName: string]: { [fieldName: string]: FieldConfig } };
+    tablesAttributes: { [tableName: string]: ModelAttributes };
     tablesText: { [tableName: string]: string };
+    tablesOptionsText: { [tableName: string]: string };
+    tablesOptions: { [tableName: string]: ModelOptions };
+    tablesAttributesText: { [tableName: string]: string };
     tablesComments: { [tableName: string]: string };
     dialect: string;
 

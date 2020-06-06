@@ -11,4 +11,5 @@ coverage/
 coverage-*/
 models
 testServer.js
+server.ts
 yarn.lock
