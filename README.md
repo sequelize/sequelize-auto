@@ -8,7 +8,7 @@ Automatically generate models for [SequelizeJS](https://github.com/sequelize/seq
 
 ## Install
 
-    npm install -g @puti94/sequelize-auto
+    npm install -g @puti94/sequelize-auto //or yarn global add @puti94/sequelize-auto
 
 ## Prerequisites
 
@@ -35,8 +35,9 @@ Example for MSSQL
     [node] sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName] -C
 
     Options:
-      -h, --host        IP/Hostname for the database.   [required]
-      -d, --database    Database name.                  [required]
+      -h, --host        IP/Hostname for the database.
+      -url, --url       Database connect url. Such as: mysql://root:123456@localhost:3306/test
+      -d, --database    Database name.
       -u, --user        Username for database.
       -x, --pass        Password for database.
       -p, --port        Port number for database.
@@ -114,21 +115,21 @@ For the `-c, --config` option the following JSON/configuration parameters are de
 ## Programmatic API
 
 ```js
-var {AutoSequelize} = require('@puti94/sequelize-auto')
-var auto = new AutoSequelize('database', 'user', 'pass');
+const {AutoSequelize} = require('@puti94/sequelize-auto')
+const auto = new AutoSequelize('database', 'user', 'pass');
 
 auto.prepare().then(()=> {
   console.log(auto.tables); // table list
   console.log(auto.foreignKeys); // foreign key list
-  
+
   // 可以使用这个方法自动调用 注入 models
   auto.initModels();
-  
+
   auto.outputFiles().then(()=>console.log('success'))
 });
 
 //With options:
-var auto = new SequelizeAuto('database', 'user', 'pass', {
+const auto = new SequelizeAuto('database', 'user', 'pass', {
     host: 'localhost',
     dialect: 'mysql'|'mariadb'|'sqlite'|'postgres'|'mssql',
     directory: false, // prevents the program from writing to disk
@@ -140,6 +141,9 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
     tables: ['table1', 'table2', 'table3']
     //...
 })
+//with url:
+const {Sequelize} = require('sequelize');
+const auto = new AutoSequelize(new Sequelize("mysql://root:123456@localhost:3306/test"),/* options */);
 ```
 
 ## Testing
@@ -161,6 +165,3 @@ You must setup a database called `sequelize_auto_test` first, edit the `test/con
     # sqlite only
     npm run test-sqlite
 
-## Projects Using Sequelize-Auto
-
-* [Sequelizer](https://github.com/andyforever/sequelizer)
