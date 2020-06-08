@@ -2,6 +2,13 @@
 
 All visible changes to this project will be documented in this file as of version `0.4.22`
 
+## vnext-2020-june
+
+* Add UpperCamelCase option (thanks @marshalys)
+* Document existing camelCase option (thanks @murfett-au)
+* Fix postgres dialect foreign key query to support Postgres 12
+* Update compatibility to Sequelize v5
+
 ## Master
 
 ### Fixed
