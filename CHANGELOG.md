@@ -1,6 +1,10 @@
-# Changelog
+# sequelize-auto-v2 change log
 
-All visible changes to this project will be documented in this file as of version `0.4.22`
+## 0.5.0
+- Forked from sequelize-auto
+- Many edits, published as sequelize-auto-v2
+- It's probably broken
+
 
 ## vnext-2020-june
 
@@ -18,7 +22,7 @@ All visible changes to this project will be documented in this file as of versio
 ### Fixed
 
 * Sets DATEONLY for DATE types
-* Fix typescript, add missing option for camelcase filenames
+* Fix typescript, add missing option for camelcase filenames...
 * Fixes JSONB support
 * Fixes TIMESTAMP support
 
