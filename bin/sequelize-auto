@@ -23,6 +23,7 @@ const argv = require('yargs')
   .alias('s', 'schema')
   .alias('z', 'typescript')
   .alias('f', 'camel-file-name')
+  .alias('l', 'es6')
   .describe('h', 'IP/Hostname for the database.')
   .describe('d', 'Database name.')
   .describe('u', 'Username for database.')
@@ -44,7 +45,9 @@ const argv = require('yargs')
   .describe('n', 'Prevent writing the models to disk.')
   .describe('s', 'Database schema from which to retrieve tables')
   .describe('z', 'Output models as typescript with a definitions file')
-  .describe('f', 'Use camel case for file name').argv;
+  .describe('f', 'Use camel case for file name')
+  .describe('l', 'Use ES2006 module style')
+  .argv;
 
 const dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
 
@@ -79,6 +82,7 @@ configFile.camelCase = argv.C || configFile.camelCase || false;
 configFile.schema = argv.s || configFile.schema;
 configFile.typescript = argv.z || configFile.typescript || false;
 configFile.camelCaseForFileName = argv.f || configFile.camelCaseForFileName || false;
+configFile.es6 = argv.l || 'es5';
 
 function getDefaultPort(dialect) {
   switch (dialect.toLowerCase()) {
@@ -92,6 +96,7 @@ function getDefaultPort(dialect) {
 }
 
 const auto = new sequelizeAuto(argv.d, argv.u, !!argv.x ? '' + argv.x : null, configFile);
+debugger;
 auto.run(function(err) {
   if (err) {
     throw err;

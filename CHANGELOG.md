@@ -1,4 +1,4 @@
-# sequelize-auto-v2 change log
+# sequelize-auto change log
 
 ## 0.5.0
 - Forked from sequelize-auto
@@ -11,7 +11,16 @@
 * Add UpperCamelCase option (thanks @marshalys)
 * Document existing camelCase option (thanks @murfett-au)
 * Fix postgres dialect foreign key query to support Postgres 12
-* Update compatibility to Sequelize v5
+* Update compatibility to Sequelize v5 (thanks @createthis @mrbichel @naren7229)
+* Fix "c.extra" in mysql foreign keys query (thanks @bkolla-ft and @jeongjuwon)
+* Fix support for `double` type (thanks @wen911119)
+* Add support for `closeConnectionAutomatically` (thanks @allnulled)
+* Fix schema name join in mysql foreign keys query (thanks @yujunlong2000) 
+* Add schema to generated files (thanks @THAlpha)
+* Add arg "l", when eql "es6" the output model will change to ES2006 export style (thanks @threem0126)
+* Add HSTORE data type (thanks @roytz)
+* Fix tedious warnings for trustServerCertificate and enableArithAbort
+* Fix support for mssql nchar, nvarchar, money, varbinary types
 
 ## Master
 

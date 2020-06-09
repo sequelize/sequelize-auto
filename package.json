@@ -38,31 +38,31 @@
   "engines": {
     "node": ">= 6"
   },
-  "author": "Mark Voorberg <4umfreak@gmail.com>",
+  "author": "Daniel Durante <me@danieldurante.com>",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.1.5",
-    "debug": "^4.1.1",
-    "eslint": "^5.16.0",
+    "async": "^3.2.0",
+    "eslint": "^7.2.0",
     "graceful-fs-extra": "^2.0.0",
-    "mkdirp": "^0.5.1",
-    "sequelize": "^5.2.8",
-    "yargs": "^13.2.2"
+    "mkdirp": "^1.0.4",
+    "sequelize": "^5.21.12",
+    "yargs": "^15.3.1"
   },
   "devDependencies": {
-    "chai": "^4.0.1",
-    "coveralls": "^3.0.3",
-    "cross-env": "^5.0.0",
-    "dotenv": "^7.0.0",
+    "chai": "^4.2.0",
+    "coveralls": "^3.1.0",
+    "cross-env": "^7.0.2",
+    "debug": "^4.1.1",
+    "dotenv": "^8.2.0",
     "istanbul": "^0.4.5",
     "lcov-result-merger": "^3.1.0",
-    "mocha": "^6.0.2",
-    "mysql2": "^1.6.5",
+    "mocha": "^7.2.0",
+    "mysql2": "^2.1.0",
     "np": "^4.0.2",
     "nyc": "^13.3.0",
-    "pg": "^7.9.0",
-    "pg-hstore": "^2.3.2",
-    "sqlite3": "^4.0.0",
-    "tedious": "^6.1.0"
+    "pg": "^8.2.1",
+    "pg-hstore": "^2.3.3",
+    "sqlite3": "^4.2.0",
+    "tedious": "^8.3.0"
   }
 }
