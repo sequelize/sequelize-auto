@@ -1,6 +1,6 @@
 {
   "name": "@puti94/sequelize-auto",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Automatically generate bare sequelize models from your database.",
   "main": "index",
   "types": "lib/index.d.ts",
