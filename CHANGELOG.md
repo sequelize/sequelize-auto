@@ -1,11 +1,5 @@
 # sequelize-auto change log
 
-## 0.5.0
-- Forked from sequelize-auto
-- Many edits, published as sequelize-auto-v2
-- It's probably broken
-
-
 ## vnext-2020-june
 
 * Add UpperCamelCase option (thanks @marshalys)
@@ -20,7 +14,7 @@
 * Add arg "l", when eql "es6" the output model will change to ES2006 export style (thanks @threem0126)
 * Add HSTORE data type (thanks @roytz)
 * Fix tedious warnings for trustServerCertificate and enableArithAbort
-* Fix support for mssql nchar, nvarchar, money, varbinary types
+* Fix support for mssql: nchar, nvarchar, money, varbinary types
 
 ## Master
 

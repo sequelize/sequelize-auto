@@ -42,6 +42,11 @@ module.exports = {
       sequelizeOptions.native = true;
     }
 
+    if (process.env.DIALECT === 'mssql') {
+      // set defaults for tedious, to silence the warnings
+      sequelizeOptions.dialectOptions = { options: { trustServerCertificate: true, enableArithAbort: true }};
+    }
+
     return new Sequelize(
       config[options.dialect].database,
       config[options.dialect].username,
