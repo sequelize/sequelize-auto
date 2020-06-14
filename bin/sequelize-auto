@@ -21,32 +21,30 @@ const argv = require('yargs')
   .alias('C', 'camel')
   .alias('n', 'no-write')
   .alias('s', 'schema')
-  .alias('z', 'typescript')
+  .alias('l', 'lang')
   .alias('f', 'camel-file-name')
-  .alias('l', 'es6')
   .describe('h', 'IP/Hostname for the database.')
   .describe('d', 'Database name.')
   .describe('u', 'Username for database.')
   .describe('x', 'Password for database.')
-  .describe('p', 'Port number for database. It is not for sqlite. ex) MySQL/MariaDB: 3306, Postgres: 5432, MSSQL: 1433')
+  .describe('p', 'Port number for database (not for sqlite). Ex: MySQL/MariaDB: 3306, Postgres: 5432, MSSQL: 1433')
   .describe(
     'c',
-    'JSON file for Sequelize\'s constructor "options" flag object as defined here: https://sequelize.readthedocs.org/en/latest/api/sequelize/'
+    'JSON file for Sequelize\'s constructor "options" flag object as defined here: https://sequelize.org/v5/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor'
   )
   .describe('o', 'What directory to place the models.')
   .describe('e', "The dialect/engine that you're using: postgres, mysql, sqlite, mssql")
   .describe(
     'a',
-    "Path to a json file containing model definitions (for all tables) which are to be defined within a model's configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration"
+    "Path to a json file containing model definitions (for all tables) which are to be defined within a model's configuration parameter. For more info: https://sequelize.org/v5/manual/models-definition.html#configuration"
   )
   .describe('t', 'Comma-separated names of tables to import')
   .describe('T', 'Comma-separated names of tables to skip')
   .describe('C', 'Use camel case to name models and fields, if you want model name to be "Upper Camel Case" you can use like this: `-C ut`')
   .describe('n', 'Prevent writing the models to disk.')
   .describe('s', 'Database schema from which to retrieve tables')
-  .describe('z', 'Output models as typescript with a definitions file')
+  .describe('l', 'Language for Model output: es5|es6|ts \n es5 = CJS modules (default) \n es6 = ES6 modules \n ts = TypeScript ')
   .describe('f', 'Use camel case for file name')
-  .describe('l', 'Use ES2006 module style')
   .argv;
 
 const dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
@@ -71,6 +69,8 @@ if (configFile.additional) {
   additional = configFile.additional;
 }
 
+let lang = argv.l || configFile.lang || 'es5';
+
 configFile.additional = additional;
 configFile.dialect = argv.e || configFile.dialect || 'mysql';
 configFile.port = argv.p || configFile.port || getDefaultPort(configFile.dialect);
@@ -80,9 +80,11 @@ configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
 configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(',')) || null;
 configFile.camelCase = argv.C || configFile.camelCase || false;
 configFile.schema = argv.s || configFile.schema;
-configFile.typescript = argv.z || configFile.typescript || false;
+configFile.typescript = (lang === 'ts');
+configFile.es6 = (lang === 'es6');
 configFile.camelCaseForFileName = argv.f || configFile.camelCaseForFileName || false;
-configFile.es6 = argv.l || 'es5';
+
+console.log(configFile);
 
 function getDefaultPort(dialect) {
   switch (dialect.toLowerCase()) {

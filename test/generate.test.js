@@ -88,6 +88,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
       if (_.isString(self.sequelize.options.dialect)) {
         execString += ` -e ${self.sequelize.options.dialect}`;
       }
+      // execString += ' -l es6';
       debug('Starting child process:', execString);
       exec(execString, callback);
     } catch (err) {

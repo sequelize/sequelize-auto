@@ -11,7 +11,7 @@
 * Add support for `closeConnectionAutomatically` (thanks @allnulled)
 * Fix schema name join in mysql foreign keys query (thanks @yujunlong2000) 
 * Add schema to generated files (thanks @THAlpha)
-* Add arg "l", when eql "es6" the output model will change to ES2006 export style (thanks @threem0126)
+* Add arg "l", output language, values es5|es6|ts  (thanks @threem0126)
 * Add HSTORE data type (thanks @roytz)
 * Fix tedious warnings for trustServerCertificate and enableArithAbort
 * Fix support for mssql: nchar, nvarchar, money, varbinary types
