@@ -43,7 +43,7 @@ const argv = require('yargs')
   .describe('C', 'Use camel case to name models and fields, if you want model name to be "Upper Camel Case" you can use like this: `-C ut`')
   .describe('n', 'Prevent writing the models to disk.')
   .describe('s', 'Database schema from which to retrieve tables')
-  .describe('l', 'Language for Model output: es5|es6|ts \n es5 = CJS modules (default) \n es6 = ES6 modules \n ts = TypeScript ')
+  .describe('l', 'Language for Model output: es5|es6|esm|ts \n es5 = ES5 CJS modules (default) \n es6 = ES6 CJS modules \n esm = ES6 modules \n ts = TypeScript ')
   .describe('f', 'Use camel case for file name')
   .argv;
 
@@ -82,6 +82,7 @@ configFile.camelCase = argv.C || configFile.camelCase || false;
 configFile.schema = argv.s || configFile.schema;
 configFile.typescript = (lang === 'ts');
 configFile.es6 = (lang === 'es6');
+configFile.esm = (lang === 'esm');
 configFile.camelCaseForFileName = argv.f || configFile.camelCaseForFileName || false;
 
 console.log(configFile);

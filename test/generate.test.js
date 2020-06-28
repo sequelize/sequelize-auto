@@ -88,7 +88,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
       if (_.isString(self.sequelize.options.dialect)) {
         execString += ` -e ${self.sequelize.options.dialect}`;
       }
-      // execString += ' -l es6';
+      // execString += ' -l es6'; // uncomment to test es6 file generation
       debug('Starting child process:', execString);
       exec(execString, callback);
     } catch (err) {
@@ -174,7 +174,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         const historyModel = path.join(testConfig.directory, 'HistoryLogs');
         debug('Importing:', historyModel);
 
-        const HistoryLogs = this.sequelize.import(historyModel);
+        const HistoryLogs = this.sequelize.import ? this.sequelize.import(historyModel) : require(historyModel)(this.sequelize, helpers.Sequelize);
         expect(HistoryLogs.tableName).to.equal('HistoryLogs');
         ['some Text', 'aNumber', 'aRandomId', 'id'].forEach(function(field) {
           expect(HistoryLogs.rawAttributes[field]).to.exist;
@@ -191,7 +191,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         const pUsers = path.join(testConfig.directory, 'ParanoidUsers');
         debug('Importing:', pUsers);
 
-        const ParanoidUsers = this.sequelize.import(pUsers);
+        const ParanoidUsers = this.sequelize.import ? this.sequelize.import(pUsers) : require(pUsers)(this.sequelize, helpers.Sequelize);
         expect(ParanoidUsers.tableName).to.equal('ParanoidUsers');
         ['username', 'id', 'createdAt', 'updatedAt', 'deletedAt'].forEach(function(field) {
           expect(ParanoidUsers.rawAttributes[field]).to.exist;
@@ -207,7 +207,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         const users = path.join(testConfig.directory, 'Users');
         debug('Importing:', users);
 
-        const Users = this.sequelize.import(users);
+        const Users = this.sequelize.import ? this.sequelize.import(users) : require(users)(this.sequelize, helpers.Sequelize);
         expect(Users.tableName).to.equal('Users');
         ['username',
           'touchedAt',
