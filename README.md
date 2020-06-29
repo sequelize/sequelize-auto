@@ -1,13 +1,10 @@
-# Sequelize-Auto-v2
+# Sequelize-Auto
 
-[![Build Status](https://travis-ci.org/4umfreak/sequelize-auto-v2.svg?branch=master)](https://travis-ci.org/4umfreak/sequelize-auto-v2)
-[![Coverage Status](https://coveralls.io/repos/github/4umfreak/sequelize-auto-v2/badge.svg?branch=master)](https://coveralls.io/github/4umfreak/sequelize-auto-v2?branch=master)
+[![Greenkeeper badge](https://badges.greenkeeper.io/sequelize/sequelize-auto.svg)](https://greenkeeper.io/)
+
+[![Build Status](http://img.shields.io/travis/sequelize/sequelize-auto/master.svg)](https://travis-ci.org/sequelize/sequelize-auto) [![Build status](https://ci.appveyor.com/api/projects/status/bf9lb89rmpj6iveb?svg=true)](https://ci.appveyor.com/project/durango/sequelize-auto) [![Dependency Status](https://david-dm.org/sequelize/sequelize-auto.svg)](https://david-dm.org/sequelize/sequelize-auto) [![Code Climate](https://codeclimate.com/github/sequelize/sequelize-auto/badges/gpa.svg)](https://codeclimate.com/github/sequelize/sequelize-auto) [![Test Coverage](https://codeclimate.com/github/sequelize/sequelize-auto/badges/coverage.svg)](https://codeclimate.com/github/sequelize/sequelize-auto/coverage)
 
 Automatically generate models for [SequelizeJS](https://github.com/sequelize/sequelize) via the command line.
-
-## Why v2?
-
-I ran into issues with the published sequelize-auto and it was two major versions behind Sequelize. 
 
 ## Install
 
@@ -15,44 +12,61 @@ I ran into issues with the published sequelize-auto and it was two major version
 
 ## Prerequisites
 
-You will need to install the correct dialect binding globally before using sequelize-auto.
+You will need to install the correct dialect binding before using sequelize-auto.
 
 Example for MySQL/MariaDB
 
-`npm install -g mysql2`
+`npm install mysql2`
 
 Example for Postgres
 
-`npm install -g pg pg-hstore`
+`npm install pg pg-hstore`
 
 Example for Sqlite3
 
-`npm install -g sqlite`
+`npm install sqlite`
 
 Example for MSSQL
 
-`npm install -g mssql`
+`npm install tedious`
 
 ## Usage
 
     [node] sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName] -C
 
     Options:
-      -h, --host        IP/Hostname for the database.   [required]
-      -d, --database    Database name.                  [required]
-      -u, --user        Username for database.
-      -x, --pass        Password for database.
-      -p, --port        Port number for database.
-      -c, --config      JSON file for Sequelize's constructor "options" flag object as defined here: https://sequelize.readthedocs.org/en/latest/api/sequelize/
-      -o, --output      What directory to place the models.
-      -e, --dialect     The dialect/engine that you're using: postgres, mysql, sqlite
-      -a, --additional  Path to a json file containing model definitions (for all tables) which are to be defined within a model's configuration parameter. For more info: https://sequelize.readthedocs.org/en/latest/docs/models-definition/#configuration
-      -t, --tables      Comma-separated names of tables to import
-      -T, --skip-tables Comma-separated names of tables to skip
-      -C, --camel       Use camel case to name models and fields
-      -n, --no-write    Prevent writing the models to disk.
-      -s, --schema      Database schema from which to retrieve tables
-      -z, --typescript  Output models as typescript with a definitions file.
+      --help                Show help                                     [boolean]
+      --version             Show version number                           [boolean]
+      -h, --host            IP/Hostname for the database.                [required]
+      -d, --database        Database name.                               [required]
+      -u, --user            Username for database.
+      -x, --pass            Password for database.
+      -p, --port            Port number for database (not for sqlite). Ex:
+                            MySQL/MariaDB: 3306, Postgres: 5432, MSSQL: 1433
+      -c, --config          JSON file for Sequelize's constructor "options" flag
+                            object as defined here:
+                            https://sequelize.org/v5/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor
+      -o, --output          What directory to place the models.
+      -e, --dialect         The dialect/engine that you're using: postgres, mysql,
+                            sqlite, mssql
+      -a, --additional      Path to a json file containing model definitions (for
+                            all tables) which are to be defined within a model's
+                            configuration parameter. For more info: 
+                            https://sequelize.org/v5/manual/models-definition.html#configuration
+      -t, --tables          Comma-separated names of tables to import
+      -T, --skip-tables     Comma-separated names of tables to skip
+      -C, --camel           Use camel case to name models and fields, if you want
+                            model name to be "Upper Camel Case" you can use like
+                            this: `-C ut`
+      -n, --no-write        Prevent writing the models to disk.
+      -s, --schema          Database schema from which to retrieve tables
+      -l, --lang            Language for Model output: es5|es6|esm|ts
+                            es5 = ES5 CJS modules (default)
+                            es6 = ES6 CJS modules
+                            esm = ES6 ESM modules
+                            ts = TypeScript
+      -f, --camel-file-name Use camel case for file name
+
 
 ## Example
 
@@ -122,9 +136,7 @@ Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs
 
 ## Configuration options
 
-For the `-c, --config` option the following JSON/configuration parameters are defined by Sequelize's `options` flag within the constructor. For more info:
-
-[https://sequelize.readthedocs.org/en/latest/api/sequelize/](https://sequelize.readthedocs.org/en/latest/api/sequelize/)
+For the `-c, --config` option, various JSON/configuration parameters are defined by Sequelize's `options` flag within the constructor. See the [Sequelize docs](https://sequelize.org/master/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor) for more info.
 
 ## Programmatic API
 
@@ -158,7 +170,7 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
 
 ## Typescript
 
-Add -z to cli options or `typescript: true` to programmatic options. Model usage in a ts file:
+Add `-l ts` to cli options or `typescript: true` to programmatic options. Model usage in a ts file:
 
 ```js
 // All models, can put in or extend to a db object at server init
