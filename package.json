@@ -1,6 +1,7 @@
 {
   "name": "sequelize-auto",
-  "version": "0.4.29",
+  "version": "0.5.0",
+  "publishConfig": { "tag": "next" },
   "description": "Automatically generate bare sequelize models from your database.",
   "main": "index",
   "keywords": [
@@ -22,51 +23,51 @@
   },
   "nyc": {
     "exclude": [
-      "**/test/**.js"
+      "**/test/*"
     ]
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --globals setImmediate,clearImmediate,__core-js_shared__ --ui tdd --check-leaks --colors -t 15000 --reporter spec \"test/**/*.test.js\"",
-    "test-postgres": "./node_modules/.bin/cross-env DIALECT=postgres npm run test",
-    "test-mysql": "./node_modules/.bin/cross-env DIALECT=mysql npm run test",
-    "test-sqlite": "./node_modules/.bin/cross-env DIALECT=sqlite npm run test",
-    "test-mssql": "./node_modules/.bin/cross-env DIALECT=mssql npm run test",
-    "cover": "rm -rf coverage && COVERAGE=true ./node_modules/.bin/nyc -r lcov npm run test",
-    "cover-mysql": "DIALECT=mysql npm run cover && mv coverage coverage-mysql",
-    "cover-sqlite": "DIALECT=sqlite npm run cover && mv coverage coverage-sqlite",
-    "cover-postgres": "DIALECT=postgres npm run cover && mv coverage coverage-postgres",
-    "cover-postgres-native": "DIALECT=postgres-native npm run cover && mv coverage coverage-postgres-native",
-    "cover-all": "npm run cover-mysql && npm run cover-postgres && npm run cover-postgres-native && npm run cover-sqlite && npm run merge-coverage",
-    "merge-coverage": "rm -rf coverage && mkdir coverage && ./node_modules/.bin/lcov-result-merger 'coverage-*/lcov.info' 'coverage/lcov.info'",
-    "codeclimate-send": "npm install -g codeclimate-test-reporter && CODECLIMATE_REPO_TOKEN=b9a25c5bf4c3875fb46ecb6d3a5f99e49f6872e6b92c074e5725d6dc2cd94f22 codeclimate-test-reporter < coverage/lcov.info",
-    "codeclimate": "npm run cover-all && npm run codeclimate-send && npm run clean-coverage",
-    "clean-coverage": "rm -rf coverage && rm -rf coverage-*"
+    "test": "cross-env DEBUG='sequelize-auto:*' nyc mocha",
+    "test-postgres": "cross-env DEBUG='sequelize-auto:*' DIALECT=postgres nyc mocha",
+    "test-postgres-native": "cross-env DEBUG='sequelize-auto:*' DIALECT=postgres-native nyc mocha",
+    "test-mysql": "cross-env DEBUG='sequelize-auto:*' DIALECT=mysql nyc mocha",
+    "test-sqlite": "cross-env DEBUG='sequelize-auto:*' DIALECT=sqlite nyc mocha",
+    "test-mssql": "cross-env DEBUG='sequelize-auto:*' DIALECT=mssql nyc mocha",
+    "deploy": "np",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "engines": {
-    "node": ">=0.10"
+    "node": ">= 6"
   },
   "author": "Daniel Durante <me@danieldurante.com>",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.1.5",
-    "eslint": "^3.19.0",
+    "async": "^3.2.0",
+    "eslint": "^7.2.0",
     "graceful-fs-extra": "^2.0.0",
-    "mkdirp": "^0.5.1",
-    "sequelize": "^3.30.2",
-    "yargs": "^8.0.1"
+    "mkdirp": "^1.0.4",
+    "yargs": "^15.3.1"
+  },
+  "peerDependencies": {
+    "sequelize": ">3.30.0"
   },
   "devDependencies": {
-    "chai": "^4.0.1",
-    "cross-env": "^5.0.0",
+    "chai": "^4.2.0",
+    "coveralls": "^3.1.0",
+    "cross-env": "^7.0.2",
+    "debug": "^4.1.1",
+    "dotenv": "^8.2.0",
     "istanbul": "^0.4.5",
-    "lcov-result-merger": "^2.0.0",
-    "mkdirp": "^0.5.1",
-    "mocha": "^4.0.0",
-    "mysql": "^2.13.0",
-    "nyc": "^11.0.1",
-    "pg": "^6.1.5",
-    "pg-hstore": "^2.3.2",
-    "sqlite3": "^4.0.0",
-    "tedious": "^2.0.0"
+    "lcov-result-merger": "^3.1.0",
+    "mocha": "^7.2.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^2.1.0",
+    "np": "^4.0.2",
+    "nyc": "^13.3.0",
+    "pg": "^8.2.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.2.3",
+    "sqlite3": "^4.2.0",
+    "tedious": "^8.3.0"
   }
 }

@@ -1,6 +1,20 @@
-# Changelog
+# sequelize-auto change log
 
-All visible changes to this project will be documented in this file as of version `0.4.22`
+## [0.5.0]
+
+* Add UpperCamelCase option (thanks @marshalys)
+* Document existing camelCase option (thanks @murfett-au)
+* Fix postgres dialect foreign key query to support Postgres 12
+* Update compatibility to Sequelize v5 & v6 (thanks @createthis @mrbichel @naren7229)
+* Fix "c.extra" in mysql foreign keys query (thanks @bkolla-ft and @jeongjuwon)
+* Fix support for `double` type (thanks @wen911119)
+* Add support for `closeConnectionAutomatically` (thanks @allnulled)
+* Fix schema name join in mysql foreign keys query (thanks @yujunlong2000) 
+* Add schema to generated files (thanks @THAlpha)
+* Add arg "l", output language, values es5|es6|esm|ts  (thanks @threem0126)
+* Add HSTORE data type (thanks @roytz)
+* Fix tedious warnings for trustServerCertificate and enableArithAbort
+* Fix support for mssql: nchar, nvarchar, money, varbinary types
 
 ## Master
 
@@ -11,7 +25,7 @@ All visible changes to this project will be documented in this file as of versio
 ### Fixed
 
 * Sets DATEONLY for DATE types
-* Fix typescript, add missing option for camelcase filenames
+* Fix typescript, add missing option for camelcase filenames...
 * Fixes JSONB support
 * Fixes TIMESTAMP support
 
