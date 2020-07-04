@@ -1,6 +1,8 @@
 test/models/*.js
 *.swp
+*.tgz
 .idea
+.*
 .DS_STORE
 node_modules
 npm-debug.log
