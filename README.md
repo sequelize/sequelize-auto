@@ -8,7 +8,7 @@ Automatically generate models for [SequelizeJS](https://github.com/sequelize/seq
 
 ## Install
 
-    npm install -g sequelize-auto-v2
+    npm install sequelize-auto
 
 ## Prerequisites
 
@@ -132,7 +132,14 @@ Produces a file/files such as ./models/Users.js which looks like:
     };
 
 
-Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import) it.
+Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import) it (for Sequelize versions < 6).  
+
+For Sequelize version 6+, `import` is not available, and you should use:
+
+    var Users = require('path/to/users')(sequelize, DataTypes);
+
+See [this example from sequelize/cli](https://github.com/sequelize/cli/blob/master/src/assets/models/index.js#L24) for loading all files from a directory.
+
 
 ## Configuration options
 
@@ -202,5 +209,3 @@ You must setup a database called `sequelize_auto_test` first, edit the `test/con
     # sqlite only
     npm run test-sqlite
 
-
-## Credit to previous author and contributors
