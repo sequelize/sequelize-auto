@@ -98,8 +98,16 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
 
   describe("should be able to build", function() {
     it("the models", function(done) {
+      function tableNameFromQname(v, n) {
+          var tokens = n.split(".");
+          return tokens[tokens.length -1]
+      }
       setupModels(self, function(autoSequelize) {
         expect(autoSequelize).to.include.keys(['tables', 'foreignKeys']);
+
+        autoSequelize.tables = _.mapKeys(autoSequelize.tables, tableNameFromQname)
+        autoSequelize.foreignKeys = _.mapKeys(autoSequelize.foreignKeys, tableNameFromQname)
+
         expect(autoSequelize.tables).to.have.keys(['Users', 'HistoryLogs', 'ParanoidUsers']);
 
         if (helpers.getTestDialect() === "sqlite") {

@@ -125,18 +125,19 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
           try {
             // Check the output
             if (self.sequelize.options.dialect === 'postgres') {
-              const defaultSchema = 'public';
-              const qry = `WHERE table_schema = '${defaultSchema}' AND table_type LIKE '%TABLE' AND table_name != 'spatial_ref_sys';`;
-              expect(stdout.indexOf(qry)).to.be.at.above(-1);
+              expect(stdout.indexOf('SELECT table_name, table_schema FROM information_schema.tables')).to.be.at.above(-1);
 
               testTables.forEach(function(tbl) {
-                const query = `WHERE o.conrelid = (SELECT oid FROM pg_class WHERE relname = '${tbl}' LIMIT 1)`;
+                const query = `relname ='${tbl}'`;
                 expect(stdout.indexOf(query)).to.be.at.above(-1);
               });
             } else if (self.sequelize.options.dialect === 'sqlite') {
               expect(stdout.indexOf("FROM `sqlite_master` WHERE type='table'")).to.be.at.above(-1);
             } else if (self.sequelize.options.dialect === 'mssql') {
-              expect(stdout.indexOf('SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES')).to.be.at.above(-1);
+              expect(stdout.indexOf('SELECT table_name, table_schema FROM information_schema.tables')).to.be.at.above(-1);
+              testTables.forEach(function(tbl) {
+                expect(stdout.indexOf(`TABLE_NAME = '${tbl}'`)).to.be.at.above(-1);
+              });
             } else {
 
               const showPos = stdout.indexOf('SHOW TABLES;');
@@ -144,7 +145,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
               expect(showPos).to.be.at.above(-1);
 
               testTables.forEach(function(tbl) {
-                const query = `WHERE K.TABLE_NAME = '${tbl}' AND K.CONSTRAINT_SCHEMA = '${db}' AND C.TABLE_SCHEMA = '${db}';`
+                const query = `WHERE K.TABLE_NAME = '${tbl}' AND C.TABLE_SCHEMA = '${db}';`
                 const queryPos = stdout.indexOf(query);
                 debug('mysql queryPos:', queryPos, 'query:', query);
                 expect(queryPos).to.be.at.above(-1);
