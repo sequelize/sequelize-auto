@@ -51,7 +51,7 @@ Example for MSSQL
                             sqlite, mssql
       -a, --additional      Path to a json file containing model definitions (for
                             all tables) which are to be defined within a model's
-                            configuration parameter. For more info: 
+                            configuration parameter. For more info:
                             https://sequelize.org/v5/manual/models-definition.html#configuration
       -t, --tables          Comma-separated names of tables to import
       -T, --skip-tables     Comma-separated names of tables to skip
@@ -132,7 +132,7 @@ Produces a file/files such as ./models/Users.js which looks like:
     };
 
 
-Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import) it (for Sequelize versions < 6).  
+Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import) it (for Sequelize versions < 6).
 
 For Sequelize version 6+, `import` is not available, and you should use:
 
@@ -164,7 +164,7 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
     dialect: 'mysql'|'mariadb'|'sqlite'|'postgres'|'mssql',
     directory: false, // prevents the program from writing to disk
     port: 'port',
-    camelCase: true, // sequelize field names use userId format (default is user_id) for db columns named as user_id 
+    camelCase: true, // sequelize field names use userId format (default is user_id) for db columns named as user_id
     camelCaseForFileName: true, // file names created for each model use camelCase.js not snake_case.js
     additional: {
         timestamps: false

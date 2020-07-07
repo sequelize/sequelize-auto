@@ -104,10 +104,10 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         const self = this;
         const db = self.sequelize.config.database;
         const testTables = ['Users', 'HistoryLogs', 'ParanoidUsers'];
-  
+
         setupModels(self, function(err, stdout, stderr) {
           expect(err).to.be.null;
-          
+
           // console.log('------------');
           // console.log('Error::', err);
           // console.log('stdout::', stdout);
@@ -159,7 +159,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         });
       } catch (err) {
         console.log("Ack:", err);
-        throw err;    
+        throw err;
       }
     });
   });
@@ -182,7 +182,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
         done();
       } catch (err) {
-        console.log('Failed to load HistoryLogs model:', err);     
+        console.log('Failed to load HistoryLogs model:', err);
       }
     });
 
@@ -198,7 +198,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         });
         done();
       } catch (err) {
-        console.log('Failed to load ParanoidUsers model:', err);        
+        console.log('Failed to load ParanoidUsers model:', err);
       }
     });
 
