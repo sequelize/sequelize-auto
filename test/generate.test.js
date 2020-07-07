@@ -140,7 +140,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
               expect(stdout.indexOf('SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES')).to.be.at.above(-1);
             } else {
 
-              const showPos = stdout.indexOf('SHOW TABLES;');
+              const showPos = stdout.indexOf('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = \'BASE TABLE\'');
               debug('mysql showPos:', showPos);
               expect(showPos).to.be.at.above(-1);
 
