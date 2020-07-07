@@ -139,5 +139,18 @@ module.exports = {
     } else {
       throw new Error(`Undefined expectation for "${dialect}"!`);
     }
+  },
+  getDummyCreateTriggerStatement: function(tableName) {
+    var statement = {
+      mysql:    'CREATE TRIGGER ' + tableName + '_Trigger BEFORE INSERT ON ' + tableName + ' FOR EACH ROW SET NEW.Id = NEW.Id',
+      postgres: 'CREATE OR REPLACE FUNCTION blah() RETURNS trigger AS $$ BEGIN RETURN NEW; END; $$ LANGUAGE plpgsql; \
+                 CREATE TRIGGER "' + tableName + '_Trigger" AFTER INSERT ON "' + tableName + '" WHEN (1=0) EXECUTE PROCEDURE blah(1);',
+      mssql:    'CREATE TRIGGER ' + tableName + '_Trigger ON ' + tableName + ' AFTER INSERT AS BEGIN SELECT 1 WHERE 1=0; END;',
+      sqlite:   'CREATE TRIGGER IF NOT EXISTS ' + tableName + '_Trigger AFTER INSERT ON ' + tableName + ' BEGIN SELECT 1 WHERE 1=0; END;'
+    }[this.getTestDialect()];
+
+    if (statement) return statement;
+
+    throw new Error("CREATE TRIGGER not set for dialect " + this.getTestDialect());
   }
 };

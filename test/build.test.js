@@ -66,7 +66,10 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
       },
       onComplete: function() {
         self.sequelize.sync().then(function () {
-          done();
+          var trigger = helpers.getDummyCreateTriggerStatement("HistoryLogs");
+          self.sequelize.query(trigger).then(function(_){
+            done();
+          }, done);
         }, done);
       },
       onError: done
@@ -107,8 +110,10 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
 
         autoSequelize.tables = _.mapKeys(autoSequelize.tables, tableNameFromQname)
         autoSequelize.foreignKeys = _.mapKeys(autoSequelize.foreignKeys, tableNameFromQname)
+        autoSequelize.hasTriggerTables = _.mapKeys(autoSequelize.hasTriggerTables, tableNameFromQname)
 
         expect(autoSequelize.tables).to.have.keys(['Users', 'HistoryLogs', 'ParanoidUsers']);
+        expect(autoSequelize.hasTriggerTables).to.have.keys(['HistoryLogs']);
 
         if (helpers.getTestDialect() === "sqlite") {
           expect(autoSequelize.foreignKeys).to.have.keys(['ParanoidUsers']);

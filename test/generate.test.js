@@ -66,7 +66,10 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
       },
       onComplete: function() {
         self.sequelize.sync().then(function () {
-          done();
+          var trigger = helpers.getDummyCreateTriggerStatement("HistoryLogs");
+          self.sequelize.query(trigger).then(function(_){
+            done();
+          }, done);
         }, done);
       },
       onError: done
@@ -174,6 +177,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
 
         const HistoryLogs = self.sequelize.import ? self.sequelize.import(historyModel) : require(historyModel)(self.sequelize, helpers.Sequelize);
         expect(HistoryLogs.tableName).to.equal('HistoryLogs');
+        expect(HistoryLogs.options.hasTrigger).to.equal(true);
         ['some Text', 'aNumber', 'aRandomId', 'id'].forEach(function(field) {
           expect(HistoryLogs.rawAttributes[field]).to.exist;
         });
@@ -192,6 +196,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
 
         const ParanoidUsers = self.sequelize.import ? self.sequelize.import(pUsers) : require(pUsers)(self.sequelize, helpers.Sequelize);
         expect(ParanoidUsers.tableName).to.equal('ParanoidUsers');
+        expect(ParanoidUsers.options).to.not.have.property("hasTrigger");
         ['username', 'id', 'createdAt', 'updatedAt', 'deletedAt'].forEach(function(field) {
           expect(ParanoidUsers.rawAttributes[field]).to.exist;
         });
@@ -209,6 +214,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
 
         const Users = self.sequelize.import ? self.sequelize.import(users) : require(users)(self.sequelize, helpers.Sequelize);
         expect(Users.tableName).to.equal('Users');
+        expect(Users.options).to.not.have.property("hasTrigger");
         ['username',
           'touchedAt',
           'aNumber',
