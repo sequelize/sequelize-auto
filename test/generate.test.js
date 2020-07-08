@@ -131,7 +131,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
               expect(stdout.indexOf('SELECT table_name, table_schema FROM information_schema.tables')).to.be.at.above(-1);
 
               testTables.forEach(function(tbl) {
-                const query = `relname ='${tbl}'`;
+                const query = `relname = '${tbl}'`;
                 expect(stdout.indexOf(query)).to.be.at.above(-1);
               });
             } else if (self.sequelize.options.dialect === 'sqlite') {
@@ -142,10 +142,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
                 expect(stdout.indexOf(`TABLE_NAME = '${tbl}'`)).to.be.at.above(-1);
               });
             } else {
-
-              const showPos = stdout.indexOf('SHOW TABLES;');
-              debug('mysql showPos:', showPos);
-              expect(showPos).to.be.at.above(-1);
+              expect(stdout.indexOf('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE')).to.be.at.above(-1);
 
               testTables.forEach(function(tbl) {
                 const query = `WHERE K.TABLE_NAME = '${tbl}' AND C.TABLE_SCHEMA = '${db}';`
