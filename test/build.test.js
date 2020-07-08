@@ -12,13 +12,14 @@ var _ = require('lodash');
 var lib = require('../index');
 
 describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
+  var self = this
+  self.timeout(10000);
+
   after(function(done) {
-    helpers.clearDatabase(this.sequelize, done);
+    helpers.clearDatabase(self.sequelize, done);
   });
 
   before(function(done) {
-    var self = this
-
     helpers.initTests({
       dialect: dialect,
       beforeComplete: function(sequelize) {
@@ -50,7 +51,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
         })
 
         self.HistoryLog = self.sequelize.define('HistoryLog', {
-          someText:  { type: helpers.Sequelize.STRING },
+          "some Text":  { type: helpers.Sequelize.STRING },
           aNumber:   { type: helpers.Sequelize.INTEGER },
           aRandomId: { type: helpers.Sequelize.INTEGER }
         })
@@ -65,13 +66,18 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
       },
       onComplete: function() {
         self.sequelize.sync().then(function () {
-          done();
+          var trigger = helpers.getDummyCreateTriggerStatement("HistoryLogs");
+          self.sequelize.query(trigger).then(function(_){
+            done();
+          }, done);
         }, done);
-      }
+      },
+      onError: done
     });
   });
 
-  var setupModels = function(self, callback) {
+
+  var setupModels = function(self, callback, done) {
     var options = _.extend({
       spaces: true,
       indentation: 2,
@@ -83,18 +89,31 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
     var autoSequelize = new lib(self.sequelize.config.database, self.sequelize.config.username, self.sequelize.config.password, options);
 
     autoSequelize.build(function (err) {
-      callback(err, autoSequelize);
+      if (err) return done(err);
+      try {
+        callback(autoSequelize);
+        done();
+      } catch(err) {
+        done(err)
+      }
     });
   }
 
   describe("should be able to build", function() {
     it("the models", function(done) {
-      var self = this;
-
-      setupModels(self, function(err, autoSequelize) {
-        expect(err).to.be.null;
+      function tableNameFromQname(v, n) {
+          var tokens = n.split(".");
+          return tokens[tokens.length -1]
+      }
+      setupModels(self, function(autoSequelize) {
         expect(autoSequelize).to.include.keys(['tables', 'foreignKeys']);
+
+        autoSequelize.tables = _.mapKeys(autoSequelize.tables, tableNameFromQname)
+        autoSequelize.foreignKeys = _.mapKeys(autoSequelize.foreignKeys, tableNameFromQname)
+        autoSequelize.hasTriggerTables = _.mapKeys(autoSequelize.hasTriggerTables, tableNameFromQname)
+
         expect(autoSequelize.tables).to.have.keys(['Users', 'HistoryLogs', 'ParanoidUsers']);
+        expect(autoSequelize.hasTriggerTables).to.have.keys(['HistoryLogs']);
 
         if (helpers.getTestDialect() === "sqlite") {
           expect(autoSequelize.foreignKeys).to.have.keys(['ParanoidUsers']);
@@ -120,9 +139,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
         expect(autoSequelize.foreignKeys.ParanoidUsers.UserId).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isForeignKey']);
 
         expect(autoSequelize.foreignKeys.ParanoidUsers.UserId.isForeignKey).to.be.true;
-
-        done();
-      });
+      }, done);
     });
   });
 });

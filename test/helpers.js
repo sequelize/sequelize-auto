@@ -7,19 +7,33 @@ module.exports = {
   Sequelize: Sequelize,
 
   initTests: function(options) {
-    const sequelize = this.createSequelizeInstance(options);
+    if (!options || !options.onError || !options.onComplete) {
+      throw new Error("options.onComplete+onError required");
+    }
 
-    this.clearDatabase(sequelize, function() {
-      if (options.context) {
-        options.context.sequelize = sequelize;
-      }
-      if (options.beforeComplete) {
-        options.beforeComplete(sequelize);
-      }
-      if (options.onComplete) {
-        options.onComplete(sequelize);
-      }
-    });
+    try {
+      const sequelize = this.createSequelizeInstance(options);
+
+      this.clearDatabase(sequelize, function(err) {
+        if (err) {
+          return options.onError(err);
+        }
+        try {
+          if (options.context) {
+            options.context.sequelize = sequelize;
+          }
+          if (options.beforeComplete) {
+            options.beforeComplete(sequelize);
+          }
+          options.onComplete(sequelize);
+        } catch (err) {
+          return options.onError(err);
+        }
+      });
+    }
+    catch (err) {
+      return options.onError(err);
+    }
   },
 
   createSequelizeInstance: function(options) {
@@ -56,6 +70,10 @@ module.exports = {
   },
 
   clearDatabase: function(sequelize, callback) {
+    if (!sequelize) {
+      return callback && callback();
+    }
+
     function success() {
       fs.readdir(config.directory, function(err, files) {
         if (err || !files || files.length < 1) {
@@ -74,13 +92,17 @@ module.exports = {
     }
 
     function error(err) {
-      throw err;
+      callback && callback(err);
     }
 
-    sequelize
-      .getQueryInterface()
-      .dropAllTables()
-      .then(success, error);
+    try {
+      sequelize
+        .getQueryInterface()
+        .dropAllTables()
+        .then(success, error);
+    } catch(ex) {
+      callback && callback(ex);
+    }
   },
 
   getSupportedDialects: function() {
@@ -117,5 +139,18 @@ module.exports = {
     } else {
       throw new Error(`Undefined expectation for "${dialect}"!`);
     }
+  },
+  getDummyCreateTriggerStatement: function(tableName) {
+    var statement = {
+      mysql:    'CREATE TRIGGER ' + tableName + '_Trigger BEFORE INSERT ON ' + tableName + ' FOR EACH ROW SET NEW.Id = NEW.Id',
+      postgres: 'CREATE OR REPLACE FUNCTION blah() RETURNS trigger AS $$ BEGIN RETURN NEW; END; $$ LANGUAGE plpgsql; \
+                 CREATE TRIGGER "' + tableName + '_Trigger" AFTER INSERT ON "' + tableName + '" WHEN (1=0) EXECUTE PROCEDURE blah(1);',
+      mssql:    'CREATE TRIGGER ' + tableName + '_Trigger ON ' + tableName + ' AFTER INSERT AS BEGIN SELECT 1 WHERE 1=0; END;',
+      sqlite:   'CREATE TRIGGER IF NOT EXISTS ' + tableName + '_Trigger AFTER INSERT ON ' + tableName + ' BEGIN SELECT 1 WHERE 1=0; END;'
+    }[this.getTestDialect()];
+
+    if (statement) return statement;
+
+    throw new Error("CREATE TRIGGER not set for dialect " + this.getTestDialect());
   }
 };

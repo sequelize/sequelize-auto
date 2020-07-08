@@ -8,31 +8,78 @@ const _ = require('lodash');
 describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
   describe('getForeignKeysQuery', function() {
     it('mysql', function(done) {
-      const query = dialects.mysql.getForeignKeysQuery('mytable_a', 'mydatabase_a');
-      expect(query).to.include("K.TABLE_NAME = 'mytable_a'");
-      expect(query).to.include("AND K.CONSTRAINT_SCHEMA = 'mydatabase_a'");
-      expect(query).to.include("AND C.TABLE_SCHEMA = 'mydatabase_a'");
+      var query = dialects.mysql.getForeignKeysQuery('mytable_a', 'mydatabase_a');
+      expect(query).to.include("TABLE_NAME = 'mytable_a'");
+      expect(query).to.include("TABLE_SCHEMA = 'mydatabase_a'");
+
+      query = dialects.mysql.getForeignKeysQuery('mytable_a', null);
+      expect(query).to.include("TABLE_NAME = 'mytable_a'");
+      expect(query).to.not.include("mydatabase_a");
+
+      query = dialects.mysql.countTriggerQuery("mytable_a", "mydatabase_a");
+      expect(query).to.include("SELECT COUNT(0) AS trigger_count");
+      expect(query).to.include("event_object_table = 'mytable_a'");
+      expect(query).to.include("event_object_schema = 'mydatabase_a'");
+
+      query = dialects.mysql.countTriggerQuery("mytable_a", null);
+      expect(query).to.include("event_object_table = 'mytable_a'");
+      expect(query).to.not.include("mydatabase_a");
+
       done();
     });
 
     it('sqlite', function(done) {
-      const query = dialects.sqlite.getForeignKeysQuery('mytable_b', 'mydatabase_b');
-      expect(query).to.include('PRAGMA foreign_key_list(mytable_b);');
-      // sqlite doesn't know schemas.
-      const query2 = dialects.sqlite.getForeignKeysQuery('mytable_xyz');
-      expect(query2).to.include('PRAGMA foreign_key_list(mytable_xyz);');
+      var query = dialects.sqlite.getForeignKeysQuery('mytable_b', 'mydatabase_b');
+      expect(query).to.include("PRAGMA foreign_key_list(mytable_b)");
+      // sqlite doesn't support schemas.
+      expect(query).to.not.include("mydatabase_b");
+
+      query = dialects.sqlite.countTriggerQuery("mytable_b", "mydatabase_b");
+      expect(query).to.include("SELECT COUNT(0) AS trigger_count");
+      expect(query).to.include("tbl_name = 'mytable_b'");
+      // sqlite doesn't support schemas.
+      expect(query).to.not.include('mydatabase_b');
+
       done();
     });
 
     it('postgres', function(done) {
-      const query = dialects.postgres.getForeignKeysQuery('mytable_c', 'mydatabase_c');
-      expect(query).to.include("WHERE o.conrelid = (SELECT oid FROM pg_class WHERE relname = 'mytable_c' LIMIT 1)");
+      var query = dialects.postgres.getForeignKeysQuery('mytable_c', 'mydatabase_c');
+      expect(query).to.include("relname = 'mytable_c'");
+      expect(query).to.include("nspname = 'mydatabase_c'");
+
+      query = dialects.postgres.getForeignKeysQuery('mytable_c', null);
+      expect(query).to.include("relname = 'mytable_c'");
+      expect(query).to.not.include("mydatabase_c");
+
+      query = dialects.postgres.countTriggerQuery("mytable_c", "mydatabase_c");
+      expect(query).to.include("SELECT COUNT(0) AS trigger_count");
+      expect(query).to.include("event_object_table = 'mytable_c'");
+      expect(query).to.include("event_object_schema = 'mydatabase_c'");
+
+      query = dialects.postgres.countTriggerQuery("mytable_c", null);
+      expect(query).to.include("event_object_table = 'mytable_c'");
+      expect(query).to.not.include("event_object_schema = '");
+
       done();
     });
 
     it('mssql', function(done) {
-      const query = dialects.mssql.getForeignKeysQuery('mytable_d', 'mydatabase_d');
-      expect(query).to.include('WHERE ccu.table_name = ' + helpers.Sequelize.Utils.addTicks('mytable_d', "'"));
+      var query = dialects.mssql.getForeignKeysQuery('mytable_d', 'mydatabase_d');
+      expect(query).to.include("table_name = 'mytable_d'");
+      expect(query).to.include("table_schema = 'mydatabase_d'");
+
+      query = dialects.mssql.getForeignKeysQuery('mytable_d', null);
+      expect(query).to.include("table_name = 'mytable_d'");
+      expect(query).to.not.include("mydatabase_d");
+
+      query = dialects.mssql.countTriggerQuery("mytable_d", "mydatabase_d");
+      expect(query).to.include("SELECT COUNT(0) AS trigger_count");
+      expect(query).to.include("object_id = object_id('mydatabase_d.mytable_d')");
+
+      query = dialects.mssql.countTriggerQuery("mytable_d", null);
+      expect(query).to.include("object_id = object_id('mytable_d')");
+
       done();
     });
   });

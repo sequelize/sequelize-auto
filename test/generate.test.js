@@ -10,13 +10,14 @@ const testConfig = require('./config');
 const _ = require('lodash');
 
 describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
+  var self = this;
+  self.timeout(10000);
+
   after(function(done) {
-    helpers.clearDatabase(this.sequelize, done);
+    helpers.clearDatabase(self.sequelize, done);
   });
 
   before(function(done) {
-    const self = this;
-
     debug('Creating tables to run tests against.');
     helpers.initTests({
       dialect: dialect,
@@ -64,14 +65,18 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         self.ParanoidUser.belongsTo(self.User);
       },
       onComplete: function() {
-        self.sequelize.sync().then(function() {
-          done();
+        self.sequelize.sync().then(function () {
+          var trigger = helpers.getDummyCreateTriggerStatement("HistoryLogs");
+          self.sequelize.query(trigger).then(function(_){
+            done();
+          }, done);
         }, done);
-      }
+      },
+      onError: done
     });
   });
 
-  const setupModels = function(self, callback) {
+  function setupModels(callback) {
     const config = self.sequelize.config;
     const autoBin = path.join(__dirname, '..', 'bin', 'sequelize-auto');
     try {
@@ -92,22 +97,19 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
       debug('Starting child process:', execString);
       exec(execString, callback);
     } catch (err) {
-      console.log('Error:', err);
-      throw err;
+      callback(err);
     }
   };
 
   describe('should be able to generate', function() {
     it('the model files.', function(done) {
-      this.timeout(10000); // failing on Node 8 + 10 at 2000.
       try {
-        const self = this;
         const db = self.sequelize.config.database;
         const testTables = ['Users', 'HistoryLogs', 'ParanoidUsers'];
-  
-        setupModels(self, function(err, stdout, stderr) {
-          expect(err).to.be.null;
-          
+
+        setupModels(function(err, stdout, stderr) {
+          if (err) return done(err);
+
           // console.log('------------');
           // console.log('Error::', err);
           // console.log('stdout::', stdout);
@@ -126,26 +128,24 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
           try {
             // Check the output
             if (self.sequelize.options.dialect === 'postgres') {
-              const defaultSchema = 'public';
-              const qry = `WHERE table_schema = '${defaultSchema}' AND table_type LIKE '%TABLE' AND table_name != 'spatial_ref_sys';`;
-              expect(stdout.indexOf(qry)).to.be.at.above(-1);
+              expect(stdout.indexOf('SELECT table_name, table_schema FROM information_schema.tables')).to.be.at.above(-1);
 
               testTables.forEach(function(tbl) {
-                const query = `WHERE o.conrelid = (SELECT oid FROM pg_class WHERE relname = '${tbl}' LIMIT 1)`;
+                const query = `relname = '${tbl}'`;
                 expect(stdout.indexOf(query)).to.be.at.above(-1);
               });
             } else if (self.sequelize.options.dialect === 'sqlite') {
               expect(stdout.indexOf("FROM `sqlite_master` WHERE type='table'")).to.be.at.above(-1);
             } else if (self.sequelize.options.dialect === 'mssql') {
-              expect(stdout.indexOf('SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES')).to.be.at.above(-1);
+              expect(stdout.indexOf('SELECT table_name, table_schema FROM information_schema.tables')).to.be.at.above(-1);
+              testTables.forEach(function(tbl) {
+                expect(stdout.indexOf(`TABLE_NAME = '${tbl}'`)).to.be.at.above(-1);
+              });
             } else {
-
-              const showPos = stdout.indexOf('SHOW TABLES;');
-              debug('mysql showPos:', showPos);
-              expect(showPos).to.be.at.above(-1);
+              expect(stdout.indexOf('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE')).to.be.at.above(-1);
 
               testTables.forEach(function(tbl) {
-                const query = `WHERE K.TABLE_NAME = '${tbl}' AND K.CONSTRAINT_SCHEMA = '${db}' AND C.TABLE_SCHEMA = '${db}';`
+                const query = `WHERE K.TABLE_NAME = '${tbl}' AND C.TABLE_SCHEMA = '${db}';`
                 const queryPos = stdout.indexOf(query);
                 debug('mysql queryPos:', queryPos, 'query:', query);
                 expect(queryPos).to.be.at.above(-1);
@@ -153,36 +153,36 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
             }
           } catch (err) {
             console.log("Error checking stdout:", err);
-            throw err;
+            return done(err);
           }
           done();
         });
       } catch (err) {
         console.log("Ack:", err);
-        throw err;    
+        return done(err);
       }
     });
   });
 
   describe('should be able to require', function() {
-    before(function(done) {
-      setupModels(this, done);
-    });
+    before(setupModels);
 
     it('the HistoryLogs model', function(done) {
       try {
         const historyModel = path.join(testConfig.directory, 'HistoryLogs');
         debug('Importing:', historyModel);
 
-        const HistoryLogs = this.sequelize.import ? this.sequelize.import(historyModel) : require(historyModel)(this.sequelize, helpers.Sequelize);
+        const HistoryLogs = self.sequelize.import ? self.sequelize.import(historyModel) : require(historyModel)(self.sequelize, helpers.Sequelize);
         expect(HistoryLogs.tableName).to.equal('HistoryLogs');
+        expect(HistoryLogs.options.hasTrigger).to.equal(true);
         ['some Text', 'aNumber', 'aRandomId', 'id'].forEach(function(field) {
           expect(HistoryLogs.rawAttributes[field]).to.exist;
         });
         expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
         done();
       } catch (err) {
-        console.log('Failed to load HistoryLogs model:', err);     
+        console.log('Failed to load HistoryLogs model:', err);
+        done(err);
       }
     });
 
@@ -191,14 +191,16 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         const pUsers = path.join(testConfig.directory, 'ParanoidUsers');
         debug('Importing:', pUsers);
 
-        const ParanoidUsers = this.sequelize.import ? this.sequelize.import(pUsers) : require(pUsers)(this.sequelize, helpers.Sequelize);
+        const ParanoidUsers = self.sequelize.import ? self.sequelize.import(pUsers) : require(pUsers)(self.sequelize, helpers.Sequelize);
         expect(ParanoidUsers.tableName).to.equal('ParanoidUsers');
+        expect(ParanoidUsers.options).to.not.have.property("hasTrigger");
         ['username', 'id', 'createdAt', 'updatedAt', 'deletedAt'].forEach(function(field) {
           expect(ParanoidUsers.rawAttributes[field]).to.exist;
         });
         done();
       } catch (err) {
-        console.log('Failed to load ParanoidUsers model:', err);        
+        console.log('Failed to load ParanoidUsers model:', err);
+        done(err);
       }
     });
 
@@ -207,8 +209,9 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         const users = path.join(testConfig.directory, 'Users');
         debug('Importing:', users);
 
-        const Users = this.sequelize.import ? this.sequelize.import(users) : require(users)(this.sequelize, helpers.Sequelize);
+        const Users = self.sequelize.import ? self.sequelize.import(users) : require(users)(self.sequelize, helpers.Sequelize);
         expect(Users.tableName).to.equal('Users');
+        expect(Users.options).to.not.have.property("hasTrigger");
         ['username',
           'touchedAt',
           'aNumber',
@@ -227,6 +230,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         done();
       } catch (err) {
         console.log('Failed to load Users model:', err);
+        done(err);
       }
     });
   });
