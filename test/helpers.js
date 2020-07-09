@@ -6,7 +6,66 @@ const fs = require('fs');
 module.exports = {
   Sequelize: Sequelize,
 
-  initTests: function(options) {
+  initTestData: function (test, dialect, done) {
+    helpers = this;
+    this.initTests({
+      dialect: dialect,
+      beforeComplete: function (sequelize) {
+        test.sequelize = sequelize;
+        test.User = test.sequelize.define('User', {
+          username: { type: Sequelize.STRING },
+          touchedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+          aNumber: { type: Sequelize.INTEGER },
+          bNumber: { type: Sequelize.INTEGER, comment: 'B Number' },
+          validateTest: {
+            type: Sequelize.INTEGER,
+            allowNull: true
+          },
+          validateCustom: {
+            type: Sequelize.STRING,
+            allowNull: false
+          },
+          dateAllowNullTrue: {
+            type: Sequelize.DATE,
+            allowNull: true
+          },
+          defaultValueBoolean: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: true
+          }
+        });
+
+        test.HistoryLog = test.sequelize.define('HistoryLog', {
+          'some Text': { type: Sequelize.STRING },
+          '1Number': { type: Sequelize.INTEGER },
+          aRandomId: { type: Sequelize.INTEGER }
+        });
+
+        test.ParanoidUser = test.sequelize.define(
+          'ParanoidUser',
+          {
+            username: { type: Sequelize.STRING }
+          },
+          {
+            paranoid: true
+          }
+        );
+
+        test.ParanoidUser.belongsTo(test.User);
+      },
+      onComplete: function () {
+        test.sequelize.sync().then(function () {
+          var trigger = helpers.getDummyCreateTriggerStatement("HistoryLogs");
+          test.sequelize.query(trigger).then(function (_) {
+            done();
+          }, done);
+        }, done);
+      },
+      onError: done
+    });
+  },
+
+  initTests: function (options) {
     if (!options || !options.onError || !options.onComplete) {
       throw new Error("options.onComplete+onError required");
     }

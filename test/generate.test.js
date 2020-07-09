@@ -19,61 +19,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
 
   before(function(done) {
     debug('Creating tables to run tests against.');
-    helpers.initTests({
-      dialect: dialect,
-      beforeComplete: function(sequelize) {
-        self.sequelize = sequelize;
-        self.User = self.sequelize.define('User', {
-          username: { type: helpers.Sequelize.STRING },
-          touchedAt: { type: helpers.Sequelize.DATE, defaultValue: helpers.Sequelize.NOW },
-          aNumber: { type: helpers.Sequelize.INTEGER },
-          bNumber: { type: helpers.Sequelize.INTEGER },
-          validateTest: {
-            type: helpers.Sequelize.INTEGER,
-            allowNull: true
-          },
-          validateCustom: {
-            type: helpers.Sequelize.STRING,
-            allowNull: false
-          },
-          dateAllowNullTrue: {
-            type: helpers.Sequelize.DATE,
-            allowNull: true
-          },
-          defaultValueBoolean: {
-            type: helpers.Sequelize.BOOLEAN,
-            defaultValue: true
-          }
-        });
-
-        self.HistoryLog = self.sequelize.define('HistoryLog', {
-          'some Text': { type: helpers.Sequelize.STRING },
-          aNumber: { type: helpers.Sequelize.INTEGER },
-          aRandomId: { type: helpers.Sequelize.INTEGER }
-        });
-
-        self.ParanoidUser = self.sequelize.define(
-          'ParanoidUser',
-          {
-            username: { type: helpers.Sequelize.STRING }
-          },
-          {
-            paranoid: true
-          }
-        );
-
-        self.ParanoidUser.belongsTo(self.User);
-      },
-      onComplete: function() {
-        self.sequelize.sync().then(function () {
-          var trigger = helpers.getDummyCreateTriggerStatement("HistoryLogs");
-          self.sequelize.query(trigger).then(function(_){
-            done();
-          }, done);
-        }, done);
-      },
-      onError: done
-    });
+    helpers.initTestData(self, dialect, done);
   });
 
   function setupModels(callback) {
@@ -175,7 +121,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
         const HistoryLogs = self.sequelize.import ? self.sequelize.import(historyModel) : require(historyModel)(self.sequelize, helpers.Sequelize);
         expect(HistoryLogs.tableName).to.equal('HistoryLogs');
         expect(HistoryLogs.options.hasTrigger).to.equal(true);
-        ['some Text', 'aNumber', 'aRandomId', 'id'].forEach(function(field) {
+        ['some Text', '1Number', 'aRandomId', 'id'].forEach(function(field) {
           expect(HistoryLogs.rawAttributes[field]).to.exist;
         });
         expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
