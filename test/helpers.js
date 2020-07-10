@@ -23,11 +23,12 @@ module.exports = {
         test.User = test.sequelize.define('User', {
           username: { type: Sequelize.STRING },
           touchedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-          aNumber: { type: Sequelize.INTEGER },
-          bNumber: { type: Sequelize.INTEGER, comment: 'B Number' },
+          aNumber: { type: Sequelize.INTEGER, comment: 'Dev\'s "fix"' },
+          bNumber: { type: Sequelize.INTEGER, comment: 'B Numbér' },
           validateTest: {
             type: Sequelize.INTEGER,
-            allowNull: true
+            allowNull: true,
+            comment: '需要的环境'
           },
           validateCustom: {
             type: Sequelize.STRING,
