@@ -40,6 +40,9 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
         execString += ` -e ${self.sequelize.options.dialect}`;
       }
       // execString += ' -l es6'; // uncomment to test es6 file generation
+      if (helpers.isSnakeTables()) {
+        execString += ' -C ut -f ut'; // test UpperCamelCase conversion from snake_case tables
+      }
       debug('Starting child process:', execString);
       exec(execString, callback);
     } catch (err) {
@@ -51,7 +54,10 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
     it('the model files.', function(done) {
       try {
         const db = self.sequelize.config.database;
-        const testTables = ['Users', 'HistoryLogs', 'ParanoidUsers'];
+        var testTables = ['Users', 'HistoryLogs', 'ParanoidUsers'];
+        if (helpers.isSnakeTables()) {
+          testTables = testTables.map(t => _.snakeCase(t));
+        }
 
         setupModels(function(err, stdout, stderr) {
           if (err) return done(err);
@@ -91,7 +97,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
               expect(stdout.indexOf('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE')).to.be.at.above(-1);
 
               testTables.forEach(function(tbl) {
-                const query = `WHERE K.TABLE_NAME = '${tbl}' AND C.TABLE_SCHEMA = '${db}';`
+                const query = `WHERE K.TABLE_NAME = '${tbl}'`; // AND C.TABLE_SCHEMA = '${db}';`
                 const queryPos = stdout.indexOf(query);
                 debug('mysql queryPos:', queryPos, 'query:', query);
                 expect(queryPos).to.be.at.above(-1);
@@ -112,6 +118,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
 
   describe('should be able to require', function() {
     before(setupModels);
+    const isSnakeTables = helpers.isSnakeTables();
 
     it('the HistoryLogs model', function(done) {
       try {
@@ -119,12 +126,14 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
         debug('Importing:', historyModel);
 
         const HistoryLogs = self.sequelize.import ? self.sequelize.import(historyModel) : require(historyModel)(self.sequelize, helpers.Sequelize);
-        expect(HistoryLogs.tableName).to.equal('HistoryLogs');
-        expect(HistoryLogs.options.hasTrigger).to.equal(true);
-        ['some Text', '1Number', 'aRandomId', 'id'].forEach(function(field) {
+        const tableName = isSnakeTables ? 'history_logs' : 'HistoryLogs';
+        expect(HistoryLogs.tableName).to.equal(tableName);
+        expect(HistoryLogs.options.hasTrigger).to.equal(true);      
+        const someText = isSnakeTables ? 'someText' : 'some Text';  // converting to camelCase loses the space
+        [someText, '1Number', 'aRandomId', 'id'].forEach(function(field) {
           expect(HistoryLogs.rawAttributes[field]).to.exist;
         });
-        expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
+        expect(HistoryLogs.rawAttributes[someText].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
         done();
       } catch (err) {
         console.log('Failed to load HistoryLogs model:', err);
@@ -138,7 +147,8 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
         debug('Importing:', pUsers);
 
         const ParanoidUsers = self.sequelize.import ? self.sequelize.import(pUsers) : require(pUsers)(self.sequelize, helpers.Sequelize);
-        expect(ParanoidUsers.tableName).to.equal('ParanoidUsers');
+        const tableName = isSnakeTables ? 'paranoid_users' : 'ParanoidUsers';
+        expect(ParanoidUsers.tableName).to.equal(tableName);
         expect(ParanoidUsers.options).to.not.have.property("hasTrigger");
         ['username', 'id', 'createdAt', 'updatedAt', 'deletedAt'].forEach(function(field) {
           expect(ParanoidUsers.rawAttributes[field]).to.exist;
@@ -156,7 +166,8 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
         debug('Importing:', users);
 
         const Users = self.sequelize.import ? self.sequelize.import(users) : require(users)(self.sequelize, helpers.Sequelize);
-        expect(Users.tableName).to.equal('Users');
+        const tableName = isSnakeTables ? 'users' : 'Users';
+        expect(Users.tableName).to.equal(tableName);
         expect(Users.options).to.not.have.property("hasTrigger");
         ['username',
           'touchedAt',

@@ -6,8 +6,16 @@ const fs = require('fs');
 module.exports = {
   Sequelize: Sequelize,
 
+  isSnakeTables() {
+    // For mysql+innodb on Windows, table names are all lowercase, so we use snake_case to preserve word boundaries 
+    // then convert back to UpperCamelCase for file and class names (history_logs -> HistoryLogs) so tests pass
+    const dialect = this.getTestDialect();
+    return (dialect == 'mysql');
+  },
+
   initTestData: function (test, dialect, done) {
     helpers = this;
+    isSnakeTables = this.isSnakeTables();
     this.initTests({
       dialect: dialect,
       beforeComplete: function (sequelize) {
@@ -34,27 +42,32 @@ module.exports = {
             defaultValue: true
           }
         }, {
-          schema: dialect == 'postgres' ? 'public' : undefined
+          schema: dialect == 'postgres' ? 'public' : undefined,
+          tableName: isSnakeTables ? 'users' : undefined
         });
 
         test.HistoryLog = test.sequelize.define('HistoryLog', {
           'some Text': { type: Sequelize.STRING },
           '1Number': { type: Sequelize.INTEGER },
           aRandomId: { type: Sequelize.INTEGER }
+        }, {
+          tableName: isSnakeTables ? 'history_logs' : undefined
         });
 
         test.ParanoidUser = test.sequelize.define('ParanoidUser', {
             username: { type: Sequelize.STRING }
           },
           {
-            paranoid: true
+            paranoid: true,
+            tableName: isSnakeTables ? 'paranoid_users' : undefined
           }
         );
 
         test.ParanoidUser.belongsTo(test.User);
 
         // test data for relationships across schemas
-        var schema = (dialect != 'sqlite') ? 'family' : undefined;
+        // sqlite does not support schemas)
+        var schema = (dialect == 'sqlite') ? undefined : 'family';
         if (schema) {
           test.sequelize.createSchema(schema);
         }
@@ -69,8 +82,9 @@ module.exports = {
           },
           name:   { type: Sequelize.STRING, field: 'Name' }
         }, {
+          schema: schema,
+          tableName: isSnakeTables ? 'parents' : undefined,
           timestamps: false,
-          schema: schema
         });
 
         test.Child = test.sequelize.define('Child', {
@@ -83,9 +97,9 @@ module.exports = {
           },
           name:   { type: Sequelize.STRING, field: 'Name' }
         }, {
-          tableName: 'Kids',
-          timestamps: false,
-          schema: schema
+          schema: schema,
+          tableName: isSnakeTables ? 'kids' : 'Kids',
+          timestamps: false
         });
 
         test.Child.belongsTo(test.Parent, { foreignKey: 'ParentId' });
@@ -95,7 +109,8 @@ module.exports = {
       },
       onComplete: function () {
         test.sequelize.sync().then(function () {
-          var trigger = helpers.getDummyCreateTriggerStatement("HistoryLogs");
+          var tableName = isSnakeTables ? 'history_logs' : 'HistoryLogs';
+          var trigger = helpers.getDummyCreateTriggerStatement(tableName);
           test.sequelize.query(trigger).then(function (_) {
             done();
           }, done);
@@ -239,6 +254,8 @@ module.exports = {
       throw new Error(`Undefined expectation for "${dialect}"!`);
     }
   },
+
+  // for testing the `hasTrigger` flag
   getDummyCreateTriggerStatement: function(tableName) {
     var statement = {
       mysql:    'CREATE TRIGGER ' + tableName + '_Trigger BEFORE INSERT ON ' + tableName + ' FOR EACH ROW SET NEW.Id = NEW.Id',

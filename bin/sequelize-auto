@@ -40,11 +40,11 @@ const argv = require('yargs')
   )
   .describe('t', 'Comma-separated names of tables to import')
   .describe('T', 'Comma-separated names of tables to skip')
-  .describe('C', 'Use camel case to name models and fields, if you want model name to be "Upper Camel Case" you can use like this: `-C ut`')
+  .describe('C', 'Use camelCase to name models and fields; for UpperCamelCase model names use `-C ut`')
   .describe('n', 'Prevent writing the models to disk.')
   .describe('s', 'Database schema from which to retrieve tables')
   .describe('l', 'Language for Model output: es5|es6|esm|ts \n es5 = ES5 CJS modules (default) \n es6 = ES6 CJS modules \n esm = ES6 ESM modules \n ts = TypeScript ')
-  .describe('f', 'Use camel case for file name')
+  .describe('f', 'Use camelCase for file names; for UpperCamelCase use `-f ut`')
   .argv;
 
 const dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
@@ -83,7 +83,7 @@ configFile.schema = argv.s || configFile.schema;
 configFile.typescript = (lang === 'ts');
 configFile.es6 = (lang === 'es6');
 configFile.esm = (lang === 'esm');
-configFile.camelCaseForFileName = argv.f || configFile.camelCaseForFileName || false;
+configFile.camelCaseFileName = argv.f || configFile.camelCaseFileName || false;
 
 console.log(configFile);
 
