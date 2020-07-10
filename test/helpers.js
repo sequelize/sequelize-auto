@@ -33,6 +33,8 @@ module.exports = {
             type: Sequelize.BOOLEAN,
             defaultValue: true
           }
+        }, {
+          schema: dialect == 'postgres' ? 'public' : undefined
         });
 
         test.HistoryLog = test.sequelize.define('HistoryLog', {
@@ -41,9 +43,7 @@ module.exports = {
           aRandomId: { type: Sequelize.INTEGER }
         });
 
-        test.ParanoidUser = test.sequelize.define(
-          'ParanoidUser',
-          {
+        test.ParanoidUser = test.sequelize.define('ParanoidUser', {
             username: { type: Sequelize.STRING }
           },
           {
@@ -52,6 +52,46 @@ module.exports = {
         );
 
         test.ParanoidUser.belongsTo(test.User);
+
+        // test data for relationships across schemas
+        var schema = (dialect != 'sqlite') ? 'family' : undefined;
+        if (schema) {
+          test.sequelize.createSchema(schema);
+        }
+
+        test.Parent = test.sequelize.define('Parent', {
+          parentId:  {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            autoIncrement: true,
+            primaryKey: true,
+            field: 'ParentId'
+          },
+          name:   { type: Sequelize.STRING, field: 'Name' }
+        }, {
+          timestamps: false,
+          schema: schema
+        });
+
+        test.Child = test.sequelize.define('Child', {
+          childId:  {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            autoIncrement: true,
+            primaryKey: true,
+            field: 'ChildId'
+          },
+          name:   { type: Sequelize.STRING, field: 'Name' }
+        }, {
+          tableName: 'Kids',
+          timestamps: false,
+          schema: schema
+        });
+
+        test.Child.belongsTo(test.Parent, { foreignKey: 'ParentId' });
+        test.Child.belongsTo(test.User);
+        test.Parent.belongsTo(test.User);
+
       },
       onComplete: function () {
         test.sequelize.sync().then(function () {

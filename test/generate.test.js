@@ -9,7 +9,7 @@ const dialect = helpers.getTestDialect();
 const testConfig = require('./config');
 const _ = require('lodash');
 
-describe(helpers.getTestDialectTeaser('sequelize-auto'), function() {
+describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
   var self = this;
   self.timeout(10000);
 

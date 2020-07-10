@@ -50,7 +50,18 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
     it("the models", function(done) {
       function tableNameFromQname(v, n) {
           var tokens = n.split(".");
-          return tokens[tokens.length -1]
+          var token = tokens[tokens.length -1];
+
+          // for innodb on Windows, all table names are lowercase, so we re-map them back to expected values.
+          var map = {
+            'users' : 'Users',
+            'historylogs': 'HistoryLogs',
+            'paranoidusers': 'ParanoidUsers',
+            'parents': 'Parents',
+            'kids': 'Kids'
+          }
+          token = map[token] || token;
+          return token;
       }
       setupModels(self, function(autoSequelize) {
         expect(autoSequelize).to.include.keys(['tables', 'foreignKeys']);
@@ -59,14 +70,22 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
         autoSequelize.foreignKeys = _.mapKeys(autoSequelize.foreignKeys, tableNameFromQname)
         autoSequelize.hasTriggerTables = _.mapKeys(autoSequelize.hasTriggerTables, tableNameFromQname)
 
-        expect(autoSequelize.tables).to.have.keys(['Users', 'HistoryLogs', 'ParanoidUsers']);
+        const expectedTables = ['Users', 'HistoryLogs', 'ParanoidUsers', 'Parents', 'Kids'];
+
+        expect(autoSequelize.tables).to.have.keys(expectedTables);
         expect(autoSequelize.hasTriggerTables).to.have.keys(['HistoryLogs']);
 
         if (helpers.getTestDialect() === "sqlite") {
-          expect(autoSequelize.foreignKeys).to.have.keys(['ParanoidUsers']);
+          expect(autoSequelize.foreignKeys).to.have.keys(['Kids', 'Parents', 'ParanoidUsers']);
           expect(autoSequelize.foreignKeys.ParanoidUsers).to.include.keys(['UserId']);
+          expect(autoSequelize.foreignKeys.Parents).to.include.keys(['UserId']);
+          expect(autoSequelize.foreignKeys.Kids).to.include.keys(['UserId']);
+          expect(autoSequelize.foreignKeys.Kids).to.include.keys(['ParentId']);
         } else {
-          expect(autoSequelize.foreignKeys).to.have.keys(['Users', 'HistoryLogs', 'ParanoidUsers']);
+          // mysql doesn't have full schema support
+          var schema = (dialect == 'mysql') ? 'sequelize_auto_test' : 'family';
+
+          expect(autoSequelize.foreignKeys).to.have.keys(expectedTables);
           expect(autoSequelize.foreignKeys.Users).to.include.keys('id');
           expect(autoSequelize.foreignKeys.Users.id).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isPrimaryKey', 'isSerialKey']);
           expect(autoSequelize.foreignKeys.Users.id.isPrimaryKey).to.be.true;
@@ -81,6 +100,19 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
           expect(autoSequelize.foreignKeys.ParanoidUsers.id).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isPrimaryKey', 'isSerialKey']);
           expect(autoSequelize.foreignKeys.ParanoidUsers.id.isPrimaryKey).to.be.true;
           expect(autoSequelize.foreignKeys.ParanoidUsers.id.isSerialKey).to.be.true;
+
+          expect(autoSequelize.foreignKeys.Parents).to.include.keys('ParentId');
+          expect(autoSequelize.foreignKeys.Parents.ParentId).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isPrimaryKey', 'isSerialKey']);
+          expect(autoSequelize.foreignKeys.Parents.ParentId.isPrimaryKey).to.be.true;
+          expect(autoSequelize.foreignKeys.Parents.ParentId.isSerialKey).to.be.true;
+          expect(autoSequelize.foreignKeys.Parents.ParentId.source_schema).to.equal(schema);
+
+          expect(autoSequelize.foreignKeys.Kids).to.include.keys('ChildId');
+          expect(autoSequelize.foreignKeys.Kids.ChildId).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isPrimaryKey', 'isSerialKey']);
+          expect(autoSequelize.foreignKeys.Kids.ChildId.isPrimaryKey).to.be.true;
+          expect(autoSequelize.foreignKeys.Kids.ChildId.isSerialKey).to.be.true;
+          expect(autoSequelize.foreignKeys.Kids.ChildId.source_schema).to.equal(schema);
+
         }
 
         expect(autoSequelize.foreignKeys.ParanoidUsers.UserId).to.include.keys(['source_schema', 'source_table', 'source_column', 'target_schema', 'target_table', 'target_column', 'isForeignKey']);
