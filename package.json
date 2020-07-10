@@ -1,14 +1,19 @@
 {
   "name": "sequelize-auto",
-  "version": "0.5.0",
-  "publishConfig": { "tag": "next" },
+  "version": "0.5.1",
+  "publishConfig": {
+    "tag": "latest"
+  },
   "description": "Automatically generate bare sequelize models from your database.",
   "main": "index",
   "keywords": [
     "mysql",
+    "mssql",
+    "sqlite",
     "postgres",
     "sequelize",
     "sequelizejs",
+    "generator",
     "mapper"
   ],
   "bin": {

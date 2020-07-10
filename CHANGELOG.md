@@ -1,5 +1,17 @@
 # sequelize-auto change log
 
+## [0.5.1]
+
+* Fix `export default` in esm output (thanks @vykuntaharsha)
+* Fix missing comma after `autoIncrement`
+* Don't output `comment` if empty
+* Add `hasTrigger` support #217 (thanks @joaoe)
+* Fix check constraints when gathering foreign key info for mssql (thanks @joaoe)
+* Fix mysql views generation #354 (thanks @joaoe)
+* Fix schema support, #348 #350 (thanks @joaoe and @dlredden) 
+* Add tests for cross-schema foreign keys (thanks @dlredden)
+* Add tests for snake_case table names -> UpperCamelCase model names
+
 ## [0.5.0]
 
 * Add UpperCamelCase option (thanks @marshalys)
@@ -16,7 +28,6 @@
 * Fix tedious warnings for trustServerCertificate and enableArithAbort
 * Fix support for mssql: nchar, nvarchar, money, varbinary types
 
-## Master
 
 ### Fixed
 

@@ -12,23 +12,17 @@ Automatically generate models for [SequelizeJS](https://github.com/sequelize/seq
 
 ## Prerequisites
 
+You will need to install `sequelize`; it's no longer installed by `sequelize-auto`.
+
 You will need to install the correct dialect binding before using sequelize-auto.
 
-Example for MySQL/MariaDB
+Dialect | Install
+---|---
+MySQL/MariaDB | `npm install mysql2`
+Postgres | `npm install pg pg-hstore`
+Sqlite | `npm install sqlite3`
+MSSQL | `npm install tedious`
 
-`npm install mysql2`
-
-Example for Postgres
-
-`npm install pg pg-hstore`
-
-Example for Sqlite3
-
-`npm install sqlite`
-
-Example for MSSQL
-
-`npm install tedious`
 
 ## Usage
 
@@ -55,9 +49,8 @@ Example for MSSQL
                             https://sequelize.org/v5/manual/models-definition.html#configuration
       -t, --tables          Comma-separated names of tables to import
       -T, --skip-tables     Comma-separated names of tables to skip
-      -C, --camel           Use camel case to name models and fields, if you want
-                            model name to be "Upper Camel Case" you can use like
-                            this: `-C ut`
+      -C, --camel           Use camelCase to name models and fields; for
+                            UpperCamelCase model names use `-C ut`
       -n, --no-write        Prevent writing the models to disk.
       -s, --schema          Database schema from which to retrieve tables
       -l, --lang            Language for Model output: es5|es6|esm|ts
@@ -65,7 +58,8 @@ Example for MSSQL
                             es6 = ES6 CJS modules
                             esm = ES6 ESM modules
                             ts = TypeScript
-      -f, --camel-file-name Use camel case for file name
+      -f, --camel-file-name Use camelCase for file names; for UpperCamelCase use
+                            `-f ut`
 
 
 ## Example
@@ -164,13 +158,13 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
     dialect: 'mysql'|'mariadb'|'sqlite'|'postgres'|'mssql',
     directory: false, // prevents the program from writing to disk
     port: 'port',
-    camelCase: true, // sequelize field names use userId format (default is user_id) for db columns named as user_id
-    camelCaseForFileName: true, // file names created for each model use camelCase.js not snake_case.js
+    camelCase: true, // convert snake_case column names to camelCase field names: user_id -> userId
+    camelCaseFileName: true, // file names created for each model use camelCase.js not snake_case.js
     additional: {
         timestamps: false
         //...
     },
-    tables: ['table1', 'table2', 'table3']
+    tables: ['table1', 'table2', 'table3'] // use all tables if omitted
     //...
 })
 ```
@@ -192,7 +186,12 @@ devices.findAll
 
 ## Testing
 
-You must setup a database called `sequelize_auto_test` first, edit the `test/config.js` file accordingly, and then enter in any of the following:
+To set up: 
+
+1. Create an empty database called `sequelize_auto_test` on your database server (sqlite excepted)
+2. Create a `.env` file from `sample.env` and set your username/password/port etc.  The env is read by `test/config.js`
+
+Then run one of the commands below:
 
     # for all
     npm run test
