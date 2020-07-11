@@ -99,7 +99,7 @@ function getDefaultPort(dialect) {
 }
 
 const auto = new sequelizeAuto(argv.d, argv.u, !!argv.x ? '' + argv.x : null, configFile);
-debugger;
+
 auto.run(function(err) {
   if (err) {
     throw err;

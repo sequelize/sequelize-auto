@@ -176,14 +176,18 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
           'validateTest',
           'validateCustom',
           'dateAllowNullTrue',
+          'defaultValueBoolean',
           'id',
           'createdAt',
           'updatedAt'].forEach(function(field) {
           expect(Users.rawAttributes[field]).to.exist;
         });
+        expect(Users.rawAttributes.validateTest.allowNull).to.be.true;
         expect(Users.rawAttributes.validateCustom.allowNull).to.be.false;
         expect(Users.rawAttributes.dateAllowNullTrue.allowNull).to.be.true;
         expect(Users.rawAttributes.dateAllowNullTrue.type).to.match(/time/i);
+        expect(Users.rawAttributes.defaultValueBoolean.defaultValue).to.be.equal(dialect == 'mysql' ? 1 : true);
+        expect(Users.rawAttributes.bNumber.defaultValue).to.be.equal(42);
         done();
       } catch (err) {
         console.log('Failed to load Users model:', err);

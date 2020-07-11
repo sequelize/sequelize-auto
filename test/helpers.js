@@ -24,7 +24,11 @@ module.exports = {
           username: { type: Sequelize.STRING },
           touchedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
           aNumber: { type: Sequelize.INTEGER, comment: 'Dev\'s "fix"' },
-          bNumber: { type: Sequelize.INTEGER, comment: 'B Numbér' },
+          bNumber: { 
+            type: Sequelize.INTEGER, 
+            comment: 'B Numbér',
+            defaultValue: 42
+          },
           validateTest: {
             type: Sequelize.INTEGER,
             allowNull: true,
