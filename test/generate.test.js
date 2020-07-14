@@ -167,6 +167,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
 
         const Users = self.sequelize.import ? self.sequelize.import(users) : require(users)(self.sequelize, helpers.Sequelize);
         const tableName = isSnakeTables ? 'users' : 'Users';
+        const raw = Users.rawAttributes;
         expect(Users.tableName).to.equal(tableName);
         expect(Users.options).to.not.have.property("hasTrigger");
         ['username',
@@ -180,14 +181,16 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
           'id',
           'createdAt',
           'updatedAt'].forEach(function(field) {
-          expect(Users.rawAttributes[field]).to.exist;
+          expect(raw[field]).to.exist;
         });
-        expect(Users.rawAttributes.validateTest.allowNull).to.be.true;
-        expect(Users.rawAttributes.validateCustom.allowNull).to.be.false;
-        expect(Users.rawAttributes.dateAllowNullTrue.allowNull).to.be.true;
-        expect(Users.rawAttributes.dateAllowNullTrue.type).to.match(/time/i);
-        expect(Users.rawAttributes.defaultValueBoolean.defaultValue).to.be.equal(dialect == 'mysql' ? 1 : true);
-        expect(Users.rawAttributes.bNumber.defaultValue).to.be.equal(42);
+        expect(raw.validateTest.allowNull).to.be.true;
+        expect(raw.validateCustom.allowNull).to.be.false;
+        expect(raw.dateAllowNullTrue.allowNull).to.be.true;
+        expect(raw.dateAllowNullTrue.type).to.match(/time/i);
+        expect(raw.defaultValueBoolean.defaultValue).to.be.equal(dialect == 'mysql' ? 1 : true);
+        expect(raw.bNumber.defaultValue).to.be.equal(42);
+        const dateDefault = JSON.stringify(raw.dateWithDefault.defaultValue);
+        expect(dateDefault).to.be.equal(dialect == 'mssql' ? '{"fn":"getdate","args":[]}' : '{"val":"CURRENT_TIMESTAMP"}');
         done();
       } catch (err) {
         console.log('Failed to load Users model:', err);

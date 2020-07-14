@@ -42,6 +42,11 @@ module.exports = {
             type: Sequelize.DATE,
             allowNull: true
           },
+          dateWithDefault: {
+            type: Sequelize.DATE,
+            allowNull: false,
+            defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
+          },
           defaultValueBoolean: {
             type: Sequelize.BOOLEAN,
             defaultValue: true
