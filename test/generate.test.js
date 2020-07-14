@@ -197,5 +197,42 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
         done(err);
       }
     });
+
+    it('the Users model CRUD', function(done) {
+      try {
+        const users = path.join(testConfig.directory, 'Users');
+        debug('Importing:', users);
+
+        const Users = self.sequelize.import ? self.sequelize.import(users) : require(users)(self.sequelize, helpers.Sequelize);
+
+        // crude date offset to account for difference between database time and sequelize UTC time.
+        var yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        Users.create({
+          username: 'janedoe',
+          aNumber: 120,
+          bNumber: 5,
+          validateTest: 888888888,
+          validateCustom: 'custom?',
+          dateAllowNullTrue: null
+        }).then(function(u) {
+          return u.reload().then(function(jane) {
+            expect(jane.username).to.be.equal('janedoe');
+            expect(jane.validateTest).to.be.equal(888888888);
+            expect(jane.dateWithDefault).to.be.greaterThan(yesterday);
+            expect(jane.defaultValueBoolean).to.be.equal(dialect == 'mysql' ? 1 : true);
+            done();
+          });
+        }).catch(function(err) {
+          done(err);
+        });
+
+      } catch (err) {
+        console.log('Failed to CRUD Users model:', err);
+        done(err);
+      }
+
+    });
   });
 });
