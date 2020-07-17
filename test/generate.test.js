@@ -183,6 +183,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
           'updatedAt'].forEach(function(field) {
           expect(raw[field]).to.exist;
         });
+        expect(raw.id.autoIncrement).to.be.true;
         expect(raw.validateTest.allowNull).to.be.true;
         expect(raw.validateCustom.allowNull).to.be.false;
         expect(raw.dateAllowNullTrue.allowNull).to.be.true;
@@ -221,7 +222,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
             expect(jane.username).to.be.equal('janedoe');
             expect(jane.validateTest).to.be.equal(888888888);
             expect(jane.dateWithDefault).to.be.greaterThan(yesterday);
-            expect(jane.defaultValueBoolean).to.be.equal(dialect == 'mysql' ? 1 : true);
+            expect(jane.defaultValueBoolean).to.be.equal(dialect == 'mysql' || dialect == 'sqlite' ? 1 : true);
             done();
           });
         }).catch(function(err) {
