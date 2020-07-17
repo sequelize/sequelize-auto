@@ -26,7 +26,7 @@ MSSQL | `npm install tedious`
 
 ## Usage
 
-    [node] sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName] -C
+    sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName] -C
 
     Options:
       --help                Show help                                     [boolean]
@@ -61,6 +61,7 @@ MSSQL | `npm install tedious`
       -f, --camel-file-name Use camelCase for file names; for UpperCamelCase use
                             `-f ut`
 
+> On Windows, provide the path to sequelize-auto: `node_modules\.bin\sequelize-auto [args]`
 
 ## Example
 
@@ -128,12 +129,13 @@ Produces a file/files such as ./models/Users.js which looks like:
 
 Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import) it (for Sequelize versions < 6).
 
-For Sequelize version 6+, `import` is not available, and you should use:
+For Sequelize version 6+, `Sequelize.import` is not available.  You should `require` the file and call the returned function:
 
     var Users = require('path/to/users')(sequelize, DataTypes);
 
 See [this example from sequelize/cli](https://github.com/sequelize/cli/blob/master/src/assets/models/index.js#L24) for loading all files from a directory.
 
+Also note that you can use the `-l es6` option to create the model definition files as ES6 classes, or `-l esm` option to create ES6 modules.  Then you would `require` or `import` the classes and call the `init(sequelize, DataTypes)` method on each class.
 
 ## Configuration options
 
@@ -183,6 +185,9 @@ import * as dbDef from './models/db.d';
 const devices:dbDef.DeviceModel = sequelize.import('./models/Device');
 devices.findAll
 ```
+## Resources
+
+ - [Changelog](https://github.com/sequelize/sequelize-auto/blob/master/CHANGELOG.md)
 
 ## Testing
 

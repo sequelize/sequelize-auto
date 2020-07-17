@@ -1,6 +1,14 @@
 # sequelize-auto change log
 
-## [0.5.1]
+## [0.5.2] - 2020-07-16
+
+* Fix quotes in comments, #190
+* Fix defaultValue for boolean and number types, #225 and #386
+* Fix default value for CURRENT_TIMESTAMP and mssql functions
+* Fix unique attribute, #169
+* Fix autoIncrement for sqlite, #209
+
+## [0.5.1] - 2020-07-10
 
 * Fix `export default` in esm output (thanks @vykuntaharsha)
 * Fix missing comma after `autoIncrement`
@@ -12,7 +20,7 @@
 * Add tests for cross-schema foreign keys (thanks @dlredden)
 * Add tests for snake_case table names -> UpperCamelCase model names
 
-## [0.5.0]
+## [0.5.0] - 2020-07-03
 
 * Add UpperCamelCase option (thanks @marshalys)
 * Document existing camelCase option (thanks @murfett-au)
@@ -28,8 +36,6 @@
 * Fix tedious warnings for trustServerCertificate and enableArithAbort
 * Fix support for mssql: nchar, nvarchar, money, varbinary types
 
-
-### Fixed
 
 ## [0.4.29] - 2017-10-23
 
