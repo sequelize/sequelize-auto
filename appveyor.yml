@@ -17,14 +17,25 @@ cache:
 
 environment:
   global:
-    PGUSER: postgres
-    PGPASSWORD: Password12!
-    MYSQL_PWD: Password12!
-    DIALECT: mssql
+    MSSQL_NAME: sequelize_auto_test
+    MSSQL_USER: sa
+    MSSQL_PASS: Password12!
+    MSSQL_HOST: localhost
+    MSSQL_PORT: 1433
+    MYSQL_NAME: sequelize_auto_test
+    MYSQL_USER: root
+    MYSQL_PASS: Password12
+    MYSQL_HOST: localhost
+    MYSQL_PORT: 3306
+    POSTGRES_NAME: sequelize_auto_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASS: Password12!
+    POSTGRES_HOST: localhost
+    POSTGRES_PORT: 5432
+
 
   matrix:
-    - {NODE_VERSION: 4, DIALECT: mssql}
-    - {NODE_VERSION: 6, DIALECT: mssql}
+    - {NODE_VERSION: 8, DIALECT: mssql}
 
 install:
   - ps: Install-Product node $env:NODE_VERSION x64
@@ -47,7 +58,9 @@ before_test:
   - mysql -e "create database sequelize_auto_test;" -uroot
 
 test_script:
-  - npm test
+  - npm run test-mssql
+  - npm run test-mysql
+  - npm run test-postgres
 
 branches:
   only:
