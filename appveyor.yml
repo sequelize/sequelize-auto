@@ -39,7 +39,8 @@ environment:
     - {NODE_VERSION: 10, DIALECT: mssql}
 
 install:
-  # ps: Install-Product node $env:NODE_VERSION x64
+  - ps: Install-Product node $env:NODE_VERSION x64
+  - npm install -g npm@6.10.3
   - ps: |
       $pkg = ConvertFrom-Json (Get-Content -Raw package.json)
       $pkg.devDependencies.PSObject.Properties.Remove('sqlite3')
