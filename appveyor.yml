@@ -6,7 +6,7 @@ platform:
   - x64
 
 services:
-  - mssql2012sp1
+  - mssql2016
   - mysql
   - postgresql96
 
