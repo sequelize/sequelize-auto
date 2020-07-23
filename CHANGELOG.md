@@ -1,5 +1,11 @@
 # sequelize-auto change log
 
+## [0.5.3] - 2020-07-21
+
+* Fix filtering by `tables`|`skipTables` broken in 0.5.1, issue #409
+* Improve validation of command-line arguments `-c`,`-a`, issue #146 #213 #241
+* Fix travis build
+
 ## [0.5.2] - 2020-07-16
 
 * Fix quotes in comments, #190

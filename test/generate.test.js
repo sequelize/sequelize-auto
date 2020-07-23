@@ -191,7 +191,10 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
         expect(raw.defaultValueBoolean.defaultValue).to.be.equal(dialect == 'mysql' ? 1 : true);
         expect(raw.bNumber.defaultValue).to.be.equal(42);
         const dateDefault = JSON.stringify(raw.dateWithDefault.defaultValue);
-        expect(dateDefault).to.be.equal(dialect == 'mssql' ? '{"fn":"getdate","args":[]}' : '{"val":"CURRENT_TIMESTAMP"}');
+        const databaseMajorVersion = +((self.sequelize.options.databaseVersion || '').split('.')[0]);
+        expect(dateDefault).to.be.equal(dialect == 'mssql' ? '{"fn":"getdate","args":[]}' : 
+          (dialect == 'postgres' && databaseMajorVersion < 10) ? '{"fn":"now","args":[]}' :
+          '{"val":"CURRENT_TIMESTAMP"}');
         done();
       } catch (err) {
         console.log('Failed to load Users model:', err);

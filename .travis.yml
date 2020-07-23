@@ -5,29 +5,31 @@ sudo: false
 
 node_js:
   - "10"
-  - "8"
-  - "6"
 
 cache:
   directories:
     - node_modules
 
-addons:
-  postgresql: "9.4"
+services:
+  - postgresql
+  - mysql
 
 before_script:
-  - "npm install -g mysql"
   - "npm install -g sqlite3"
-  - "npm install -g pg pg-hstore"
+  - "npm install -g mysql2"
+  - "npm install pg pg-hstore"
   - "mysql -e 'create database sequelize_auto_test;'"
   - "psql -c 'create database sequelize_auto_test;' -U postgres"
 
 script:
-  - "npm run test"
+  - "npm run test-sqlite"
+  - "npm run test-postgres"
+  - "npm run test-mysql"
 
 env:
-  - DB=mysql DIALECT=mysql
-  - DB=mysql DIALECT=postgres
-  - DB=mysql DIALECT=sqlite
+  >
+  SQLITE_HOST=localhost SQLITE_USER=sequelize_auto 
+  POSTGRES_NAME=sequelize_auto_test POSTGRES_USER=postgres POSTGRES_HOST=localhost POSTGRES_PORT=5432
+  MYSQL_NAME=sequelize_auto_test MYSQL_USER=travis MYSQL_HOST=localhost MYSQL_PORT=3306
 
 after_success: npm run coveralls

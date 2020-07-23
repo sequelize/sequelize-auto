@@ -1,6 +1,6 @@
 {
   "name": "sequelize-auto",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "publishConfig": {
     "tag": "latest"
   },
@@ -48,10 +48,10 @@
   "license": "MIT",
   "dependencies": {
     "async": "^3.2.0",
-    "eslint": "^7.2.0",
+    "eslint": "^7.5.0",
     "graceful-fs-extra": "^2.0.0",
     "mkdirp": "^1.0.4",
-    "yargs": "^15.3.1"
+    "yargs": "^15.4.1"
   },
   "peerDependencies": {
     "sequelize": ">3.30.0"
@@ -62,16 +62,15 @@
     "cross-env": "^7.0.2",
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",
-    "istanbul": "^0.4.5",
     "lcov-result-merger": "^3.1.0",
     "mocha": "^7.2.0",
     "mysql": "^2.18.1",
     "mysql2": "^2.1.0",
     "np": "^4.0.2",
     "nyc": "^13.3.0",
-    "pg": "^8.2.1",
+    "pg": "^8.3.0",
     "pg-hstore": "^2.3.3",
-    "sequelize": "^6.2.3",
+    "sequelize": "^6.3.3",
     "sqlite3": "^4.2.0",
     "tedious": "^8.3.0"
   }

@@ -37,13 +37,13 @@ MSSQL | `npm install tedious`
       -x, --pass            Password for database.
       -p, --port            Port number for database (not for sqlite). Ex:
                             MySQL/MariaDB: 3306, Postgres: 5432, MSSQL: 1433
-      -c, --config          JSON file for Sequelize's constructor "options" flag
-                            object as defined here:
+      -c, --config          Path to JSON file for Sequelize's constructor "options"
+                            flag object as defined here:
                             https://sequelize.org/v5/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor
       -o, --output          What directory to place the models.
       -e, --dialect         The dialect/engine that you're using: postgres, mysql,
                             sqlite, mssql
-      -a, --additional      Path to a json file containing model definitions (for
+      -a, --additional      Path to JSON file containing model definitions (for
                             all tables) which are to be defined within a model's
                             configuration parameter. For more info:
                             https://sequelize.org/v5/manual/models-definition.html#configuration
@@ -166,7 +166,7 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
         timestamps: false
         //...
     },
-    tables: ['table1', 'table2', 'table3'] // use all tables if omitted
+    tables: ['table1', 'table2', 'myschema.table3'] // use all tables if omitted
     //...
 })
 ```
