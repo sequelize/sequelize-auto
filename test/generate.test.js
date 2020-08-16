@@ -89,7 +89,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
             } else if (self.sequelize.options.dialect === 'sqlite') {
               expect(stdout.indexOf("FROM `sqlite_master` WHERE type='table'")).to.be.at.above(-1);
             } else if (self.sequelize.options.dialect === 'mssql') {
-              expect(stdout.indexOf('SELECT table_name, table_schema FROM information_schema.tables')).to.be.at.above(-1);
+              expect(stdout.indexOf('SELECT table_name, table_schema FROM INFORMATION_SCHEMA.TABLES')).to.be.at.above(-1);
               testTables.forEach(function(tbl) {
                 expect(stdout.indexOf(`TABLE_NAME = '${tbl}'`)).to.be.at.above(-1);
               });
