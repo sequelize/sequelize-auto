@@ -41,7 +41,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
       }
       // execString += ' -l es6'; // uncomment to test es6 file generation
       if (helpers.isSnakeTables()) {
-        execString += ' -C ut -f ut'; // test UpperCamelCase conversion from snake_case tables
+        execString += ' --cm p --cf p'; // test PascalCase conversion from snake_case tables
       }
       debug('Starting child process:', execString);
       exec(execString, callback);
@@ -129,11 +129,10 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
         const tableName = isSnakeTables ? 'history_logs' : 'HistoryLogs';
         expect(HistoryLogs.tableName).to.equal(tableName);
         expect(HistoryLogs.options.hasTrigger).to.equal(true);      
-        const someText = isSnakeTables ? 'someText' : 'some Text';  // converting to camelCase loses the space
-        [someText, '1Number', 'aRandomId', 'id'].forEach(function(field) {
-          expect(HistoryLogs.rawAttributes[field]).to.exist;
+        ['some Text', '1Number', 'aRandomId', 'id'].forEach(function(field) {
+          expect(HistoryLogs.rawAttributes[field], field).to.exist;
         });
-        expect(HistoryLogs.rawAttributes[someText].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
+        expect(HistoryLogs.rawAttributes['some Text'].type.toString().indexOf('VARCHAR')).to.be.at.above(-1);
         done();
       } catch (err) {
         console.log('Failed to load HistoryLogs model:', err);

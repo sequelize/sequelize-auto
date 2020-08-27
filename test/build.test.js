@@ -28,7 +28,8 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
       logging: false,
       directory: testConfig.directory,
       dialect: helpers.getTestDialect(),
-      camelCase: isSnakeTables ? 'ut' : undefined
+      caseModel: isSnakeTables ? 'p' : undefined,
+      caseProp: isSnakeTables ? 'p' : undefined 
     }, testConfig[helpers.getTestDialect()], self.sequelize.config);
 
     var autoSequelize = new lib(self.sequelize.config.database, self.sequelize.config.username, self.sequelize.config.password, options);

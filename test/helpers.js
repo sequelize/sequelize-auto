@@ -8,7 +8,7 @@ module.exports = {
 
   isSnakeTables() {
     // For mysql+innodb on Windows, table names are all lowercase, so we use snake_case to preserve word boundaries 
-    // then convert back to UpperCamelCase for file and class names (history_logs -> HistoryLogs) so tests pass
+    // then convert back to UpperCamelCase (PascalCase) for file and class names (history_logs -> HistoryLogs) so tests pass
     const dialect = this.getTestDialect();
     return (dialect == 'mysql');
   },

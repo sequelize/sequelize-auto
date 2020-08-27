@@ -18,11 +18,12 @@ const argv = require('yargs')
   .alias('a', 'additional').config('a')
   .alias('t', 'tables').string('t')
   .alias('T', 'skip-tables').string('T')
-  .alias('C', 'camel')
+  .alias('cm', 'caseModel')
+  .alias('cf', 'caseFile')
+  .alias('cp', 'caseProp')
   .alias('n', 'no-write').boolean('n')
   .alias('s', 'schema').string('s')
   .alias('l', 'lang').string('l')
-  .alias('f', 'camel-file-name')
   .describe('h', 'IP/Hostname for the database.')
   .describe('d', 'Database name.')
   .describe('u', 'Username for database.')
@@ -40,11 +41,12 @@ const argv = require('yargs')
   )
   .describe('t', 'Comma-separated names of tables to import')
   .describe('T', 'Comma-separated names of tables to skip')
-  .describe('C', 'Use camelCase to name models and fields; for UpperCamelCase model names use `-C ut`')
+  .describe('cm', 'Set case of model names: c|l|o|p|u \n c = camelCase \n l = lower_case \n o = original (default) \n p = PascalCase \n u = UPPER_CASE')
+  .describe('cf', 'Set case of file names: c|l|o|p|u')
+  .describe('cp', 'Set case of property names: c|l|o|p|u')
   .describe('n', 'Prevent writing the models to disk.')
   .describe('s', 'Database schema from which to retrieve tables')
   .describe('l', 'Language for Model output: es5|es6|esm|ts \n es5 = ES5 CJS modules (default) \n es6 = ES6 CJS modules \n esm = ES6 ESM modules \n ts = TypeScript ')
-  .describe('f', 'Use camelCase for file names; for UpperCamelCase use `-f ut`')
   .argv;
 
 const dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
@@ -78,12 +80,13 @@ configFile.host = argv.h || configFile.host || 'localhost';
 configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
 configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(',')) || null;
-configFile.camelCase = argv.C || configFile.camelCase || false;
 configFile.schema = argv.s || configFile.schema;
 configFile.typescript = (lang === 'ts');
 configFile.es6 = (lang === 'es6');
 configFile.esm = (lang === 'esm');
-configFile.camelCaseFileName = argv.f || configFile.camelCaseFileName || false;
+configFile.caseModel = argv.cm || configFile.caseModel || 'o'
+configFile.caseFile = argv.cf || configFile.caseFile || 'o'
+configFile.caseProp = argv.cp || configFile.caseProp || 'o'
 
 console.log(configFile);
 
