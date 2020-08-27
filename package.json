@@ -1,6 +1,6 @@
 {
   "name": "sequelize-auto",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "publishConfig": {
     "tag": "latest"
   },
@@ -16,6 +16,7 @@
     "generator",
     "mapper"
   ],
+  "files": ["*.js", "lib/**/*.js", "*.md"],
   "bin": {
     "sequelize-auto": "bin/sequelize-auto"
   },

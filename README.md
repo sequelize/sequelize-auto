@@ -26,40 +26,43 @@ MSSQL | `npm install tedious`
 
 ## Usage
 
-    sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName] -C
+    sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]
 
     Options:
-      --help                Show help                                     [boolean]
-      --version             Show version number                           [boolean]
-      -h, --host            IP/Hostname for the database.                [required]
-      -d, --database        Database name.                               [required]
-      -u, --user            Username for database.
-      -x, --pass            Password for database.
-      -p, --port            Port number for database (not for sqlite). Ex:
-                            MySQL/MariaDB: 3306, Postgres: 5432, MSSQL: 1433
-      -c, --config          Path to JSON file for Sequelize's constructor "options"
-                            flag object as defined here:
-                            https://sequelize.org/v5/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor
-      -o, --output          What directory to place the models.
-      -e, --dialect         The dialect/engine that you're using: postgres, mysql,
-                            sqlite, mssql
-      -a, --additional      Path to JSON file containing model definitions (for
-                            all tables) which are to be defined within a model's
-                            configuration parameter. For more info:
-                            https://sequelize.org/v5/manual/models-definition.html#configuration
-      -t, --tables          Comma-separated names of tables to import
-      -T, --skip-tables     Comma-separated names of tables to skip
-      -C, --camel           Use camelCase to name models and fields; for
-                            UpperCamelCase model names use `-C ut`
-      -n, --no-write        Prevent writing the models to disk.
-      -s, --schema          Database schema from which to retrieve tables
-      -l, --lang            Language for Model output: es5|es6|esm|ts
-                            es5 = ES5 CJS modules (default)
-                            es6 = ES6 CJS modules
-                            esm = ES6 ESM modules
-                            ts = TypeScript
-      -f, --camel-file-name Use camelCase for file names; for UpperCamelCase use
-                            `-f ut`
+      --help             Show help                                         [boolean]
+      --version          Show version number                               [boolean]
+      -c, --config       Path to JSON file for Sequelize's constructor "options"
+                         flag object as defined here:
+                         https://sequelize.org/v5/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor
+      -a, --additional   Path to JSON file containing model definitions (for all
+                         tables) which are to be defined within a model's
+                         configuration parameter. For more info: https://sequelize.org/v5/manual/models-definition.html#configuration
+      -h, --host         IP/Hostname for the database.           [string] [required]
+      -d, --database     Database name.                          [string] [required]
+      -u, --user         Username for database.                             [string]
+      -x, --pass         Password for database.                             [string]
+      -p, --port         Port number for database (not for sqlite). Ex:
+                         MySQL/MariaDB: 3306, Postgres: 5432, MSSQL: 1433   [number]
+      -o, --output       What directory to place the models.                [string]
+      -e, --dialect      The dialect/engine that you're using: postgres, mysql,
+                         sqlite, mssql                                      [string]
+      -t, --tables       Comma-separated names of tables to import          [string]
+      -T, --skip-tables  Comma-separated names of tables to skip            [string]
+      --cm, --caseModel  Set case of model names: c|l|o|p|u
+                          c = camelCase
+                          l = lower_case
+                          o = original (default)
+                          p = PascalCase
+                          u = UPPER_CASE
+      --cf, --caseFile   Set case of file names: c|l|o|p|u
+      --cp, --caseProp   Set case of property names: c|l|o|p|u
+      -n, --no-write     Prevent writing the models to disk.               [boolean]
+      -s, --schema       Database schema from which to retrieve tables      [string]
+      -l, --lang         Language for Model output: es5|es6|esm|ts
+                          es5 = ES5 CJS modules (default)
+                          es6 = ES6 CJS modules
+                          esm = ES6 ESM modules
+                          ts = TypeScript                                    [string]
 
 > On Windows, provide the path to sequelize-auto: `node_modules\.bin\sequelize-auto [args]`
 
@@ -160,8 +163,8 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
     dialect: 'mysql'|'mariadb'|'sqlite'|'postgres'|'mssql',
     directory: false, // prevents the program from writing to disk
     port: 'port',
-    camelCase: true, // convert snake_case column names to camelCase field names: user_id -> userId
-    camelCaseFileName: true, // file names created for each model use camelCase.js not snake_case.js
+    caseModel: 'c', // convert snake_case column names to camelCase field names: user_id -> userId
+    caseFile: 'c', // file names created for each model use camelCase.js not snake_case.js
     additional: {
         timestamps: false
         //...

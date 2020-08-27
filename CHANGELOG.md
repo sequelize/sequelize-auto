@@ -1,5 +1,13 @@
 # sequelize-auto change log
 
+## [0.5.4] - 2020-08-27
+
+* Fix handling case sensitive collation in MSSQL, issue #416 (thanks @karpikpl)
+* Fix missing autoIncrement attribute due to schema clash, issue #419 (thanks @marcelopc)
+* **BREAKING CHANGE** Separate options for controlling case of output objects: `caseModel`, `caseFile`, `caseProp`, issue #413 
+* Remove eslint from model generation, move into generate test, issue #425
+* Remove test files from npm package, using "files" option instead of .npmignore, issue #418
+
 ## [0.5.3] - 2020-07-21
 
 * Fix filtering by `tables`|`skipTables` broken in 0.5.1, issue #409
