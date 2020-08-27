@@ -8,6 +8,8 @@ const helpers = require('./helpers');
 const dialect = helpers.getTestDialect();
 const testConfig = require('./config');
 const _ = require('lodash');
+const ESLint = require('eslint').ESLint;
+
 
 describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
   var self = this;
@@ -107,7 +109,17 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
             console.log("Error checking stdout:", err);
             return done(err);
           }
-          done();
+
+          debug('Linting output for', self.sequelize.options.dialect);
+
+          const engine = new ESLint({fix: true});
+          engine.lintFiles(testConfig.directory).then(r => {
+            const errs = ESLint.getErrorResults(r);
+            console.dir(errs, {depth: 3});
+            return ESLint.outputFixes(r);
+          }).finally(_ => done());
+
+          // done();
         });
       } catch (err) {
         console.log("Ack:", err);
