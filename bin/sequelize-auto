@@ -84,9 +84,9 @@ configFile.schema = argv.s || configFile.schema;
 configFile.typescript = (lang === 'ts');
 configFile.es6 = (lang === 'es6');
 configFile.esm = (lang === 'esm');
-configFile.caseModel = argv.cm || configFile.caseModel || 'o'
-configFile.caseFile = argv.cf || configFile.caseFile || 'o'
-configFile.caseProp = argv.cp || configFile.caseProp || 'o'
+configFile.caseModel = argv.cm || configFile.caseModel || 'o';
+configFile.caseFile = argv.cf || configFile.caseFile || 'o';
+configFile.caseProp = argv.cp || configFile.caseProp || 'o';
 
 console.log(configFile);
 
