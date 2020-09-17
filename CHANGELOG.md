@@ -1,5 +1,13 @@
 # sequelize-auto change log
 
+## [0.6.0] - 2020-09-17
+
+* **BREAKING CHANGE**  Change API to Promises instead of callbacks
+* Rewrite source code in TypeScript, add build step
+* Fix default value for Postgres JSON types, issue #426
+* Omit sysdiagrams from mssql tables
+* Update dependencies
+
 ## [0.5.4] - 2020-08-27
 
 * Fix handling case sensitive collation in MSSQL, issue #416 (thanks @karpikpl)

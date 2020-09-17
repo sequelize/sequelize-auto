@@ -22,6 +22,7 @@ before_script:
   - "psql -c 'create database sequelize_auto_test;' -U postgres"
 
 script:
+  - "npm run build"
   - "npm run test-sqlite"
   - "npm run test-postgres"
   - "npm run test-mysql"

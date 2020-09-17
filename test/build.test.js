@@ -5,7 +5,7 @@ var helpers = require('./helpers');
 var dialect = helpers.getTestDialect();
 var testConfig = require('./config');
 var _ = require('lodash');
-var lib = require('../index');
+const SequelizeAuto = require('../');
 
 describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
   var self = this;
@@ -32,17 +32,13 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
       caseProp: isSnakeTables ? 'p' : undefined 
     }, testConfig[helpers.getTestDialect()], self.sequelize.config);
 
-    var autoSequelize = new lib(self.sequelize.config.database, self.sequelize.config.username, self.sequelize.config.password, options);
+    var auto = new SequelizeAuto(self.sequelize.config.database, self.sequelize.config.username, self.sequelize.config.password, options);
 
-    autoSequelize.build(function (err) {
-      if (err) return done(err);
-      try {
-        callback(autoSequelize);
-        done();
-      } catch(err) {
-        done(err)
-      }
-    });
+    auto.build().then(tableData => {
+      callback(tableData);
+    }).finally(() => {
+      done();
+    })
   }
 
   describe("should be able to build", function() {
@@ -51,12 +47,12 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
           var tokens = n.split(".");
           return tokens[tokens.length -1];
       }
-      setupModels(self, function(autoSequelize) {
-        expect(autoSequelize).to.include.keys(['tables', 'foreignKeys']);
+      setupModels(self, function(tableData) {
+        expect(tableData).to.include.keys(['tables', 'foreignKeys']);
 
-        const tables = _.mapKeys(autoSequelize.tables, tableNameFromQname);
-        const foreignKeys = _.mapKeys(autoSequelize.foreignKeys, tableNameFromQname);
-        const hasTriggerTables = _.mapKeys(autoSequelize.hasTriggerTables, tableNameFromQname);
+        const tables = _.mapKeys(tableData.tables, tableNameFromQname);
+        const foreignKeys = _.mapKeys(tableData.foreignKeys, tableNameFromQname);
+        const hasTriggerTables = _.mapKeys(tableData.hasTriggerTables, tableNameFromQname);
 
         var expectedTables = ['Users', 'HistoryLogs', 'ParanoidUsers', 'Parents', 'Kids'];
         if (isSnakeTables) {
