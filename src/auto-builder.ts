@@ -38,16 +38,17 @@ export class AutoBuilder {
   }
 
   private processTables(tableResult: any[]) {
-    // tables is an array of either two things:
+    // tables is an array of either three things:
     // * objects with two properties table_name and table_schema
+    // * objects with two properties tableName and tableSchema
     // * objects with a single name property
     // The first happens for dialects which support schemas (e.g. mssql, postgres).
     // The second happens for dialects which do not support schemas (e.g. sqlite).
 
     let tables = _.map(tableResult, t => {
       return {
-        table_name: t.table_name || t.name || String(t),
-        table_schema: t.table_schema || this.schema || null
+        table_name: t.table_name || t.tableName || t.name || String(t),
+        table_schema: t.table_schema || t.tableSchema || t.schema || null
       } as Table;
     });
 
