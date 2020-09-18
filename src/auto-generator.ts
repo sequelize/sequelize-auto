@@ -247,6 +247,10 @@ export class AutoGenerator {
             // convert string to boolean
             val_text = /1|true/i.test(defaultVal) ? true : false;
 
+          } else if (field_type === 'array') {
+            // change postgres array default '{}' to []
+            val_text = defaultVal.replace('{', '[').replace('}', ']');
+
           } else if (field_type.match(/^(smallint|mediumint|tinyint|int|bigint|float|money|smallmoney|double|decimal|json)/)) {
             // remove () around mssql numeric values; don't quote numbers or json
             val_text = defaultVal.replace(/[)(]/g, '');

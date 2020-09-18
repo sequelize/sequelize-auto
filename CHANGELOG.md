@@ -1,5 +1,10 @@
 # sequelize-auto change log
 
+## [0.6.1]
+
+* Fix default values for Postres Array types, issue #426
+
+
 ## [0.6.0] - 2020-09-17
 
 * **BREAKING CHANGE**  Change API to Promises instead of callbacks
