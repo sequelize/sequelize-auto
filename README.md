@@ -198,8 +198,11 @@ To set up:
 
 1. Create an empty database called `sequelize_auto_test` on your database server (sqlite excepted)
 2. Create a `.env` file from `sample.env` and set your username/password/port etc.  The env is read by `test/config.js`
+3. Build the TypeScript from the `src` directory into the `lib` directory:
 
-Then run one of the commands below:
+    `npm run build`
+
+Then run one of the test commands below:
 
     # for all
     npm run test

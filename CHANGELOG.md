@@ -1,6 +1,6 @@
 # sequelize-auto change log
 
-## [0.6.1]
+## [0.6.1] - 2020-09-21
 
 * Fix default values for Postres Array types, issue #426
 * Fix multi-field unique constraints, issue #347 and #408
