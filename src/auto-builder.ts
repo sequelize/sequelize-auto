@@ -30,9 +30,11 @@ export class AutoBuilder {
       return this.sequelize.query(showTablesSql, {
         raw: true,
         type: QueryTypes.SELECT
-      }).then(tr => this.processTables(tr));
+      }).then(tr => this.processTables(tr))
+      .catch(err => { console.error(err); return this.tableData;});
     } else {
-      return this.queryInterface.showAllTables().then(tr => this.processTables(tr));
+      return this.queryInterface.showAllTables().then(tr => this.processTables(tr))
+      .catch(err => { console.error(err); return this.tableData;});
     }
 
   }
@@ -80,7 +82,7 @@ export class AutoBuilder {
       raw: true
     }).then(res => {
       (res as FKRow[]).forEach(assignColumnDetails);
-    });
+    }).catch(err => console.error(err));
 
     function assignColumnDetails(row: FKRow, ix: number, rows: FKRow[]) {
       let ref: FKSpec;
@@ -113,7 +115,7 @@ export class AutoBuilder {
       this.tableData.tables[makeTableQName(table)] = fields;
 
       const countTriggerSql = this.dialect.countTriggerQuery(table.table_name, table.table_schema || "");
-      this.sequelize.query(countTriggerSql, {
+      return this.sequelize.query(countTriggerSql, {
         raw: true,
         type: QueryTypes.SELECT,
       }).then((triggerResult: any) => {
@@ -122,7 +124,7 @@ export class AutoBuilder {
           this.tableData.hasTriggerTables[makeTableQName(table)] = true;
         }
       });
-    });
+    }).catch(err => console.error(err));
   }
 
 }

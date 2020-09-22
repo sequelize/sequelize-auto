@@ -6,6 +6,7 @@
 * Fix multi-field unique constraints, issue #347 and #408
 * Fix tableResult properties, PR #429
 * Fix quotes in datatype names, issue #100
+* Catch promise rejections in auto-builder
 
 ## [0.6.0] - 2020-09-17
 
