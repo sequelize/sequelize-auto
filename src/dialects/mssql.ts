@@ -70,6 +70,17 @@ export const mssqlOptions: DialectOptions = {
 
   /**
    * Determines if record entry from the getForeignKeysQuery
+   * results is a unique key
+   *
+   * @param {Object} record The row entry from getForeignKeysQuery
+   * @return {Bool}
+   */
+  isUnique: (record: FKRow, records: FKRow[]) => {
+    return _.isObject(record) && _.has(record, 'constraint_type') && record.constraint_type === 'UNIQUE';
+  },
+
+  /**
+   * Determines if record entry from the getForeignKeysQuery
    * results is an actual primary key
    *
    * @param {Object} record The row entry from getForeignKeysQuery

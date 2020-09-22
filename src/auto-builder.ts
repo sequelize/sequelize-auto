@@ -78,10 +78,10 @@ export class AutoBuilder {
       type: QueryTypes.SELECT,
       raw: true
     }).then(res => {
-      _.each(res as FKRow[], assignColumnDetails);
+      (res as FKRow[]).forEach(assignColumnDetails);
     });
 
-    function assignColumnDetails(row: FKRow) {
+    function assignColumnDetails(row: FKRow, ix: number, rows: FKRow[]) {
       let ref: FKSpec;
       if (dialect.remapForeignKeysRow) {
         ref = dialect.remapForeignKeysRow(table.table_name, row) as FKSpec;
@@ -93,8 +93,8 @@ export class AutoBuilder {
         ref.isForeignKey = true;
         ref.foreignSources = _.pick(ref, ['source_table', 'source_schema', 'target_schema', 'target_table', 'source_column', 'target_column']);
       }
-      if (dialect.isUnique && dialect.isUnique(ref)) {
-        ref.isUnique = true;
+      if (dialect.isUnique && dialect.isUnique(ref as any as FKRow, rows)) {
+        ref.isUnique = ref.constraint_name || true;
       }
       if (_.isFunction(dialect.isPrimaryKey) && dialect.isPrimaryKey(ref)) {
         ref.isPrimaryKey = true;
@@ -102,7 +102,6 @@ export class AutoBuilder {
       if (dialect.isSerialKey && dialect.isSerialKey(ref)) {
         ref.isSerialKey = true;
       }
-
       foreignKeys[tableQname] = foreignKeys[tableQname] || {};
       foreignKeys[tableQname][ref.source_column] = _.assign({}, foreignKeys[tableQname][ref.source_column], ref);
     }

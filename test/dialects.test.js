@@ -45,11 +45,11 @@ describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
 
     it('postgres', function(done) {
       var query = dialects.postgres.getForeignKeysQuery('mytable_c', 'mydatabase_c');
-      expect(query).to.include("relname = 'mytable_c'");
-      expect(query).to.include("nspname = 'mydatabase_c'");
+      expect(query).to.include("table_name = 'mytable_c'");
+      expect(query).to.include("constraint_schema = 'mydatabase_c'");
 
       query = dialects.postgres.getForeignKeysQuery('mytable_c', null);
-      expect(query).to.include("relname = 'mytable_c'");
+      expect(query).to.include("table_name = 'mytable_c'");
       expect(query).to.not.include("mydatabase_c");
 
       query = dialects.postgres.countTriggerQuery("mytable_c", "mydatabase_c");
@@ -96,8 +96,8 @@ describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
     it('postgres', function(done) {
       expect(dialects.postgres.isForeignKey(null)).to.be.false;
       expect(dialects.postgres.isForeignKey({ some: 'value' })).to.be.false;
-      expect(dialects.postgres.isForeignKey({ contype: 't' })).to.be.false;
-      expect(dialects.postgres.isForeignKey({ contype: 'f' })).to.be.true;
+      expect(dialects.postgres.isForeignKey({ constraint_type: 'UNIQUE' })).to.be.false;
+      expect(dialects.postgres.isForeignKey({ constraint_type: 'FOREIGN KEY' })).to.be.true;
       done();
     });
   });
@@ -122,8 +122,8 @@ describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
     it('postgres', function(done) {
       expect(dialects.postgres.isPrimaryKey(null)).to.be.false;
       expect(dialects.postgres.isPrimaryKey({ some: 'value' })).to.be.false;
-      expect(dialects.postgres.isPrimaryKey({ contype: 'f' })).to.be.false;
-      expect(dialects.postgres.isPrimaryKey({ contype: 'p' })).to.be.true;
+      expect(dialects.postgres.isPrimaryKey({ constraint_type: 'UNIQUE' })).to.be.false;
+      expect(dialects.postgres.isPrimaryKey({ constraint_type: 'PRIMARY KEY' })).to.be.true;
       done();
     });
   });
@@ -142,11 +142,10 @@ describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
       expect(dialects.postgres.isSerialKey(null)).to.be.false;
       expect(dialects.postgres.isSerialKey({ some: 'value' })).to.be.false;
       expect(dialects.postgres.isSerialKey({ extra: 'primary' })).to.be.false;
-      expect(dialects.postgres.isSerialKey({ contype: 'i' })).to.be.false;
-      expect(dialects.postgres.isSerialKey({ contype: 'p' })).to.be.false;
-      expect(dialects.postgres.isSerialKey({ contype: 'p', extra: null })).to.be.false;
-      expect(dialects.postgres.isSerialKey({ contype: 'p', extra: 'primary' })).to.be.false;
-      expect(dialects.postgres.isSerialKey({ contype: 'p', extra: 'nextval(table_seq::regclass)' })).to.be.true;
+      expect(dialects.postgres.isSerialKey({ constraint_type: 'UNIQUE' })).to.be.false;
+      expect(dialects.postgres.isSerialKey({ constraint_type: 'PRIMARY KEY' })).to.be.false;
+      expect(dialects.postgres.isSerialKey({ constraint_type: 'PRIMARY KEY', extra: null })).to.be.false;
+      expect(dialects.postgres.isSerialKey({ constraint_type: 'PRIMARY KEY', extra: 'nextval(table_seq::regclass)' })).to.be.true;
       done();
     });
   });

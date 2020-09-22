@@ -85,7 +85,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
               expect(stdout.indexOf('SELECT table_name, table_schema FROM information_schema.tables')).to.be.at.above(-1);
 
               testTables.forEach(function(tbl) {
-                const query = `relname = '${tbl}'`;
+                const query = `tc.table_name = '${tbl}'`;
                 expect(stdout.indexOf(query)).to.be.at.above(-1);
               });
             } else if (self.sequelize.options.dialect === 'sqlite') {

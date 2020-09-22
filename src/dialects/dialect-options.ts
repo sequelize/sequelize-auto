@@ -7,7 +7,7 @@ export interface DialectOptions {
   remapForeignKeysRow?: (tableName: string, row: FKRow) => FKRelation;
   countTriggerQuery: (tableName: string, schemaName: string) => string;
   isForeignKey?: (record: any) => boolean;
-  isUnique?: (record: any) => boolean;
+  isUnique?: (record: FKRow, records: FKRow[]) => boolean;
   isPrimaryKey: (record: any) => boolean;
   isSerialKey: (record: any) => boolean;
   showTablesQuery?: (tableName: string) => string;
@@ -42,7 +42,7 @@ export interface FKSpec extends FKRelation {
   isForeignKey: boolean;
   isSerialKey: boolean;
   isPrimaryKey: boolean;
-  isUnique: boolean;
+  isUnique: boolean | string;
   foreignSources: { [source: string]: any };
 }
 

@@ -55,8 +55,11 @@ export const mysqlOptions: DialectOptions = {
    * @param {Object} record The row entry from getForeignKeysQuery
    * @return {Bool}
    */
-  isUnique: (record: FKRow) => {
-    return _.isObject(record) && _.has(record, 'column_key') && record.column_key.toUpperCase() === 'UNI';
+  isUnique: (record: FKRow, records: FKRow[]) => {
+    if (!_.isObject(record) || !_.has(record, 'column_key')) {
+      return false;
+    }
+    return records.some(row => row.constraint_name === record.constraint_name && (row.column_key.toUpperCase() === 'UNI' || row.column_key.toUpperCase() === 'MUL'));
   },
 
   /**

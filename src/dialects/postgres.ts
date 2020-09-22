@@ -11,29 +11,25 @@ export const postgresOptions: DialectOptions = {
    * @return {String}            The generated sql query.
    */
   getForeignKeysQuery: (tableName: string, schemaName: string) => {
-    return `SELECT
-      o.conname AS constraint_name,
-      (SELECT nspname FROM pg_namespace WHERE oid=m.relnamespace) AS source_schema,
-      m.relname AS source_table,
-      (SELECT a.attname FROM pg_attribute a
-        WHERE a.attrelid = m.oid AND a.attnum = o.conkey[1] AND a.attisdropped = false) AS source_column,
-      (SELECT nspname FROM pg_namespace WHERE oid=f.relnamespace) AS target_schema,
-      f.relname AS target_table,
-      (SELECT a.attname FROM pg_attribute a
-        WHERE a.attrelid = f.oid AND a.attnum = o.confkey[1] AND a.attisdropped = false) AS target_column,
-      o.contype,
-      (SELECT pg_get_expr(d.adbin, d.adrelid) AS extra FROM pg_catalog.pg_attribute a
-        LEFT JOIN pg_catalog.pg_attrdef d ON (a.attrelid, a.attnum) = (d.adrelid,  d.adnum)
-        WHERE NOT a.attisdropped AND a.attnum > 0 AND a.attrelid = o.conrelid AND a.attnum = o.conkey[1] LIMIT 1)
-    FROM pg_constraint o
-    LEFT JOIN pg_class f ON f.oid = o.confrelid
-    LEFT JOIN pg_class m ON m.oid = o.conrelid
-    WHERE o.conrelid IN (
-        SELECT t.oid
-          FROM pg_class t, pg_catalog.pg_namespace n
-         WHERE n.oid = t.relnamespace
-           AND t.relname = ${addTicks(tableName)}
-               ${makeCondition('n.nspname', schemaName)})`;
+    return `SELECT DISTINCT
+    tc.constraint_name as constraint_name,
+    tc.constraint_type as constraint_type,
+    tc.constraint_schema as source_schema,
+    tc.table_name as source_table, 
+    kcu.column_name as source_column,
+    CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.constraint_schema ELSE null END AS target_schema,
+    CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.table_name ELSE null END AS target_table,
+    CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.column_name ELSE null END AS target_column,
+    co.column_default as extra
+    FROM information_schema.table_constraints AS tc 
+    JOIN information_schema.key_column_usage AS kcu
+      ON tc.table_schema = kcu.table_schema AND tc.table_name = kcu.table_name AND tc.constraint_name = kcu.constraint_name
+    JOIN information_schema.constraint_column_usage AS ccu
+      ON ccu.constraint_schema = tc.constraint_schema AND ccu.constraint_name = tc.constraint_name
+    JOIN information_schema.columns AS co
+      ON co.table_schema = kcu.table_schema AND co.table_name = kcu.table_name AND co.column_name = kcu.column_name
+    WHERE tc.table_name = ${addTicks(tableName)}
+      ${makeCondition('tc.constraint_schema', schemaName)}`;
   },
 
   /**
@@ -54,7 +50,7 @@ export const postgresOptions: DialectOptions = {
    * @return {Bool}
    */
   isForeignKey: (record: FKRow) => {
-    return _.isObject(record) && _.has(record, 'contype') && record.contype === 'f';
+    return _.isObject(record) && _.has(record, 'constraint_type') && record.constraint_type === 'FOREIGN KEY';
   },
 
   /**
@@ -65,7 +61,7 @@ export const postgresOptions: DialectOptions = {
    * @return {Bool}
    */
   isUnique: (record: FKRow) => {
-    return _.isObject(record) && _.has(record, 'contype') && record.contype === 'u';
+    return _.isObject(record) && _.has(record, 'constraint_type') && record.constraint_type === 'UNIQUE';
   },
 
   /**
@@ -76,7 +72,7 @@ export const postgresOptions: DialectOptions = {
    * @return {Bool}
    */
   isPrimaryKey: (record: FKRow) => {
-    return _.isObject(record) && _.has(record, 'contype') && record.contype === 'p';
+    return _.isObject(record) && _.has(record, 'constraint_type') && record.constraint_type === 'PRIMARY KEY';
   },
 
   /**
@@ -89,9 +85,7 @@ export const postgresOptions: DialectOptions = {
   isSerialKey: (record: FKRow) => {
     return (
       _.isObject(record) &&
-      postgresOptions.isPrimaryKey(record) &&
-      (_.has(record, 'extra') &&
-        _.startsWith(record.extra, 'nextval') &&
+      (_.has(record, 'extra') && _.startsWith(record.extra, 'nextval') &&
         _.includes(record.extra, '_seq') &&
         _.includes(record.extra, '::regclass'))
     );

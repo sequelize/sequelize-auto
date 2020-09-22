@@ -164,8 +164,7 @@ export class AutoGenerator {
         return quoteWrapper + f + quoteWrapper; }).join(',') + ")";
     }
 
-    const isUnique = fieldObj.foreignKey && fieldObj.foreignKey.isUnique;
-    let wroteUnique = false;
+    const unique = fieldObj.unique || fieldObj.foreignKey && fieldObj.foreignKey.isUnique;
 
     const isSerialKey = _.isFunction(this.dialect.isSerialKey) &&
       (this.dialect.isSerialKey(fieldObj) ||
@@ -214,14 +213,6 @@ export class AutoGenerator {
         if (fieldObj[attr] === true && !wroteAutoIncrement) {
           str += spaces + spaces + spaces + "autoIncrement: true,\n";
           wroteAutoIncrement = true;
-        }
-        return true;
-      } else if (attr === "unique") {
-        let uniq = fieldObj[attr];
-        if (uniq && !wroteUnique) {
-          uniq = _.isString(uniq) ? '\'' + uniq.replace("'", "\\'") + '\'' : uniq;
-          str += spaces + spaces + spaces + "unique: " + uniq + ",\n";
-          wroteUnique = true;
         }
         return true;
       } else if (attr === "allowNull") {
@@ -381,8 +372,9 @@ export class AutoGenerator {
       str += ",\n";
     });
 
-    if (isUnique && !wroteUnique) {
-      str += spaces + spaces + spaces + "unique: true,\n";
+    if (unique) {
+      let uniq = _.isString(unique) ? '\'' + unique.replace("'", "\\'") + '\'' : unique;
+      str += spaces + spaces + spaces + "unique: " + uniq + ",\n";
     }
 
     if (field != fieldName) {
