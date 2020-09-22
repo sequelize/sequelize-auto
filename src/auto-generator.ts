@@ -363,7 +363,7 @@ export class AutoGenerator {
           val = 'DataTypes.HSTORE';
         } else {
           val = fieldObj[attr];
-          val = _.isString(val) ? '\'' + val.replace("'", "\\'") + '\'' : val;
+          val = _.isString(val) ? quoteWrapper + val.replace(/\"/g, '\\"') + quoteWrapper : val;
         }
 
         str += spaces + spaces + spaces + attr + ": " + val;
@@ -373,7 +373,7 @@ export class AutoGenerator {
     });
 
     if (unique) {
-      let uniq = _.isString(unique) ? '\'' + unique.replace("'", "\\'") + '\'' : unique;
+      let uniq = _.isString(unique) ? quoteWrapper + unique.replace(/\"/g, '\\"') + quoteWrapper : unique;
       str += spaces + spaces + spaces + "unique: " + uniq + ",\n";
     }
 

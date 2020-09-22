@@ -48,7 +48,7 @@ export class AutoBuilder {
     let tables = _.map(tableResult, t => {
       return {
         table_name: t.table_name || t.tableName || t.name || String(t),
-        table_schema: t.table_schema || t.tableSchema || t.schema || null
+        table_schema: t.table_schema || t.tableSchema || t.schema || this.schema || null
       } as Table;
     });
 

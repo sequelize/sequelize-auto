@@ -3,7 +3,9 @@
 ## [0.6.1]
 
 * Fix default values for Postres Array types, issue #426
-
+* Fix multi-field unique constraints, issue #347 and #408
+* Fix tableResult properties, PR #429
+* Fix quotes in datatype names, issue #100
 
 ## [0.6.0] - 2020-09-17
 
