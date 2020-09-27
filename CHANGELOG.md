@@ -1,5 +1,11 @@
 # sequelize-auto change log
 
+## [0.6.2]
+
+* Fix #TABLE# placeholder left in ES6 output, issue #432 (thanks @fprijate)
+* Fix command line `config` arguments, issue #434 (thanks @fprijate)
+* Fix schema comparison when filtering tables, issue #431
+
 ## [0.6.1] - 2020-09-21
 
 * Fix default values for Postres Array types, issue #426

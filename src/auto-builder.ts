@@ -142,7 +142,7 @@ function mapOptionTables(arr: string[], defaultSchema: string): Table[] {
 }
 
 function isTableEqual(a: Table, b: Table) {
-  return a.table_name === b.table_name && (b.table_schema === null || a.table_schema === b.table_schema);
+  return a.table_name === b.table_name && (!b.table_schema || a.table_schema === b.table_schema);
 };
 
 function makeTableQName(table: Table) {
