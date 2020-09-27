@@ -71,7 +71,7 @@ export class AutoGenerator {
 
       let str: string;
       if(!this.options.typescript){
-        str = header.replace('#TABLE#', tableName);
+        str = header.replace(/#TABLE#/g, tableName);
       } else {
         throw new Error("Typescript support currently broken");
       }
