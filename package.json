@@ -1,6 +1,6 @@
 {
   "name": "sequelize-auto",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "publishConfig": {
     "tag": "latest"
   },
