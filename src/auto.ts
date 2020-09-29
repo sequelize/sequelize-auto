@@ -2,9 +2,11 @@
 import _ from "lodash";
 import { Sequelize } from "sequelize";
 import { AutoBuilder } from "./auto-builder";
-import { AutoGenerator } from "./auto-generator";
+import AutoGenerator from "./generators/auto-generator";
 import { AutoWriter } from "./auto-writer";
 import { dialects } from "./dialects/dialects";
+import { JsAutoGenerator } from "./generators/js-auto-generator";
+import { TypescriptAutoGenerator } from "./generators/typescript-auto-generator";
 import { AutoOptions, DialectName, TableData } from "./types";
 
 export class SequelizeAuto {
@@ -63,7 +65,12 @@ export class SequelizeAuto {
 
   generate(tableData: TableData) {
     const dialect = dialects[this.sequelize.getDialect() as DialectName];
-    const generator = new AutoGenerator(tableData, dialect, this.options);
+    let generator : AutoGenerator;
+    if(this.options.typescript) {
+      generator = new TypescriptAutoGenerator(tableData, dialect, this.options);
+    } else {
+      generator = new JsAutoGenerator(tableData, dialect, this.options);
+    }
     return generator.generateText();
   }
 
