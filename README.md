@@ -147,18 +147,20 @@ For the `-c, --config` option, various JSON/configuration parameters are defined
 ## Programmatic API
 
 ```js
-var SequelizeAuto = require('sequelize-auto');
-var auto = new SequelizeAuto('database', 'user', 'pass');
+const SequelizeAuto = require('sequelize-auto');
+const auto = new SequelizeAuto('database', 'user', 'pass');
 
 auto.run().then(data => {
   console.log(data.tables);      // table list
   console.log(data.foreignKeys); // foreign key list
   console.log(data.text)         // text of generated files
 });
-
+```
 
 With options:
-var auto = new SequelizeAuto('database', 'user', 'pass', {
+
+```js
+const auto = new SequelizeAuto('database', 'user', 'pass', {
     host: 'localhost',
     dialect: 'mysql'|'mariadb'|'sqlite'|'postgres'|'mssql',
     directory: false, // prevents the program from writing to disk
@@ -172,6 +174,19 @@ var auto = new SequelizeAuto('database', 'user', 'pass', {
     tables: ['table1', 'table2', 'myschema.table3'] // use all tables if omitted
     //...
 })
+```
+
+Or you can create the `sequelize` instance first, using a connection string, and then pass it to SequelizeAuto:
+```js
+const SequelizeAuto = require('sequelize-auto');
+const Sequelize = require('sequelize');
+
+// const sequelize = new Sequelize('sqlite::memory:');
+const sequelize = new Sequelize('postgres://user:pass@example.com:5432/dbname');
+const options = { caseFile: 'l', caseModel: 'p', caseProp: 'c' };
+
+const auto = new SequelizeAuto(sequelize, null, null, options);
+auto.run();
 ```
 
 ## Typescript
