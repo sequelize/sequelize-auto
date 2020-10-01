@@ -1,8 +1,9 @@
-import { Table, TableData, recase, qNameSplit, CaseOption, AutoOptions } from "./types";
+import { Table, TableData, recase, qNameSplit, CaseOption, AutoOptions } from "../types";
 import _ from "lodash";
-import { DialectOptions } from "./dialects/dialect-options";
+import { DialectOptions } from "../dialects/dialect-options";
+import AutoGenerator from "./auto-generator";
 
-export class AutoGenerator {
+export class JsAutoGenerator implements AutoGenerator {
   dialect: DialectOptions;
   tables: { [name: string]: any };
   foreignKeys: { [name: string]: any };
@@ -71,7 +72,7 @@ export class AutoGenerator {
 
       let str: string;
       if(!this.options.typescript){
-        str = header.replace(/#TABLE#/g, tableName);
+        str = header.replace('#TABLE#', tableName);
       } else {
         throw new Error("Typescript support currently broken");
       }
