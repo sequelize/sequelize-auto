@@ -1,4 +1,6 @@
 import _ from "lodash";
+import { ColumnDescription } from "sequelize/types";
+import { FKSpec } from "./dialects/dialect-options";
 
 export interface Table {
   name?: string;
@@ -6,10 +8,16 @@ export interface Table {
   table_schema?: string;
 }
 
+export interface Field extends ColumnDescription {
+  foreignKey: any;
+  special: any[];
+  unique: boolean;
+}
+
 export class TableData {
-  tables: { [name: string]: any };
-  foreignKeys: { [name: string]: any };
-  hasTriggerTables: { [name: string]: boolean };
+  tables: { [tableName: string]: { [fieldName: string]: ColumnDescription } };
+  foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec } };
+  hasTriggerTables: { [tableName: string]: boolean };
   text?: { [name: string]: string };
   constructor() {
     this.tables = {};

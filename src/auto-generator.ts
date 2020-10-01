@@ -1,12 +1,14 @@
-import { Table, TableData, recase, qNameSplit, CaseOption, AutoOptions } from "./types";
+import { Table, TableData, recase, qNameSplit, CaseOption, AutoOptions, Field } from "./types";
 import _ from "lodash";
-import { DialectOptions } from "./dialects/dialect-options";
+import { DialectOptions, FKSpec } from "./dialects/dialect-options";
+import { ColumnDescription } from "sequelize/types";
 
 export class AutoGenerator {
   dialect: DialectOptions;
-  tables: { [name: string]: any };
-  foreignKeys: { [name: string]: any };
-  hasTriggerTables: { [name: string]: boolean };
+  tables: { [tableName: string]: { [fieldName: string]: ColumnDescription } };
+  foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec } };
+  hasTriggerTables: { [tableName: string]: boolean };
+  space: string[];
   options: {
     indentation: number;
     spaces: boolean;
@@ -25,75 +27,139 @@ export class AutoGenerator {
     this.hasTriggerTables = tableData.hasTriggerTables;
     this.dialect = dialect;
     this.options = options;
+
+    // build the space array of indentation strings
+    let sp = '';
+    for (let x = 0; x < this.options.indentation; ++x) {
+      sp += (this.options.spaces === true ? ' ' : "\t");
+    }
+    this.space = [];
+    for (let i = 0; i < 6; i++) {
+      this.space[i] = sp.repeat(i);
+    }
+  }
+
+  makeHeaderTemplate() {
+    let header = "/* jshint indent: " + this.options.indentation + " */\n\n";
+    let sp = this.space[1];
+
+    if (this.options.typescript) {
+      header += "import { Model, DataTypes } from 'sequelize';\n\n"
+    } else if (this.options.es6) {
+      header += "const Sequelize = require('sequelize');\n"
+      header += "module.exports = (sequelize, DataTypes) => {\n";
+      header += sp + "return #TABLE#.init(sequelize, DataTypes);\n";
+      header += "}\n\n";
+      header += "class #TABLE# extends Sequelize.Model {\n";
+      header += sp + "static init(sequelize, DataTypes) {\n";
+      header += sp + "super.init({\n";
+    } else if (this.options.esm) {
+      header += "import { Model } from 'sequelize';\n\n"
+      header += "export default class #TABLE# extends Model {\n";
+      header += sp + "static init(sequelize, DataTypes) {\n";
+      header += sp + "super.init({\n";
+    } else {
+      header += "module.exports = function(sequelize, DataTypes) {\n";
+      header += sp + "return sequelize.define('#TABLE#', {\n";
+    }
+    return header;
   }
 
   generateText() {
     const tableNames = _.keys(this.tables);
 
-    let spaces = '';
-    for (let x = 0; x < this.options.indentation; ++x) {
-      spaces += (this.options.spaces === true ? ' ' : "\t");
-    }
-
-    let header = "/* jshint indent: " + this.options.indentation + " */\n\n";
-
-    if (this.options.es6) {
-      header += "const Sequelize = require('sequelize');\n"
-      header += "module.exports = (sequelize, DataTypes) => {\n";
-      header += spaces + "return #TABLE#.init(sequelize, DataTypes);\n";
-      header += "}\n\n";
-      header += "class #TABLE# extends Sequelize.Model {\n";
-      header += spaces + "static init(sequelize, DataTypes) {\n";
-      header += spaces + "super.init({\n";
-    } else if (this.options.esm) {
-      header += "import { Model } from 'sequelize';\n\n"
-      header += "export default class #TABLE# extends Model {\n";
-      header += spaces + "static init(sequelize, DataTypes) {\n";
-      header += spaces + "super.init({\n";
-    } else {
-      header += "module.exports = function(sequelize, DataTypes) {\n";
-      header += spaces + "return sequelize.define('#TABLE#', {\n";
-    }
-
+    let header = this.makeHeaderTemplate();
     let text: { [name: string]: string } = {};
     tableNames.forEach(table => {
-      text[table] = this.addTable(table, header, spaces);
+      let str = header;
+
+      if (this.options.typescript) {
+        str += this.addInterface(table);
+      }
+
+      str += this.addTable(table);
+
+      let [schemaName, tableNameOrig] = qNameSplit(table);
+      const tableName = recase(this.options.caseModel, tableNameOrig);
+      let re = new RegExp('#TABLE#', 'g');
+      str = str.replace(re, tableName);
+
+      text[table] = str;
     });
 
     return text;
   }
 
+  private addModelFields(table: string) {
+    let sp = this.space[1];
+    let fields = _.keys(this.tables[table]);
+    let str = '';
+    fields.forEach(field => {
+      const name = this.quoteName(recase(this.options.caseProp, field));
+      str += `${sp}${name}?: ${this.getTypeScriptType(table, field)};\n`;
+    });
+    return str;
+  }
+
+  private addInterface(table: string) {
+    let str: string = "interface #TABLE#Attributes {\n";
+    str += this.addModelFields(table);
+    str += "}\n\n";
+    return str;
+  }
+
+  private getTypeScriptType(table: string, field: string) {
+    let fieldObj = this.tables[table][field];
+    let _attr = (fieldObj["type"] || '').toLowerCase();
+    let _type: string;
+    if(_attr.match(/^(smallint|mediumint|tinyint|int)/)) {
+      _type = 'number'
+    } else if (_attr.match(/^string|varying|nvarchar/) || _attr.match(/^n?varchar/)) {
+      _type = 'string'
+    } else if (_attr === 'bit(1)' || _attr === 'bit' || _attr === 'boolean') {
+      _type = 'boolean'
+    } else {
+      console.log(`Missing type: ${_attr}`)
+      _type = 'any'
+    }
+    return _type;
+  }
+
   // Create a string for the model of the table
-  private addTable(table: string, header: string, spaces: string) {
+  private addTable(table: string) {
 
       let [schemaName, tableNameOrig] = qNameSplit(table);
       const tableName = recase(this.options.caseModel, tableNameOrig);
+      const space = this.space;
 
-      let str: string;
-      if(!this.options.typescript){
-        str = header.replace(/#TABLE#/g, tableName);
-      } else {
-        throw new Error("Typescript support currently broken");
+      let prefix: string = '';
+
+      if (this.options.typescript) {
+        prefix = "export default class #TABLE# extends Model<#TABLE#Attributes, any> implements #TABLE#Attributes {\n";
+        prefix += this.addModelFields(table);
+        prefix += "\n" + space[1] + "static initModel(sequelize) {\n";
+        prefix += space[2] + tableName + ".init({\n";
       }
 
       // add all the fields
+      let str = '';
       let fields = _.keys(this.tables[table]);
       fields.forEach((field, index) => {
-        str += this.addField(table, field, spaces);
+        str += this.addField(table, field);
         str += (index+1 < fields.length) ? ",\n" : "\n";
       });
 
       // add the table options
-      str += spaces + "}, {\n";
-      str += spaces + spaces  + "sequelize,\n";
-      str += spaces + spaces  + "tableName: '" + tableNameOrig + "',\n";
+      str += space[1] + "}, {\n";
+      str += space[2]  + "sequelize,\n";
+      str += space[2]  + "tableName: '" + tableNameOrig + "',\n";
 
       if(schemaName) {
-        str += spaces + spaces  + "schema: '" + schemaName + "',\n";
+        str += space[2]  + "schema: '" + schemaName + "',\n";
       }
 
       if (this.hasTriggerTables[table]) {
-        str += spaces + spaces  + "hasTrigger: true,\n";
+        str += space[2]  + "hasTrigger: true,\n";
       }
 
       // conditionally add additional options
@@ -102,34 +168,34 @@ export class AutoGenerator {
         _.each(this.options.additional, (value, key) => {
           if (key === 'name') {
             // name: true - preserve table name always
-            str += spaces + spaces + "name: {\n";
-            str += spaces + spaces + spaces + "singular: '" + table + "',\n";
-            str += spaces + spaces + spaces + "plural: '" + table + "'\n";
-            str += spaces + spaces + "},\n";
+            str += space[2] + "name: {\n";
+            str += space[3] + "singular: '" + table + "',\n";
+            str += space[3] + "plural: '" + table + "'\n";
+            str += space[2] + "},\n";
           } else {
             value = _.isBoolean(value)?value:("'"+value+"'")
-            str += spaces + spaces + key + ": " + value + ",\n";
+            str += space[2] + key + ": " + value + ",\n";
           }
         });
       }
 
-      str = str.trim();
+      str = space[2] + str.trim();
       str = str.substring(0, str.length - 1);
-      str += "\n" + spaces + "}";
+      str += "\n" + space[2] + "}";
 
       //resume normal output
       str += ");\n";
-      if (this.options.es6 || this.options.esm) {
-        str += spaces + "return " + tableName + ";\n";
-        str += spaces + "}\n}\n";
+      if (this.options.es6 || this.options.esm ||  this.options.typescript) {
+        str += space[1] + "return " + tableName + ";\n";
+        str += space[1] + "}\n}\n";
       } else {
         str += "};\n";
       }
-      return str;
+      return prefix + str;
   }
 
   // Create a string containing field attributes (type, defaultValue, etc.)
-  private addField(table: string, field: string, spaces: string): string {
+  private addField(table: string, field: string): string {
 
     // ignore Sequelize standard fields
     const additional = this.options.additional;
@@ -143,17 +209,14 @@ export class AutoGenerator {
 
     // Find foreign key
     const foreignKey = this.foreignKeys[table] && this.foreignKeys[table][field] ? this.foreignKeys[table][field] : null;
-    const fieldObj = this.tables[table][field];
+    const fieldObj = this.tables[table][field] as Field;
 
     if (_.isObject(foreignKey)) {
       fieldObj.foreignKey = foreignKey;
     }
 
     const fieldName = recase(this.options.caseProp, field);
-    let str: string;
-
-    // quote fieldname if not a valid identifier
-    str = (/^[$A-Z_][0-9A-Z_$]*$/i.test(fieldName) ? fieldName : "'" + fieldName + "'") + ": {\n";
+    let str = this.quoteName(fieldName) + ": {\n";
 
     let defaultVal = fieldObj.defaultValue;
     const quoteWrapper = '"';
@@ -170,6 +233,7 @@ export class AutoGenerator {
       (this.dialect.isSerialKey(fieldObj) ||
       (fieldObj.foreignKey && this.dialect.isSerialKey(fieldObj.foreignKey)));
     let wroteAutoIncrement = false;
+    const space = this.space;
 
     // column's attributes
     const fieldAttrs = _.keys(fieldObj);
@@ -181,22 +245,22 @@ export class AutoGenerator {
       }
 
       if (isSerialKey && !wroteAutoIncrement) {
-        str += spaces + spaces + spaces + "autoIncrement: true,\n";
+        str += space[3] + "autoIncrement: true,\n";
         wroteAutoIncrement = true;
       }
 
       if (attr === "foreignKey") {
-        if (foreignKey.isForeignKey) {
-          str += spaces + spaces + spaces + "references: {\n";
-          str += spaces + spaces + spaces + spaces + "model: {\n"
-          str += spaces + spaces + spaces + spaces + spaces + "tableName: \'" + fieldObj[attr].foreignSources.target_table + "\',\n"
+        if (foreignKey && foreignKey.isForeignKey) {
+          str += space[3] + "references: {\n";
+          str += space[4] + "model: {\n"
+          str += space[5] + "tableName: \'" + fieldObj[attr].foreignSources.target_table + "\',\n"
           if(this.options.schema) {
-            str += spaces + spaces + spaces + spaces + spaces + "schema: \'" + fieldObj[attr].foreignSources.target_schema + "\'\n"
+            str += space[5] + "schema: \'" + fieldObj[attr].foreignSources.target_schema + "\'\n"
           }
-          str += spaces + spaces + spaces + spaces + "},\n"
+          str += space[4] + "},\n"
 
-          str += spaces + spaces + spaces + spaces + "key: \'" + fieldObj[attr].foreignSources.target_column + "\'\n";
-          str += spaces + spaces + spaces + "}";
+          str += space[4] + "key: \'" + fieldObj[attr].foreignSources.target_column + "\'\n";
+          str += space[3] + "}";
         } else {
           return true;
         }
@@ -205,22 +269,22 @@ export class AutoGenerator {
         return true;
       } else if (attr === "primaryKey") {
         if (fieldObj[attr] === true && (! _.has(fieldObj, 'foreignKey') || (_.has(fieldObj, 'foreignKey') && !! fieldObj.foreignKey.isPrimaryKey))) {
-          str += spaces + spaces + spaces + "primaryKey: true";
+          str += space[3] + "primaryKey: true";
         } else {
           return true;
         }
       } else if (attr === "autoIncrement") {
         if (fieldObj[attr] === true && !wroteAutoIncrement) {
-          str += spaces + spaces + spaces + "autoIncrement: true,\n";
+          str += space[3] + "autoIncrement: true,\n";
           wroteAutoIncrement = true;
         }
         return true;
       } else if (attr === "allowNull") {
-        str += spaces + spaces + spaces + attr + ": " + fieldObj[attr];
+        str += space[3] + attr + ": " + fieldObj[attr];
       } else if (attr === "defaultValue") {
         let localName = fieldName;
         if (this.dialect.name === "mssql" && defaultVal && defaultVal.toLowerCase() === '(newid())') {
-          defaultVal = null; // disable adding "default value" attribute for UUID fields if generating for MS SQL
+          defaultVal = null as any; // disable adding "default value" attribute for UUID fields if generating for MS SQL
         }
 
         if(defaultVal === null || defaultVal === undefined) {
@@ -236,7 +300,7 @@ export class AutoGenerator {
 
           if (field_type === 'bit(1)' || field_type === 'bit' || field_type === 'boolean') {
             // convert string to boolean
-            val_text = /1|true/i.test(defaultVal) ? true : false;
+            val_text = /1|true/i.test(defaultVal) ? "true" : "false";
 
           } else if (field_type === 'array') {
             // change postgres array default '{}' to []
@@ -267,15 +331,15 @@ export class AutoGenerator {
         // don't prepend N for MSSQL when building models...
         // defaultVal = _.trimStart(defaultVal, 'N');
 
-        str += spaces + spaces + spaces + attr + ": " + val_text;
+        str += space[3] + attr + ": " + val_text;
 
       }
       else if (attr === "type" && fieldObj[attr].indexOf('ENUM') === 0) {
-        str += spaces + spaces + spaces + attr + ": DataTypes." + fieldObj[attr];
+        str += space[3] + attr + ": DataTypes." + fieldObj[attr];
       } else if (attr === "comment" && !fieldObj[attr]) {
         return true;
       } else {
-        let _attr = (fieldObj[attr] || '').toLowerCase();
+        let _attr = ((fieldObj as any)[attr] || '').toLowerCase();
         let val;
 
         if (_attr === "boolean" || _attr === "bit(1)" || _attr === "bit") {
@@ -362,11 +426,11 @@ export class AutoGenerator {
         else if (_attr.match(/^hstore/)) {
           val = 'DataTypes.HSTORE';
         } else {
-          val = fieldObj[attr];
+          val = (fieldObj as any)[attr];
           val = _.isString(val) ? quoteWrapper + val.replace(/\"/g, '\\"') + quoteWrapper : val;
         }
 
-        str += spaces + spaces + spaces + attr + ": " + val;
+        str += space[3] + attr + ": " + val;
       }
 
       str += ",\n";
@@ -374,16 +438,25 @@ export class AutoGenerator {
 
     if (unique) {
       let uniq = _.isString(unique) ? quoteWrapper + unique.replace(/\"/g, '\\"') + quoteWrapper : unique;
-      str += spaces + spaces + spaces + "unique: " + uniq + ",\n";
+      str += space[3] + "unique: " + uniq + ",\n";
     }
 
     if (field != fieldName) {
-      str += spaces + spaces + spaces + "field: '" + field + "',\n";
+      str += space[3] + "field: '" + field + "',\n";
     }
 
     // removes the last `,` within the attribute options
     str = str.trim().replace(/,+$/, '') + "\n";
-    str = spaces + spaces + str + spaces + spaces + "}";
+    str = space[2] + str + space[2] + "}";
     return str;
+  }
+
+  /** Quote the name if it is not a valid identifier */
+  private quoteName(name: string) {
+    return (/^[$A-Z_][0-9A-Z_$]*$/i.test(name) ? name : "'" + name + "'");
+  }
+
+  private isNumber(fieldObj: any) {
+
   }
 }
