@@ -1,6 +1,6 @@
 # sequelize-auto change log
 
-## [0.6.2]
+## [0.6.2] - 2020-09-28
 
 * Fix #TABLE# placeholder left in ES6 output, issue #432 (thanks @fprijate)
 * Fix command line `config` arguments, issue #434 (thanks @fprijate)
