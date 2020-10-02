@@ -6,7 +6,6 @@ const argv = require('yargs')
   .usage(
     'Usage: sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]'
   )
-  .demand(['h', 'd'])
   .alias('h', 'host').string('h')
   .alias('d', 'database').string('d')
   .alias('u', 'user').string('u')
@@ -77,7 +76,8 @@ configFile.additional = additional;
 configFile.dialect = argv.e || configFile.dialect || 'mysql';
 configFile.port = argv.p || configFile.port || getDefaultPort(configFile.dialect);
 configFile.host = argv.h || configFile.host || 'localhost';
-configFile.storage = argv.d;
+configFile.storage = argv.d || configFile.storage;
+configFile.username = argv.u || configFile.username;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
 configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(',')) || null;
 configFile.schema = argv.s || configFile.schema;
@@ -102,7 +102,7 @@ function getDefaultPort(dialect) {
   }
 }
 
-const auto = new SequelizeAuto(argv.d, argv.u, !!argv.x ? '' + argv.x : null, configFile);
+const auto = new SequelizeAuto(configFile.storage, configFile.username, !!argv.x ? '' + argv.x : null, configFile);
 
 auto.run().then(() => {
   console.log("Done!");

@@ -85,7 +85,7 @@ export class TypescriptAutoGenerator implements AutoGenerator {
     let fieldObj = this.tables[table][field];
     let _attr = (fieldObj["type"] || '').toLowerCase();
     let _type: string;
-    if(_attr.match(/^(smallint|mediumint|tinyint|int)/)) {
+    if(_attr.match(/^(smallint|mediumint|tinyint|int|float)/)) {
       _type = 'number'
     } else if (_attr.match(/^string|varying|nvarchar/) || _attr.match(/^n?varchar/)) {
       _type = 'string'
