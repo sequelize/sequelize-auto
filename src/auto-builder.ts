@@ -31,10 +31,10 @@ export class AutoBuilder {
         raw: true,
         type: QueryTypes.SELECT
       }).then(tr => this.processTables(tr))
-      .catch(err => { console.error(err); return this.tableData;});
+        .catch(err => { console.error(err); return this.tableData; });
     } else {
       return this.queryInterface.showAllTables().then(tr => this.processTables(tr))
-      .catch(err => { console.error(err); return this.tableData;});
+        .catch(err => { console.error(err); return this.tableData; });
     }
 
   }
@@ -72,7 +72,7 @@ export class AutoBuilder {
 
   private mapForeignKeys(table: Table) {
 
-    const tableQname = makeTableQName(table)
+    const tableQname = makeTableQName(table);
     const sql = this.dialect.getForeignKeysQuery(table.table_name, table.table_schema || this.sequelize.config.database);
     const dialect = this.dialect;
     const foreignKeys = this.tableData.foreignKeys;
@@ -119,7 +119,7 @@ export class AutoBuilder {
         raw: true,
         type: QueryTypes.SELECT,
       }).then((triggerResult: any) => {
-        const triggerCount = parseInt(triggerResult && triggerResult[0] && triggerResult[0].trigger_count)
+        const triggerCount = parseInt(triggerResult && triggerResult[0] && triggerResult[0].trigger_count);
         if (triggerCount > 0) {
           this.tableData.hasTriggerTables[makeTableQName(table)] = true;
         }
@@ -143,7 +143,7 @@ function mapOptionTables(arr: string[], defaultSchema: string): Table[] {
 
 function isTableEqual(a: Table, b: Table) {
   return a.table_name === b.table_name && (!b.table_schema || a.table_schema === b.table_schema);
-};
+}
 
 function makeTableQName(table: Table) {
   return [table.table_schema, table.table_name].filter(Boolean).join(".");

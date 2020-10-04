@@ -1,7 +1,7 @@
 import fs from "fs";
-import util from "util";
 import _ from "lodash";
 import path from "path";
+import util from "util";
 import { AutoOptions, CaseOption, qNameSplit, recase } from "./types";
 const mkdirp = require('mkdirp');
 

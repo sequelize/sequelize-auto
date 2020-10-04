@@ -1,7 +1,7 @@
-import { Table, TableData, recase, qNameSplit, CaseOption, AutoOptions, Field } from "./types";
 import _ from "lodash";
-import { DialectOptions, FKSpec } from "./dialects/dialect-options";
 import { ColumnDescription } from "sequelize/types";
+import { DialectOptions, FKSpec } from "./dialects/dialect-options";
+import { AutoOptions, CaseOption, Field, qNameSplit, recase, TableData } from "./types";
 
 export class AutoGenerator {
   dialect: DialectOptions;
@@ -19,7 +19,7 @@ export class AutoGenerator {
     caseProp: CaseOption;
     additional: any;
     schema: string;
-  }
+  };
 
   constructor(tableData: TableData, dialect: DialectOptions, options: AutoOptions) {
     this.tables = tableData.tables;
@@ -41,12 +41,12 @@ export class AutoGenerator {
 
   makeHeaderTemplate() {
     let header = "/* jshint indent: " + this.options.indentation + " */\n\n";
-    let sp = this.space[1];
+    const sp = this.space[1];
 
     if (this.options.typescript) {
-      header += "import { Model, DataTypes } from 'sequelize';\n\n"
+      header += "import { Model, DataTypes } from 'sequelize';\n\n";
     } else if (this.options.es6) {
-      header += "const Sequelize = require('sequelize');\n"
+      header += "const Sequelize = require('sequelize');\n";
       header += "module.exports = (sequelize, DataTypes) => {\n";
       header += sp + "return #TABLE#.init(sequelize, DataTypes);\n";
       header += "}\n\n";
@@ -54,7 +54,7 @@ export class AutoGenerator {
       header += sp + "static init(sequelize, DataTypes) {\n";
       header += sp + "super.init({\n";
     } else if (this.options.esm) {
-      header += "import { Model } from 'sequelize';\n\n"
+      header += "import { Model } from 'sequelize';\n\n";
       header += "export default class #TABLE# extends Model {\n";
       header += sp + "static init(sequelize, DataTypes) {\n";
       header += sp + "super.init({\n";
@@ -68,20 +68,27 @@ export class AutoGenerator {
   generateText() {
     const tableNames = _.keys(this.tables);
 
-    let header = this.makeHeaderTemplate();
-    let text: { [name: string]: string } = {};
+    const header = this.makeHeaderTemplate();
+
+    const text: { [name: string]: string } = {};
     tableNames.forEach(table => {
       let str = header;
+      const [schemaName, tableNameOrig] = qNameSplit(table);
+      const tableName = recase(this.options.caseModel, tableNameOrig);
 
       if (this.options.typescript) {
-        str += this.addInterface(table);
+        str += "interface #TABLE#Attributes {\n";
+        str += this.addTypeScriptFields(table) + "}\n\n";
+
+        str += "export default class #TABLE# extends Model<#TABLE#Attributes, any> implements #TABLE#Attributes {\n";
+        str += this.addTypeScriptFields(table);
+        str += "\n" + this.space[1] + "static initModel(sequelize) {\n";
+        str += this.space[2] + tableName + ".init({\n";
       }
 
       str += this.addTable(table);
 
-      let [schemaName, tableNameOrig] = qNameSplit(table);
-      const tableName = recase(this.options.caseModel, tableNameOrig);
-      let re = new RegExp('#TABLE#', 'g');
+      const re = new RegExp('#TABLE#', 'g');
       str = str.replace(re, tableName);
 
       text[table] = str;
@@ -90,108 +97,63 @@ export class AutoGenerator {
     return text;
   }
 
-  private addModelFields(table: string) {
-    let sp = this.space[1];
-    let fields = _.keys(this.tables[table]);
-    let str = '';
-    fields.forEach(field => {
-      const name = this.quoteName(recase(this.options.caseProp, field));
-      str += `${sp}${name}?: ${this.getTypeScriptType(table, field)};\n`;
-    });
-    return str;
-  }
-
-  private addInterface(table: string) {
-    let str: string = "interface #TABLE#Attributes {\n";
-    str += this.addModelFields(table);
-    str += "}\n\n";
-    return str;
-  }
-
-  private getTypeScriptType(table: string, field: string) {
-    let fieldObj = this.tables[table][field];
-    let _attr = (fieldObj["type"] || '').toLowerCase();
-    let _type: string;
-    if(_attr.match(/^(smallint|mediumint|tinyint|int)/)) {
-      _type = 'number'
-    } else if (_attr.match(/^string|varying|nvarchar/) || _attr.match(/^n?varchar/)) {
-      _type = 'string'
-    } else if (_attr === 'bit(1)' || _attr === 'bit' || _attr === 'boolean') {
-      _type = 'boolean'
-    } else {
-      console.log(`Missing type: ${_attr}`)
-      _type = 'any'
-    }
-    return _type;
-  }
-
   // Create a string for the model of the table
   private addTable(table: string) {
 
-      let [schemaName, tableNameOrig] = qNameSplit(table);
-      const tableName = recase(this.options.caseModel, tableNameOrig);
-      const space = this.space;
+    const [schemaName, tableNameOrig] = qNameSplit(table);
+    const tableName = recase(this.options.caseModel, tableNameOrig);
+    const space = this.space;
 
-      let prefix: string = '';
+    // add all the fields
+    let str = '';
+    const fields = _.keys(this.tables[table]);
+    fields.forEach((field, index) => {
+      str += this.addField(table, field);
+      str += (index + 1 < fields.length) ? ",\n" : "\n";
+    });
 
-      if (this.options.typescript) {
-        prefix = "export default class #TABLE# extends Model<#TABLE#Attributes, any> implements #TABLE#Attributes {\n";
-        prefix += this.addModelFields(table);
-        prefix += "\n" + space[1] + "static initModel(sequelize) {\n";
-        prefix += space[2] + tableName + ".init({\n";
-      }
+    // add the table options
+    str += space[1] + "}, {\n";
+    str += space[2] + "sequelize,\n";
+    str += space[2] + "tableName: '" + tableNameOrig + "',\n";
 
-      // add all the fields
-      let str = '';
-      let fields = _.keys(this.tables[table]);
-      fields.forEach((field, index) => {
-        str += this.addField(table, field);
-        str += (index+1 < fields.length) ? ",\n" : "\n";
+    if (schemaName) {
+      str += space[2] + "schema: '" + schemaName + "',\n";
+    }
+
+    if (this.hasTriggerTables[table]) {
+      str += space[2] + "hasTrigger: true,\n";
+    }
+
+    // conditionally add additional options
+    const hasadditional = _.isObject(this.options.additional) && _.keys(this.options.additional).length > 0;
+    if (hasadditional) {
+      _.each(this.options.additional, (value, key) => {
+        if (key === 'name') {
+          // name: true - preserve table name always
+          str += space[2] + "name: {\n";
+          str += space[3] + "singular: '" + table + "',\n";
+          str += space[3] + "plural: '" + table + "'\n";
+          str += space[2] + "},\n";
+        } else {
+          value = _.isBoolean(value) ? value : ("'" + value + "'");
+          str += space[2] + key + ": " + value + ",\n";
+        }
       });
+    }
 
-      // add the table options
-      str += space[1] + "}, {\n";
-      str += space[2]  + "sequelize,\n";
-      str += space[2]  + "tableName: '" + tableNameOrig + "',\n";
+    str = space[2] + str.trim();
+    str = str.substring(0, str.length - 1);
+    str += "\n" + space[2] + "}";
 
-      if(schemaName) {
-        str += space[2]  + "schema: '" + schemaName + "',\n";
-      }
-
-      if (this.hasTriggerTables[table]) {
-        str += space[2]  + "hasTrigger: true,\n";
-      }
-
-      // conditionally add additional options
-      const hasadditional = _.isObject(this.options.additional) && _.keys(this.options.additional).length > 0;
-      if (hasadditional) {
-        _.each(this.options.additional, (value, key) => {
-          if (key === 'name') {
-            // name: true - preserve table name always
-            str += space[2] + "name: {\n";
-            str += space[3] + "singular: '" + table + "',\n";
-            str += space[3] + "plural: '" + table + "'\n";
-            str += space[2] + "},\n";
-          } else {
-            value = _.isBoolean(value)?value:("'"+value+"'")
-            str += space[2] + key + ": " + value + ",\n";
-          }
-        });
-      }
-
-      str = space[2] + str.trim();
-      str = str.substring(0, str.length - 1);
-      str += "\n" + space[2] + "}";
-
-      //resume normal output
-      str += ");\n";
-      if (this.options.es6 || this.options.esm ||  this.options.typescript) {
-        str += space[1] + "return " + tableName + ";\n";
-        str += space[1] + "}\n}\n";
-      } else {
-        str += "};\n";
-      }
-      return prefix + str;
+    str += ");\n";
+    if (this.options.es6 || this.options.esm || this.options.typescript) {
+      str += space[1] + "return " + tableName + ";\n";
+      str += space[1] + "}\n}\n";
+    } else {
+      str += "};\n";
+    }
+    return str;
   }
 
   // Create a string containing field attributes (type, defaultValue, etc.)
@@ -199,10 +161,10 @@ export class AutoGenerator {
 
     // ignore Sequelize standard fields
     const additional = this.options.additional;
-    if( additional && additional.timestamps !== undefined && additional.timestamps) {
-      if((additional.createdAt && field === 'createdAt' || additional.createdAt === field )
-        || (additional.updatedAt && field === 'updatedAt' || additional.updatedAt === field )
-        || (additional.deletedAt && field === 'deletedAt' || additional.deletedAt === field )) {
+    if (additional && additional.timestamps !== undefined && additional.timestamps) {
+      if ((additional.createdAt && field === 'createdAt' || additional.createdAt === field)
+        || (additional.updatedAt && field === 'updatedAt' || additional.updatedAt === field)
+        || (additional.deletedAt && field === 'deletedAt' || additional.deletedAt === field)) {
         return '';
       }
     }
@@ -223,15 +185,16 @@ export class AutoGenerator {
 
     // ENUMs for postgres...
     if (fieldObj.type === "USER-DEFINED" && !!fieldObj.special) {
-      fieldObj.type = "ENUM(" + fieldObj.special.map(function(f: string){
-        return quoteWrapper + f + quoteWrapper; }).join(',') + ")";
+      fieldObj.type = "ENUM(" + fieldObj.special.map(function (f: string) {
+        return quoteWrapper + f + quoteWrapper;
+      }).join(',') + ")";
     }
 
     const unique = fieldObj.unique || fieldObj.foreignKey && fieldObj.foreignKey.isUnique;
 
     const isSerialKey = _.isFunction(this.dialect.isSerialKey) &&
       (this.dialect.isSerialKey(fieldObj) ||
-      (fieldObj.foreignKey && this.dialect.isSerialKey(fieldObj.foreignKey)));
+        (fieldObj.foreignKey && this.dialect.isSerialKey(fieldObj.foreignKey)));
     let wroteAutoIncrement = false;
     const space = this.space;
 
@@ -252,13 +215,14 @@ export class AutoGenerator {
       if (attr === "foreignKey") {
         if (foreignKey && foreignKey.isForeignKey) {
           str += space[3] + "references: {\n";
-          str += space[4] + "model: {\n"
-          str += space[5] + "tableName: \'" + fieldObj[attr].foreignSources.target_table + "\',\n"
-          if(this.options.schema) {
-            str += space[5] + "schema: \'" + fieldObj[attr].foreignSources.target_schema + "\'\n"
+          if (this.options.schema) {
+            str += space[4] + "model: {\n";
+            str += space[5] + "tableName: \'" + fieldObj[attr].foreignSources.target_table + "\',\n";
+            str += space[5] + "schema: \'" + fieldObj[attr].foreignSources.target_schema + "\'\n";
+            str += space[4] + "},\n";
+          } else {
+            str += space[4] + "model: \'" + fieldObj[attr].foreignSources.target_table + "\',\n";
           }
-          str += space[4] + "},\n"
-
           str += space[4] + "key: \'" + fieldObj[attr].foreignSources.target_column + "\'\n";
           str += space[3] + "}";
         } else {
@@ -268,7 +232,7 @@ export class AutoGenerator {
         // covered by foreignKey
         return true;
       } else if (attr === "primaryKey") {
-        if (fieldObj[attr] === true && (! _.has(fieldObj, 'foreignKey') || (_.has(fieldObj, 'foreignKey') && !! fieldObj.foreignKey.isPrimaryKey))) {
+        if (fieldObj[attr] === true && (!_.has(fieldObj, 'foreignKey') || !!fieldObj.foreignKey.isPrimaryKey)) {
           str += space[3] + "primaryKey: true";
         } else {
           return true;
@@ -282,12 +246,12 @@ export class AutoGenerator {
       } else if (attr === "allowNull") {
         str += space[3] + attr + ": " + fieldObj[attr];
       } else if (attr === "defaultValue") {
-        let localName = fieldName;
+        const localName = fieldName;
         if (this.dialect.name === "mssql" && defaultVal && defaultVal.toLowerCase() === '(newid())') {
           defaultVal = null as any; // disable adding "default value" attribute for UUID fields if generating for MS SQL
         }
 
-        if(defaultVal === null || defaultVal === undefined) {
+        if (defaultVal === null || defaultVal === undefined) {
           return true;
         }
         if (isSerialKey) {
@@ -296,7 +260,7 @@ export class AutoGenerator {
 
         let val_text = defaultVal;
         if (_.isString(defaultVal)) {
-          let field_type = fieldObj.type.toLowerCase();
+          const field_type = fieldObj.type.toLowerCase();
 
           if (field_type === 'bit(1)' || field_type === 'bit' || field_type === 'boolean') {
             // convert string to boolean
@@ -306,7 +270,7 @@ export class AutoGenerator {
             // change postgres array default '{}' to []
             val_text = defaultVal.replace('{', '[').replace('}', ']');
 
-          } else if (field_type.match(/^(smallint|mediumint|tinyint|int|bigint|float|money|smallmoney|double|decimal|json)/)) {
+          } else if (this.isNumber(field_type) || field_type.match(/^(json)/)) {
             // remove () around mssql numeric values; don't quote numbers or json
             val_text = defaultVal.replace(/[)(]/g, '');
 
@@ -333,103 +297,16 @@ export class AutoGenerator {
 
         str += space[3] + attr + ": " + val_text;
 
-      }
-      else if (attr === "type" && fieldObj[attr].indexOf('ENUM') === 0) {
+      } else if (attr === "type" && fieldObj[attr].indexOf('ENUM') === 0) {
         str += space[3] + attr + ": DataTypes." + fieldObj[attr];
       } else if (attr === "comment" && !fieldObj[attr]) {
         return true;
       } else {
-        let _attr = ((fieldObj as any)[attr] || '').toLowerCase();
-        let val;
-
-        if (_attr === "boolean" || _attr === "bit(1)" || _attr === "bit") {
-          val = 'DataTypes.BOOLEAN';
-        }
-        else if (_attr.match(/^(smallint|mediumint|tinyint|int)/)) {
-          let length = _attr.match(/\(\d+\)/);
-          val = 'DataTypes.INTEGER' + (!  _.isNull(length) ? length : '');
-
-          let unsigned = _attr.match(/unsigned/i);
-          if (unsigned) {
-            val += '.UNSIGNED';
-          }
-          let zero = _attr.match(/zerofill/i);
-          if (zero) {
-            val += '.ZEROFILL';
-          }
-        }
-        else if (_attr.match(/^bigint/)) {
-          val = 'DataTypes.BIGINT';
-        }
-        else if (_attr.match(/^n?varchar/)) {
-          let length = _attr.match(/\(\d+\)/);
-          val = 'DataTypes.STRING' + (!  _.isNull(length) ? length : '');
-        }
-        else if (_attr.match(/^string|varying|nvarchar/)) {
-          val = 'DataTypes.STRING';
-        }
-        else if (_attr.match(/^n?char/)) {
-          let length = _attr.match(/\(\d+\)/);
-          val = 'DataTypes.CHAR' + (!_.isNull(length) ? length : '');
-        }
-        else if (_attr.match(/^real/)) {
-          val = 'DataTypes.REAL';
-        }
-        else if (_attr.match(/^text|ntext$/)) {
-          val = 'DataTypes.TEXT';
-        }
-        else if (_attr==="date"){
-            val = 'DataTypes.DATEONLY';
-        }
-        else if (_attr.match(/^(date|timestamp)/)) {
-          val = 'DataTypes.DATE';
-        }
-        else if (_attr.match(/^(time)/)) {
-          val = 'DataTypes.TIME';
-        }
-        else if (_attr.match(/^(float|float4)/)) {
-          val = 'DataTypes.FLOAT';
-        }
-        else if (_attr.match(/^decimal/)) {
-          val = 'DataTypes.DECIMAL';
-        }
-        else if (_attr.match(/^money/)) {
-          val = 'DataTypes.DECIMAL(19,4)';
-        }
-        else if (_attr.match(/^smallmoney/)) {
-          val = 'DataTypes.DECIMAL(10,4)';
-        }
-        else if (_attr.match(/^(float8|double|numeric)/)) {
-          val = 'DataTypes.DOUBLE';
-        }
-        else if (_attr.match(/^uuid|uniqueidentifier/)) {
-          val = 'DataTypes.UUIDV4';
-        }
-        else if (_attr.match(/^jsonb/)) {
-          val = 'DataTypes.JSONB';
-        }
-        else if (_attr.match(/^json/)) {
-          val = 'DataTypes.JSON';
-        }
-        else if (_attr.match(/^geometry/)) {
-          val = 'DataTypes.GEOMETRY';
-        }
-        else if (_attr.match(/^geography/)) {
-          val = "DataTypes.GEOGRAPHY('POINT', 4326)";
-        }
-        else if (_attr.match(/^array/)) {
-          val = 'DataTypes.ARRAY';
-        }
-        else if (_attr.match(/^(varbinary|image)/)) {
-          val = 'DataTypes.BLOB';
-        }
-        else if (_attr.match(/^hstore/)) {
-          val = 'DataTypes.HSTORE';
-        } else {
+        let val = this.getSqType(fieldObj, attr);
+        if (val == null) {
           val = (fieldObj as any)[attr];
           val = _.isString(val) ? quoteWrapper + val.replace(/\"/g, '\\"') + quoteWrapper : val;
         }
-
         str += space[3] + attr + ": " + val;
       }
 
@@ -437,11 +314,11 @@ export class AutoGenerator {
     });
 
     if (unique) {
-      let uniq = _.isString(unique) ? quoteWrapper + unique.replace(/\"/g, '\\"') + quoteWrapper : unique;
+      const uniq = _.isString(unique) ? quoteWrapper + unique.replace(/\"/g, '\\"') + quoteWrapper : unique;
       str += space[3] + "unique: " + uniq + ",\n";
     }
 
-    if (field != fieldName) {
+    if (field !== fieldName) {
       str += space[3] + "field: '" + field + "',\n";
     }
 
@@ -451,12 +328,124 @@ export class AutoGenerator {
     return str;
   }
 
+  /** Get the sequelize type from the Field */
+  private getSqType(fieldObj: Field, attr: string): string {
+    const type = ((fieldObj as any)[attr] as string || '').toLowerCase();
+    const length = type.match(/\(\d+\)/);
+    let val = null;
+
+    if (type === "boolean" || type === "bit(1)" || type === "bit") {
+      val = 'DataTypes.BOOLEAN';
+    } else if (type.match(/^(smallint|mediumint|tinyint|int)/)) {
+      val = 'DataTypes.INTEGER' + (!_.isNull(length) ? length : '');
+      if (/unsigned/i.test(type)) {
+        val += '.UNSIGNED';
+      }
+      if (/zerofill/i.test(type)) {
+        val += '.ZEROFILL';
+      }
+    } else if (type.match(/^bigint/)) {
+      val = 'DataTypes.BIGINT';
+    } else if (type.match(/^n?varchar/)) {
+      val = 'DataTypes.STRING' + (!_.isNull(length) ? length : '');
+    } else if (type.match(/^string|varying|nvarchar/)) {
+      val = 'DataTypes.STRING';
+    } else if (type.match(/^n?char/)) {
+      val = 'DataTypes.CHAR' + (!_.isNull(length) ? length : '');
+    } else if (type.match(/^real/)) {
+      val = 'DataTypes.REAL';
+    } else if (type.match(/^text|ntext$/)) {
+      val = 'DataTypes.TEXT';
+    } else if (type === "date") {
+      val = 'DataTypes.DATEONLY';
+    } else if (type.match(/^(date|timestamp)/)) {
+      val = 'DataTypes.DATE';
+    } else if (type.match(/^(time)/)) {
+      val = 'DataTypes.TIME';
+    } else if (type.match(/^(float|float4)/)) {
+      val = 'DataTypes.FLOAT';
+    } else if (type.match(/^decimal/)) {
+      val = 'DataTypes.DECIMAL';
+    } else if (type.match(/^money/)) {
+      val = 'DataTypes.DECIMAL(19,4)';
+    } else if (type.match(/^smallmoney/)) {
+      val = 'DataTypes.DECIMAL(10,4)';
+    } else if (type.match(/^(float8|double|numeric)/)) {
+      val = 'DataTypes.DOUBLE';
+    } else if (type.match(/^uuid|uniqueidentifier/)) {
+      val = 'DataTypes.UUIDV4';
+    } else if (type.match(/^jsonb/)) {
+      val = 'DataTypes.JSONB';
+    } else if (type.match(/^json/)) {
+      val = 'DataTypes.JSON';
+    } else if (type.match(/^geometry/)) {
+      val = 'DataTypes.GEOMETRY';
+    } else if (type.match(/^geography/)) {
+      val = "DataTypes.GEOGRAPHY('POINT', 4326)";
+    } else if (type.match(/^array/)) {
+      val = 'DataTypes.ARRAY';
+    } else if (type.match(/^(varbinary|image)/)) {
+      val = 'DataTypes.BLOB';
+    } else if (type.match(/^hstore/)) {
+      val = 'DataTypes.HSTORE';
+    }
+    return val as string;
+  }
+
+  private addTypeScriptFields(table: string) {
+    const sp = this.space[1];
+    const fields = _.keys(this.tables[table]);
+    let str = '';
+    fields.forEach(field => {
+      const name = this.quoteName(recase(this.options.caseProp, field));
+      str += `${sp}${name}?: ${this.getTypeScriptType(table, field)};\n`;
+    });
+    return str;
+  }
+
+  private getTypeScriptType(table: string, field: string) {
+    const fieldObj = this.tables[table][field];
+    const fieldType = (fieldObj["type"] || '').toLowerCase();
+    let jsType: string;
+    if (this.isString(fieldType)) {
+      jsType = 'string';
+    } else if (this.isNumber(fieldType)) {
+      jsType = 'number';
+    } else if (this.isBoolean(fieldType)) {
+      jsType = 'boolean';
+    } else if (this.isDate(fieldType)) {
+      jsType = 'Date';
+    } else if (this.isArray(fieldType)) {
+      jsType = 'any[]';
+    } else {
+      console.log(`Missing type: ${fieldType}`);
+      jsType = 'any';
+    }
+    return jsType;
+  }
+
   /** Quote the name if it is not a valid identifier */
   private quoteName(name: string) {
     return (/^[$A-Z_][0-9A-Z_$]*$/i.test(name) ? name : "'" + name + "'");
   }
 
-  private isNumber(fieldObj: any) {
+  private isNumber(fieldType: string): boolean {
+    return /^(smallint|mediumint|tinyint|int|bigint|float|money|smallmoney|double|decimal|numeric|real)/.test(fieldType);
+  }
 
+  private isBoolean(fieldType: string): boolean {
+    return /^(boolean|bit)/.test(fieldType);
+  }
+
+  private isDate(fieldType: string): boolean {
+    return /^(date|time|timestamp)/.test(fieldType);
+  }
+
+  private isString(fieldType: string): boolean {
+    return /^(char|nchar|string|varying|varchar|nvarchar|text|ntext|uuid|uniqueidentifier)/.test(fieldType);
+  }
+
+  private isArray(fieldType: string): boolean {
+    return /^(array)/.test(fieldType);
   }
 }
