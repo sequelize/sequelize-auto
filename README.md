@@ -94,18 +94,6 @@ Produces a file/files such as ./models/Users.js which looks like:
           type: DataTypes.INTEGER(11),
           allowNull: true
         },
-        'bNumber': {
-          type: DataTypes.INTEGER(11),
-          allowNull: true
-        },
-        'validateTest': {
-          type: DataTypes.INTEGER(11),
-          allowNull: true
-        },
-        'validateCustom': {
-          type: DataTypes.STRING,
-          allowNull: false
-        },
         'dateAllowNullTrue': {
           type: DataTypes.DATE,
           allowNull: true
@@ -113,7 +101,7 @@ Produces a file/files such as ./models/Users.js which looks like:
         'defaultValueBoolean': {
           type: DataTypes.BOOLEAN,
           allowNull: true,
-          defaultValue: '1'
+          defaultValue: true
         },
         'createdAt': {
           type: DataTypes.DATE,
@@ -176,7 +164,8 @@ const auto = new SequelizeAuto('database', 'user', 'pass', {
 })
 ```
 
-Or you can create the `sequelize` instance first, using a connection string, and then pass it to SequelizeAuto:
+Or you can create the `sequelize` instance first, using a [connection string](https://sequelize.org/master/manual/getting-started.html#connecting-to-a-database),
+and then pass it to SequelizeAuto:
 ```js
 const SequelizeAuto = require('sequelize-auto');
 const Sequelize = require('sequelize');
@@ -218,9 +207,6 @@ To set up:
     `npm run build`
 
 Then run one of the test commands below:
-
-    # for all
-    npm run test
 
     # mysql only
     npm run test-mysql
