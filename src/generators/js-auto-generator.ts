@@ -165,7 +165,7 @@ export class JsAutoGenerator extends AutoGenerator {
     fieldAttrs.forEach(attr => {
 
       // We don't need the special attribute from postgresql describe table..
-      if (attr === "special") {
+      if (attr === "special" || attr === "propertyName") {
         return true;
       }
 
