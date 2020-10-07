@@ -77,10 +77,12 @@ export class AutoGenerator {
       const tableName = recase(this.options.caseModel, tableNameOrig);
 
       if (this.options.typescript) {
-        str += "interface #TABLE#Attributes {\n";
+        str += "export interface #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table) + "}\n\n";
 
-        str += "export default class #TABLE# extends Model<#TABLE#Attributes, any> implements #TABLE#Attributes {\n";
+        // str += "export interface #TABLE#CreationAttributes extends Optional<#TABLE#Attributes, 'Id'> {}\n\n";
+
+        str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#Attributes> implements #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table);
         str += "\n" + this.space[1] + "static initModel(sequelize) {\n";
         str += this.space[2] + tableName + ".init({\n";
