@@ -184,9 +184,7 @@ export class TypescriptAutoGenerator extends AutoGenerator {
       str = (/^[$A-Z_][0-9A-Z_$]*$/i.test(fieldName) ? fieldName : "'" + fieldName + "'") + ": {\n";
     }
 
-    if(field !== propertyName) {
-      str += this.tabify(4, "field: '" + field + "',\n");
-    }
+    str += this.tabify(4, "field: '" + field + "',\n");
 
     let defaultVal = fieldObj.defaultValue;
     const quoteWrapper = '\'';
