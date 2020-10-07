@@ -4,35 +4,10 @@ import { DialectOptions } from "../dialects/dialect-options";
 import AutoGenerator from "./auto-generator";
 import { regexp } from "sequelize/types/lib/operators";
 
-export class TypescriptAutoGenerator implements AutoGenerator {
-  dialect: DialectOptions;
-  tables: { [name: string]: any };
-  foreignKeys: { [name: string]: any };
-  hasTriggerTables: { [name: string]: boolean };
-  options: {
-    indentation: number;
-    spaces: boolean;
-    typescript: boolean;
-    es6: boolean;
-    esm: boolean;
-    caseModel: CaseOption;
-    caseProp: CaseOption;
-    additional: any;
-    schema: string;
-  }
-  tabValue: string;
+export class TypescriptAutoGenerator extends AutoGenerator {
 
   constructor(tableData: TableData, dialect: DialectOptions, options: AutoOptions) {
-    this.tables = tableData.tables;
-    this.foreignKeys = tableData.foreignKeys;
-    this.hasTriggerTables = tableData.hasTriggerTables;
-    this.dialect = dialect;
-    this.options = options;
-
-    this.tabValue = '';
-    for (let x = 0; x < this.options.indentation; ++x) {
-      this.tabValue += (this.options.spaces === true ? ' ' : "\t");
-    }
+    super(tableData, dialect, options);
   }
 
   generateText() {
@@ -46,14 +21,11 @@ export class TypescriptAutoGenerator implements AutoGenerator {
     let header = "/* jshint indent: " + this.options.indentation + " */\n\n";
 
     header += "import { Model, DataTypes } from 'sequelize';\n\n"
-    // header += spaces + "static initModel(sequelize) {\n";
-    // header += spaces + spaces + "this.init({\n";
 
     let text: { [name: string]: string } = {};
     tableNames.forEach(table => {
       let str = header;
 
-      // header += "export default class #TABLE# extends Model {\n";
       str += this.addAttributesTable(table);
 
       str += this.addTable(table, header, spaces)
@@ -74,7 +46,7 @@ export class TypescriptAutoGenerator implements AutoGenerator {
 
     let fields = _.keys(this.tables[table]);
     fields.forEach((field, index) => {
-      str += this.tabify(1,`${field}?: ${this.getTypeScriptType(table, field)}\n`);
+      str += this.tabify(1,`${this.getPropertyNameOrField(table, field)}?: ${this.getTypeScriptType(table, field)}\n`);
     });
 
     str += "}\n\n";
@@ -176,7 +148,7 @@ export class TypescriptAutoGenerator implements AutoGenerator {
   addModelField(table: string, field: string, spaces: string) {
     let _type : string = this.getTypeScriptType(table, field);
 
-    let str: string = this.tabify(1, 'public ' + field + '?: ' + _type + '\n');
+    let str: string = this.tabify(1, 'public ' + this.getPropertyNameOrField(table, field) + '?: ' + _type + '\n');
     return str;
   }
 
@@ -205,10 +177,19 @@ export class TypescriptAutoGenerator implements AutoGenerator {
     let str: string;
 
     // quote fieldname if not a valid identifier
-    str = (/^[$A-Z_][0-9A-Z_$]*$/i.test(fieldName) ? fieldName : "'" + fieldName + "'") + ": {\n";
+    let propertyName = this.getPropertyName(table, field);
+    if(propertyName) {
+      str = (/^[$A-Z_][0-9A-Z_$]*$/i.test(propertyName) ? propertyName : "'" + propertyName + "'") + ": {\n";;
+    } else {
+      str = (/^[$A-Z_][0-9A-Z_$]*$/i.test(fieldName) ? fieldName : "'" + fieldName + "'") + ": {\n";
+    }
+
+    if(field !== propertyName) {
+      str += this.tabify(4, "field: '" + field + "',\n");
+    }
 
     let defaultVal = fieldObj.defaultValue;
-    const quoteWrapper = '"';
+    const quoteWrapper = '\'';
 
     // ENUMs for postgres...
     if (fieldObj.type === "USER-DEFINED" && !!fieldObj.special) {
@@ -228,7 +209,7 @@ export class TypescriptAutoGenerator implements AutoGenerator {
     fieldAttrs.forEach(attr => {
 
       // We don't need the special attribute from postgresql describe table..
-      if (attr === "special") {
+      if (attr === "special" || attr === "propertyName") {
         return true;
       }
 
@@ -433,14 +414,5 @@ export class TypescriptAutoGenerator implements AutoGenerator {
     // str = str.trim().replace(/,+$/, '') + "\n";
     str = this.tabify(3, str) + this.tabify(3, "}");
     return str;
-  }
-
-  tabify(count: number, line: string) : string {
-    let str: string = "";
-
-    for(let ca = 0; ca < count; ca++) {
-      str += this.tabValue;
-    }
-    return str + line;
   }
 }

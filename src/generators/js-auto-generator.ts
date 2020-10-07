@@ -3,29 +3,10 @@ import _ from "lodash";
 import { DialectOptions } from "../dialects/dialect-options";
 import AutoGenerator from "./auto-generator";
 
-export class JsAutoGenerator implements AutoGenerator {
-  dialect: DialectOptions;
-  tables: { [name: string]: any };
-  foreignKeys: { [name: string]: any };
-  hasTriggerTables: { [name: string]: boolean };
-  options: {
-    indentation: number;
-    spaces: boolean;
-    typescript: boolean;
-    es6: boolean;
-    esm: boolean;
-    caseModel: CaseOption;
-    caseProp: CaseOption;
-    additional: any;
-    schema: string;
-  }
+export class JsAutoGenerator extends AutoGenerator {
 
   constructor(tableData: TableData, dialect: DialectOptions, options: AutoOptions) {
-    this.tables = tableData.tables;
-    this.foreignKeys = tableData.foreignKeys;
-    this.hasTriggerTables = tableData.hasTriggerTables;
-    this.dialect = dialect;
-    this.options = options;
+    super(tableData, dialect, options)
   }
 
   generateText() {
@@ -154,7 +135,14 @@ export class JsAutoGenerator implements AutoGenerator {
     let str: string;
 
     // quote fieldname if not a valid identifier
-    str = (/^[$A-Z_][0-9A-Z_$]*$/i.test(fieldName) ? fieldName : "'" + fieldName + "'") + ": {\n";
+    let propertyName = this.getPropertyName(table, field);
+    if(propertyName) {
+      str = (/^[$A-Z_][0-9A-Z_$]*$/i.test(propertyName) ? propertyName : "'" + propertyName + "'") + ": {\n";;
+    } else {
+      str = (/^[$A-Z_][0-9A-Z_$]*$/i.test(fieldName) ? fieldName : "'" + fieldName + "'") + ": {\n";
+    }
+
+    str += this.tabify(4, "field: '" + field + "',\n");
 
     let defaultVal = fieldObj.defaultValue;
     const quoteWrapper = '"';

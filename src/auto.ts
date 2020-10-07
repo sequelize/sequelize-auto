@@ -7,7 +7,7 @@ import { AutoWriter } from "./auto-writer";
 import { dialects } from "./dialects/dialects";
 import { JsAutoGenerator } from "./generators/js-auto-generator";
 import { TypescriptAutoGenerator } from "./generators/typescript-auto-generator";
-import { AutoOptions, DialectName, TableData } from "./types";
+import { AutoOptions, DialectName, TableData, TableOverride, ColumnOverride } from "./types";
 
 export class SequelizeAuto {
   sequelize: Sequelize;
@@ -47,6 +47,7 @@ export class SequelizeAuto {
 
   async run() {
     const td = await this.build();
+    await this.applyOverrides(td);
     const tt = this.generate(td);
     await this.write(tt);
     td.text = tt;
@@ -61,6 +62,53 @@ export class SequelizeAuto {
       }
       return tableData;
     });
+  }
+
+  applyOverrides(td: TableData) {
+    console.log("WOOHOO");
+    // _.forIn(this.options.tableOverrides, function(value, key) {
+    //   console.log(`applying table overrides for ${key}`);
+    // });
+    let tableNames = _.keys(this.options.tableOverrides);
+    tableNames.forEach(tableName => {
+      let tableOverride = this.options.tableOverrides[tableName];
+      let table = td.tables[tableName];
+      if(table === undefined) {
+        console.warn(`Overridden table ${tableName} not found. Try adding the schema.`);
+        return;
+      }
+      let columnNames = _.keys(tableOverride.columnOverrides);
+      columnNames.forEach(columnName => {
+        let columnOverride = tableOverride.columnOverrides[columnName];
+        let column = table[columnName];
+        if(column === undefined) {
+          console.warn(`Overridden column ${tableName}.${columnName} not found.`);
+          return;
+        }
+
+        if(columnOverride.propertyName) {
+          column.propertyName = columnOverride.propertyName;
+        }
+      });
+    });
+
+    // Object.keys(this.options.tableOverrides).forEach((key:string) => {
+    //   console.log(`Found Override: ${key}`);
+    //   let tableOverride = this.options.tableOverrides.get(key);
+    //   if(tableOverride === undefined) return;
+    //   Object.keys(tableOverride.columnOverrides).forEach((key:string) => {
+    //     console.log(`Found Column Override`);
+    //     let columnOverride = tableOverride.columnOverrides.get(key);
+    //   });
+    // });
+
+    // this.options.tableOverrides.forEach((value: TableOverride, key: string) => {
+    //   console.log(`applying table overrides for ${key}`);
+    //   // let table = td.tables[key];
+    //   // tableOverride.columnOverrides.forEach((columnName: string, columnOverride: ColumnOverride) => {
+    //   //   let column = table[columnName];
+    //   // });
+    // });
   }
 
   generate(tableData: TableData) {

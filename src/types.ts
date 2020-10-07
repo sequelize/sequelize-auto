@@ -50,12 +50,21 @@ export interface AutoOptions {
   storage: string;
   tables: string[];
   typescript: boolean;
+  tableOverrides: { [name: string]: TableOverride };
+}
+
+export interface TableOverride {
+  columnOverrides: { [name: string]: ColumnOverride }
+}
+
+export interface ColumnOverride {
+  propertyName: string
 }
 
 /** Change casing of val string according to opt [c|l|o|p|u]  */
 export function recase(opt: CaseOption, val: string | null) {
   if (!opt || opt === 'o' || !val) {
-    return val || ''; // original 
+    return val || ''; // original
   }
   if (opt === 'c') {
     return _.camelCase(val);
