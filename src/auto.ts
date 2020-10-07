@@ -65,10 +65,6 @@ export class SequelizeAuto {
   }
 
   applyOverrides(td: TableData) {
-    console.log("WOOHOO");
-    // _.forIn(this.options.tableOverrides, function(value, key) {
-    //   console.log(`applying table overrides for ${key}`);
-    // });
     let tableNames = _.keys(this.options.tableOverrides);
     tableNames.forEach(tableName => {
       let tableOverride = this.options.tableOverrides[tableName];
@@ -91,24 +87,6 @@ export class SequelizeAuto {
         }
       });
     });
-
-    // Object.keys(this.options.tableOverrides).forEach((key:string) => {
-    //   console.log(`Found Override: ${key}`);
-    //   let tableOverride = this.options.tableOverrides.get(key);
-    //   if(tableOverride === undefined) return;
-    //   Object.keys(tableOverride.columnOverrides).forEach((key:string) => {
-    //     console.log(`Found Column Override`);
-    //     let columnOverride = tableOverride.columnOverrides.get(key);
-    //   });
-    // });
-
-    // this.options.tableOverrides.forEach((value: TableOverride, key: string) => {
-    //   console.log(`applying table overrides for ${key}`);
-    //   // let table = td.tables[key];
-    //   // tableOverride.columnOverrides.forEach((columnName: string, columnOverride: ColumnOverride) => {
-    //   //   let column = table[columnName];
-    //   // });
-    // });
   }
 
   generate(tableData: TableData) {
