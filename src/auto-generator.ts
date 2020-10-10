@@ -44,7 +44,7 @@ export class AutoGenerator {
     const sp = this.space[1];
 
     if (this.options.typescript) {
-      header += "import { Model, DataTypes } from 'sequelize';\n\n";
+      header += "import { DataTypes, Model, Sequelize } from 'sequelize';\n\n";
     } else if (this.options.es6) {
       header += "const Sequelize = require('sequelize');\n";
       header += "module.exports = (sequelize, DataTypes) => {\n";
@@ -84,7 +84,7 @@ export class AutoGenerator {
 
         str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#Attributes> implements #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table);
-        str += "\n" + this.space[1] + "static initModel(sequelize) {\n";
+        str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize) {\n";
         str += this.space[2] + tableName + ".init({\n";
       }
 
@@ -204,8 +204,8 @@ export class AutoGenerator {
     const fieldAttrs = _.keys(fieldObj);
     fieldAttrs.forEach(attr => {
 
-      // We don't need the special attribute from postgresql describe table..
-      if (attr === "special") {
+      // We don't need the special attribute from postgresql; "unique" is handled separately
+      if (attr === "special" || attr === "unique") {
         return true;
       }
 
@@ -332,7 +332,12 @@ export class AutoGenerator {
 
   /** Get the sequelize type from the Field */
   private getSqType(fieldObj: Field, attr: string): string {
-    const type = ((fieldObj as any)[attr] as string || '').toLowerCase();
+    const attrValue = (fieldObj as any)[attr];
+    if (!attrValue.toLowerCase) {
+      console.log("attrValue", attr, attrValue);
+      return attrValue;
+    }
+    const type = attrValue.toLowerCase();
     const length = type.match(/\(\d+\)/);
     let val = null;
 

@@ -10,7 +10,7 @@ export const sqliteOptions: DialectOptions = {
    * @return {String}            The generated sql query.
    */
   getForeignKeysQuery: (tableName: string, schemaName: string) => {
-    return `PRAGMA foreign_key_list(${tableName});`;
+    return `PRAGMA foreign_key_list(\`${tableName}\`);`;
   },
 
   /**
@@ -32,7 +32,7 @@ export const sqliteOptions: DialectOptions = {
       target_schema: undefined,
       target_table: row.table,
       target_column: row.to
-    }
+    };
   },
 
   /**
