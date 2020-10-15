@@ -377,9 +377,9 @@ export class AutoGenerator {
     } else if (type === "date") {
       val = 'DataTypes.DATEONLY';
     } else if (type.match(/^(date|timestamp)/)) {
-      val = 'DataTypes.DATE';
+      val = 'DataTypes.DATE' + (!_.isNull(length) ? length : '');
     } else if (type.match(/^(time)/)) {
-      val = 'DataTypes.TIME';
+      val = 'DataTypes.TIME' + (!_.isNull(length) ? length : '');
     } else if (type.match(/^(float|float4)/)) {
       val = 'DataTypes.FLOAT';
     } else if (type.match(/^decimal/)) {
