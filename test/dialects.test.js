@@ -30,7 +30,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
 
     it('sqlite', function(done) {
       var query = dialects.sqlite.getForeignKeysQuery('mytable_b', 'mydatabase_b');
-      expect(query).to.include("PRAGMA foreign_key_list(mytable_b)");
+      expect(query).to.include("PRAGMA foreign_key_list(`mytable_b`)");
       // sqlite doesn't support schemas.
       expect(query).to.not.include("mydatabase_b");
 

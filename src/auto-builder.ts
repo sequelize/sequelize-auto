@@ -1,8 +1,8 @@
 import _ from "lodash";
-import { QueryInterface, QueryTypes, Sequelize } from "sequelize";
+import { Dialect, QueryInterface, QueryTypes, Sequelize } from "sequelize";
 import { DialectOptions, FKRow, FKSpec } from "./dialects/dialect-options";
 import { dialects } from "./dialects/dialects";
-import { DialectName, Table, TableData } from "./types";
+import { Table, TableData } from "./types";
 
 export class AutoBuilder {
   sequelize: Sequelize;
@@ -16,7 +16,7 @@ export class AutoBuilder {
   constructor(sequelize: Sequelize, tables: string[], skipTables: string[], schema: string) {
     this.sequelize = sequelize;
     this.queryInterface = this.sequelize.getQueryInterface();
-    this.dialect = dialects[this.sequelize.getDialect() as DialectName];
+    this.dialect = dialects[this.sequelize.getDialect() as Dialect];
     this.includeTables = tables;
     this.skipTables = skipTables;
     this.schema = schema;

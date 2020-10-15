@@ -54,11 +54,12 @@ export class AutoGenerator {
       header += sp + "static init(sequelize, DataTypes) {\n";
       header += sp + "super.init({\n";
     } else if (this.options.esm) {
-      header += "import { Model } from 'sequelize';\n\n";
+      header += "import { Model, Sequelize } from 'sequelize';\n\n";
       header += "export default class #TABLE# extends Model {\n";
       header += sp + "static init(sequelize, DataTypes) {\n";
       header += sp + "super.init({\n";
     } else {
+      header += "const Sequelize = require('sequelize');\n";
       header += "module.exports = function(sequelize, DataTypes) {\n";
       header += sp + "return sequelize.define('#TABLE#', {\n";
     }
@@ -105,14 +106,21 @@ export class AutoGenerator {
     const [schemaName, tableNameOrig] = qNameSplit(table);
     const tableName = recase(this.options.caseModel, tableNameOrig);
     const space = this.space;
+    let timestamps = (this.options.additional && this.options.additional.timestamps === true) || false;
+    let paranoid = false;
 
     // add all the fields
     let str = '';
     const fields = _.keys(this.tables[table]);
     fields.forEach((field, index) => {
+      timestamps ||= this.isTimestampField(field);
+      paranoid ||= this.isParanoidField(field);
+
       str += this.addField(table, field);
-      str += (index + 1 < fields.length) ? ",\n" : "\n";
     });
+
+    // trim off last ",\n"
+    str = str.substring(0, str.length - 2) + "\n";
 
     // add the table options
     str += space[1] + "}, {\n";
@@ -127,6 +135,11 @@ export class AutoGenerator {
       str += space[2] + "hasTrigger: true,\n";
     }
 
+    str += space[2] + "timestamps: " + timestamps + ",\n";
+    if (paranoid) {
+      str += space[2] + "paranoid: true,\n";
+    }
+
     // conditionally add additional options
     const hasadditional = _.isObject(this.options.additional) && _.keys(this.options.additional).length > 0;
     if (hasadditional) {
@@ -137,6 +150,8 @@ export class AutoGenerator {
           str += space[3] + "singular: '" + table + "',\n";
           str += space[3] + "plural: '" + table + "'\n";
           str += space[2] + "},\n";
+        } else if (key === "timestamps" || key === "paranoid") {
+          // handled above
         } else {
           value = _.isBoolean(value) ? value : ("'" + value + "'");
           str += space[2] + key + ": " + value + ",\n";
@@ -163,12 +178,8 @@ export class AutoGenerator {
 
     // ignore Sequelize standard fields
     const additional = this.options.additional;
-    if (additional && additional.timestamps !== undefined && additional.timestamps) {
-      if ((additional.createdAt && field === 'createdAt' || additional.createdAt === field)
-        || (additional.updatedAt && field === 'updatedAt' || additional.updatedAt === field)
-        || (additional.deletedAt && field === 'deletedAt' || additional.deletedAt === field)) {
-        return '';
-      }
+    if (additional && (additional.timestamps !== false) && (this.isTimestampField(field) || this.isParanoidField(field))) {
+      return '';
     }
 
     // Find foreign key
@@ -278,11 +289,11 @@ export class AutoGenerator {
 
           } else if (_.endsWith(defaultVal, '()') || _.endsWith(defaultVal, '())')) {
             // wrap default value function
-            val_text = "sequelize.fn('" + defaultVal.replace(/[)(]/g, "") + "')";
+            val_text = "Sequelize.fn('" + defaultVal.replace(/[)(]/g, "") + "')";
 
           } else if (field_type.indexOf('date') === 0 || field_type.indexOf('timestamp') === 0) {
             if (_.includes(['current_timestamp', 'current_date', 'current_time', 'localtime', 'localtimestamp'], defaultVal.toLowerCase())) {
-              val_text = "sequelize.literal('" + defaultVal + "')";
+              val_text = "Sequelize.literal('" + defaultVal + "')";
             } else {
               val_text = quoteWrapper + defaultVal + quoteWrapper;
             }
@@ -326,7 +337,7 @@ export class AutoGenerator {
 
     // removes the last `,` within the attribute options
     str = str.trim().replace(/,+$/, '') + "\n";
-    str = space[2] + str + space[2] + "}";
+    str = space[2] + str + space[2] + "},\n";
     return str;
   }
 
@@ -429,6 +440,23 @@ export class AutoGenerator {
       jsType = 'any';
     }
     return jsType;
+  }
+
+  private isTimestampField(field: string) {
+    const additional = this.options.additional;
+    if (additional.timestamps === false) {
+      return false;
+    }
+    return ((!additional.createdAt && field.toLowerCase() === 'createdat') || additional.createdAt === field)
+      || ((!additional.updatedAt && field.toLowerCase() === 'updatedat') || additional.updatedAt === field);
+  }
+
+  private isParanoidField(field: string) {
+    const additional = this.options.additional;
+    if (additional.timestamps === false || additional.paranoid === false) {
+      return false;
+    }
+    return ((!additional.deletedAt && field.toLowerCase() === 'deletedat') || additional.deletedAt === field);
   }
 
   /** Quote the name if it is not a valid identifier */

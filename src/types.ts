@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { ColumnDescription } from "sequelize/types";
+import { ColumnDescription, Dialect } from "sequelize/types";
 import { FKSpec } from "./dialects/dialect-options";
 
 export interface Table {
@@ -28,13 +28,11 @@ export class TableData {
 
 export function qNameSplit(qname: string) {
   if (qname.indexOf(".") > 0) {
-    let [schemaName, tableNameOrig] = qname.split(".");
+    const [schemaName, tableNameOrig] = qname.split(".");
     return [schemaName, tableNameOrig];
   }
   return [null, qname];
 }
-
-export type DialectName = 'mssql'|'mysql'|'mariadb'|'postgres'|'sqlite';
 
 export type CaseOption = 'c'|'l'|'o'|'p'|'u';
 
@@ -44,7 +42,7 @@ export interface AutoOptions {
   caseModel: CaseOption;
   caseProp: CaseOption;
   closeConnectionAutomatically: boolean;
-  dialect: DialectName;
+  dialect: Dialect;
   dialectOptions: { options: any };
   directory: string;
   es6: boolean;
@@ -63,7 +61,7 @@ export interface AutoOptions {
 /** Change casing of val string according to opt [c|l|o|p|u]  */
 export function recase(opt: CaseOption, val: string | null) {
   if (!opt || opt === 'o' || !val) {
-    return val || ''; // original 
+    return val || ''; // original
   }
   if (opt === 'c') {
     return _.camelCase(val);
@@ -74,7 +72,7 @@ export function recase(opt: CaseOption, val: string | null) {
   if (opt === 'p') {
     return _.upperFirst(_.camelCase(val));
   }
-  if (opt == 'u') {
+  if (opt === 'u') {
     return _.snakeCase(val).toUpperCase();
   }
   return val;

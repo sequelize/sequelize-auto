@@ -1,11 +1,13 @@
 
 import _ from "lodash";
-import { Sequelize } from "sequelize";
+import { Dialect, Sequelize } from "sequelize";
 import { AutoBuilder } from "./auto-builder";
 import { AutoGenerator } from "./auto-generator";
 import { AutoWriter } from "./auto-writer";
 import { dialects } from "./dialects/dialects";
-import { AutoOptions, DialectName, TableData } from "./types";
+import { AutoOptions, TableData } from "./types";
+
+export { AutoOptions };
 
 export class SequelizeAuto {
   sequelize: Sequelize;
@@ -32,8 +34,8 @@ export class SequelizeAuto {
 
 
     this.options = _.extend({
-      spaces: false,
-      indentation: 1,
+      spaces: true,
+      indentation: 2,
       directory: './models',
       additional: {},
       freezeTableName: true,
@@ -62,7 +64,7 @@ export class SequelizeAuto {
   }
 
   generate(tableData: TableData) {
-    const dialect = dialects[this.sequelize.getDialect() as DialectName];
+    const dialect = dialects[this.sequelize.getDialect() as Dialect];
     const generator = new AutoGenerator(tableData, dialect, this.options);
     return generator.generateText();
   }
