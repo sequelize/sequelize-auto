@@ -348,7 +348,7 @@ export class AutoGenerator {
       console.log("attrValue", attr, attrValue);
       return attrValue;
     }
-    const type = attrValue.toLowerCase();
+    const type: string = attrValue.toLowerCase();
     const length = type.match(/\(\d+\)/);
     let val = null;
 
@@ -391,7 +391,7 @@ export class AutoGenerator {
     } else if (type.match(/^(float8|double|numeric)/)) {
       val = 'DataTypes.DOUBLE';
     } else if (type.match(/^uuid|uniqueidentifier/)) {
-      val = 'DataTypes.UUIDV4';
+      val = 'DataTypes.UUID';
     } else if (type.match(/^jsonb/)) {
       val = 'DataTypes.JSONB';
     } else if (type.match(/^json/)) {

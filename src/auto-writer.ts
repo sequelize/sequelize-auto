@@ -27,15 +27,23 @@ export class AutoWriter {
 
     mkdirp.sync(path.resolve(this.options.directory));
 
-    // write the individual model files
     const tables = _.keys(this.tableText);
+
+    // write the individual model files
     const promises = tables.map(t => {
       return this.createFile(t);
     });
 
+    // get table names without schema
+    // TODO: add schema to model and file names when schema is non-default for the dialect
+    const tableNames = tables.map(t => {
+      const [schemaName, tableName] = qNameSplit(t);
+      return tableName as string;
+    });
+
     // write the init-models file
     const ists = this.options.typescript;
-    const initString = ists ? this.createTsInitString(tables) : this.createES5InitString(tables);
+    const initString = ists ? this.createTsInitString(tableNames) : this.createES5InitString(tableNames);
     const initFilePath = path.join(this.options.directory, "init-models" + (ists ? '.ts' : '.js'));
     const writeFile = util.promisify(fs.writeFile);
     const initPromise = writeFile(path.resolve(initFilePath), initString);
@@ -114,7 +122,7 @@ export class AutoWriter {
     // create the initialization function
     str += '\nfunction initModels(sequelize) {\n';
     modelNames.forEach(m => {
-      str += `  ${m} = _${m}(sequelize, DataTypes);\n`;
+      str += `  var ${m} = _${m}(sequelize, DataTypes);\n`;
     });
 
     // return the models

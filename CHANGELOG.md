@@ -1,5 +1,15 @@
 # sequelize-auto change log
 
+## [0.6.4] 
+
+* Export attributes interface for TypeScript files
+* Generate `init-model.js` file for loading models into sequelize
+* Add support for mysql date & time precision (thanks @locene)
+* Infer timestamps flag based on presence of createdAt/updatedAt field in tables
+* Change default indentation to 2 spaces
+* Add sample app; see [sample](./sample) directory
+* Fix quoting of table names in sqlite foreign keys query
+
 ## [0.6.3] - 2020-10-05
 
 * Fix TypeScript generation (thanks @sschwenker)

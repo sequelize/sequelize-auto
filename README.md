@@ -18,10 +18,10 @@ You will need to install the correct dialect binding before using sequelize-auto
 
 Dialect | Install
 ---|---
-MySQL/MariaDB | `npm install mysql2`
-Postgres | `npm install pg pg-hstore`
-Sqlite | `npm install sqlite3`
-MSSQL | `npm install tedious`
+MySQL/MariaDB | `npm install sequelize mysql2`
+Postgres | `npm install sequelize pg pg-hstore`
+Sqlite | `npm install sequelize sqlite3`
+MSSQL | `npm install sequelize tedious`
 
 
 ## Usage
@@ -70,63 +70,98 @@ MSSQL | `npm install tedious`
 
     sequelize-auto -o "./models" -d sequelize_auto_test -h localhost -u my_username -p 5432 -x my_password -e postgres
 
-Produces a file/files such as ./models/Users.js which looks like:
+Produces a file/files such as `./models/User.js` which looks like:
 
-    /* jshint indent: 2 */
+```js
+/* jshint indent: 2 */
 
-    module.exports = function(sequelize, DataTypes) {
-      return sequelize.define('Users', {
-        'id': {
-          type: DataTypes.INTEGER(11),
-          allowNull: false,
-          primaryKey: true,
-          autoIncrement: true
-        },
-        'username': {
-          type: DataTypes.STRING,
-          allowNull: true
-        },
-        'touchedAt': {
-          type: DataTypes.DATE,
-          allowNull: true
-        },
-        'aNumber': {
-          type: DataTypes.INTEGER(11),
-          allowNull: true
-        },
-        'dateAllowNullTrue': {
-          type: DataTypes.DATE,
-          allowNull: true
-        },
-        'defaultValueBoolean': {
-          type: DataTypes.BOOLEAN,
-          allowNull: true,
-          defaultValue: true
-        },
-        'createdAt': {
-          type: DataTypes.DATE,
-          allowNull: false
-        },
-        'updatedAt': {
-          type: DataTypes.DATE,
-          allowNull: false
-        }
-      }, {
-        tableName: 'Users',
-        freezeTableName: true
-      });
-    };
+module.exports = function(sequelize, DataTypes) {
+  return sequelize.define('User', {
+    id: {
+      type: DataTypes.INTEGER(11),
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    username: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    aNumber: {
+      type: DataTypes.INTEGER(11),
+      allowNull: true
+    },
+    dateAllowNullTrue: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    defaultValueBoolean: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: true
+    }
+  }, {
+    tableName: 'User',
+    freezeTableName: true
+  });
+};
+```
 
+Sequelize-auto also generates an initialization file, `./models/init-models.js`, which contains the code to load each model definition into Sequelize:
 
-Which makes it easy for you to simply [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import) it (for Sequelize versions < 6).
+```js
+var DataTypes = require("sequelize").DataTypes;
+var _User = require("./User");
+var _Product = require("./Product");
 
-For Sequelize version 6+, `Sequelize.import` is not available.  You should `require` the file and call the returned function:
+function initModels(sequelize) {
+  var User = _User(sequelize, DataTypes);
+  var Product = _Product(sequelize, DataTypes);
 
-    var Users = require('path/to/users')(sequelize, DataTypes);
+  return {
+    User,
+    Product,
+  };
+}
+module.exports = { initModels };
+```
 
-See [this example from sequelize/cli](https://github.com/sequelize/cli/blob/master/src/assets/models/index.js#L24) for loading all files from a directory.
+This makes it easy to import all your models into Sequelize by calling `initModels(sequelize)`.
 
-Also note that you can use the `-l es6` option to create the model definition files as ES6 classes, or `-l esm` option to create ES6 modules.  Then you would `require` or `import` the classes and call the `init(sequelize, DataTypes)` method on each class.
+Alternatively, you can [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import) each model (for Sequelize versions < 6), or `require` each file and call the returned function:
+
+    var User = require('path/to/user')(sequelize, DataTypes);
+
+## ES6
+
+You can use the `-l es6` option to create the model definition files as ES6 classes, or `-l esm` option to create ES6 modules.  Then you would `require` or `import` the classes and call the `init(sequelize, DataTypes)` method on each class.
+
+## Typescript
+
+Add `-l ts` to cli options or `typescript: true` to programmatic options.  This will generate a TypeScript class in each model file, and an `init-model.ts` file 
+to import and initialize all the classes.
+
+Model usage in a ts file:
+
+```js
+// Order is the sequelize Model class
+// OrderAttributes is the interface defining the fields
+import { initModels, Order, OrderAttributes } from "./models/init-models";
+
+// import models into sequelize instance
+initModels(this.sequelize);
+
+const myOrders = await Order.findAll({ where: { "customerId": cust.id } });
+
+const attr: OrderAttributes = {
+  customerId: cust.id,
+  orderDate: new Date(),
+  orderNumber: orderNumber,
+  totalAmount: 223.45
+};
+const newOrder = await Order.create(attr);
+```
+
 
 ## Configuration options
 
@@ -159,7 +194,7 @@ const auto = new SequelizeAuto('database', 'user', 'pass', {
         timestamps: false
         //...
     },
-    tables: ['table1', 'table2', 'myschema.table3'] // use all tables if omitted
+    tables: ['table1', 'table2', 'myschema.table3'] // use all tables, if omitted
     //...
 })
 ```
@@ -178,20 +213,6 @@ const auto = new SequelizeAuto(sequelize, null, null, options);
 auto.run();
 ```
 
-## Typescript
-
-Add `-l ts` to cli options or `typescript: true` to programmatic options. Model usage in a ts file:
-
-```js
-// All models, can put in or extend to a db object at server init
-import * as dbTables from './models/db.tables';
-const tables = dbTables.getModels(sequelize); //:dbTables.ITable
-tables.Device.findAll
-// Single models
-import * as dbDef from './models/db.d';
-const devices:dbDef.DeviceModel = sequelize.import('./models/Device');
-devices.findAll
-```
 ## Resources
 
  - [Changelog](https://github.com/sequelize/sequelize-auto/blob/master/CHANGELOG.md)
@@ -220,3 +241,4 @@ Then run one of the test commands below:
     # sqlite only
     npm run test-sqlite
 
+Also see the [sample](./sample) directory which has an example including database scripts, export script, and a sample app.
