@@ -1,6 +1,6 @@
 {
   "name": "sequelize-auto",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "publishConfig": {
     "tag": "latest"
   },
@@ -14,7 +14,8 @@
     "sequelize",
     "sequelizejs",
     "generator",
-    "mapper"
+    "mapper",
+    "typescript"
   ],
   "files": [
     "*.js",
@@ -39,7 +40,7 @@
   },
   "scripts": {
     "tsc": "tsc",
-    "clean": "rimraf lib && rimraf types && rimraf models && rimraf *.tgz",
+    "clean": "rimraf lib && rimraf types && rimraf models && rimraf sample/models && rimraf *.tgz",
     "build": "npm run clean && tsc",
     "test": "cross-env DEBUG='sequelize-auto:*' nyc mocha",
     "test-postgres": "cross-env DEBUG='sequelize-auto:*' DIALECT=postgres nyc mocha",

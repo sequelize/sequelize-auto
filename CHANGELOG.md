@@ -1,6 +1,6 @@
 # sequelize-auto change log
 
-## [0.6.4] 
+## [0.6.4] - 2020-10-15
 
 * Export attributes interface for TypeScript files
 * Generate `init-model.js` file for loading models into sequelize
