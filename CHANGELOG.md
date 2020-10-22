@@ -1,5 +1,10 @@
 # sequelize-auto change log
 
+## [0.6.5]
+
+ * Escape special chars in table comments (#439)
+ * Map mysql longtext/mediumtext/tinytext to DataTypes.TEXT
+
 ## [0.6.4] - 2020-10-15
 
 * Export attributes interface for TypeScript files

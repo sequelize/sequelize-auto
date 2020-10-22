@@ -33,7 +33,7 @@ Also set the **typescript** option to true or false in the `options` object on l
 
 Export the models from the database using the `export.js` script:
 
-   node export.js
+    node export.js
 
 This writes the model files into the [models](./models) directory.
 

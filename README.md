@@ -136,12 +136,115 @@ Alternatively, you can [Sequelize.import](http://docs.sequelizejs.com/en/latest/
 
 You can use the `-l es6` option to create the model definition files as ES6 classes, or `-l esm` option to create ES6 modules.  Then you would `require` or `import` the classes and call the `init(sequelize, DataTypes)` method on each class.
 
-## Typescript
+## TypeScript
 
 Add `-l ts` to cli options or `typescript: true` to programmatic options.  This will generate a TypeScript class in each model file, and an `init-model.ts` file 
 to import and initialize all the classes.
 
-Model usage in a ts file:
+Example model class, `order.ts`:
+
+```js
+import { DataTypes, Model, Sequelize } from 'sequelize';
+
+export interface OrderAttributes {
+  id?: number;
+  orderDate?: Date;
+  orderNumber?: string;
+  customerId?: number;
+  totalAmount?: number;
+}
+
+export class Order extends Model<OrderAttributes, OrderAttributes> implements OrderAttributes {
+  id?: number;
+  orderDate?: Date;
+  orderNumber?: string;
+  customerId?: number;
+  totalAmount?: number;
+
+  static initModel(sequelize: Sequelize) {
+    Order.init({
+    id: {
+      autoIncrement: true,
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      primaryKey: true,
+      field: 'Id'
+    },
+    orderDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      unique: true,
+      field: 'OrderDate'
+    },
+    orderNumber: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      unique: true,
+      field: 'OrderNumber'
+    },
+    customerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Customer',
+        key: 'Id'
+      },
+      unique: true,
+      field: 'CustomerId'
+    },
+    totalAmount: {
+      type: DataTypes.DECIMAL,
+      allowNull: true,
+      defaultValue: 0,
+      field: 'TotalAmount'
+    }
+  }, {
+    sequelize,
+    tableName: 'Order',
+    timestamps: false
+    });
+  return Order;
+  }
+}
+```
+
+Example `init-models.ts`:
+
+```js
+import { Sequelize } from "sequelize";
+import { Customer, CustomerAttributes } from "./customer";
+import { Supplier, SupplierAttributes } from "./supplier";
+import { Product, ProductAttributes } from "./product";
+import { Order, OrderAttributes } from "./order";
+import { OrderItem, OrderItemAttributes } from "./order_item";
+
+export {
+  Customer, CustomerAttributes,
+  Supplier, SupplierAttributes,
+  Product, ProductAttributes,
+  Order, OrderAttributes,
+  OrderItem, OrderItemAttributes,
+};
+
+export function initModels(sequelize: Sequelize) {
+  Customer.initModel(sequelize);
+  Supplier.initModel(sequelize);
+  Product.initModel(sequelize);
+  Order.initModel(sequelize);
+  OrderItem.initModel(sequelize);
+
+  return {
+    Customer,
+    Supplier,
+    Product,
+    Order,
+    OrderItem,
+  };
+}
+```
+
+Model usage in a TypeScript program:
 
 ```js
 // Order is the sequelize Model class
@@ -156,7 +259,7 @@ const myOrders = await Order.findAll({ where: { "customerId": cust.id } });
 const attr: OrderAttributes = {
   customerId: cust.id,
   orderDate: new Date(),
-  orderNumber: orderNumber,
+  orderNumber: "ORD123",
   totalAmount: 223.45
 };
 const newOrder = await Order.create(attr);
@@ -235,8 +338,8 @@ Then run one of the test commands below:
     # postgres only
     npm run test-postgres
 
-    # postgres native only
-    npm run test-postgres-native
+    # mssql  only
+    npm run test-mssql
 
     # sqlite only
     npm run test-sqlite

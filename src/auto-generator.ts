@@ -318,7 +318,7 @@ export class AutoGenerator {
         let val = this.getSqType(fieldObj, attr);
         if (val == null) {
           val = (fieldObj as any)[attr];
-          val = _.isString(val) ? quoteWrapper + val.replace(/\"/g, '\\"') + quoteWrapper : val;
+          val = _.isString(val) ? quoteWrapper + this.escapeSpecial(val) + quoteWrapper : val;
         }
         str += space[3] + attr + ": " + val;
       }
@@ -372,8 +372,8 @@ export class AutoGenerator {
       val = 'DataTypes.CHAR' + (!_.isNull(length) ? length : '');
     } else if (type.match(/^real/)) {
       val = 'DataTypes.REAL';
-    } else if (type.match(/^text|ntext$/)) {
-      val = 'DataTypes.TEXT';
+    } else if (type.match(/text$/)) {
+      val = 'DataTypes.TEXT' + (!_.isNull(length) ? length : '');
     } else if (type === "date") {
       val = 'DataTypes.DATEONLY';
     } else if (type.match(/^(date|timestamp)/)) {
@@ -457,6 +457,21 @@ export class AutoGenerator {
       return false;
     }
     return ((!additional.deletedAt && field.toLowerCase() === 'deletedat') || additional.deletedAt === field);
+  }
+
+  private escapeSpecial (val: string) {
+    if (typeof(val) !== "string") {
+      return val;
+    }
+    return val
+      .replace(/[\\]/g, '\\\\')
+      .replace(/[\"]/g, '\\"')
+      .replace(/[\/]/g, '\\/')
+      .replace(/[\b]/g, '\\b')
+      .replace(/[\f]/g, '\\f')
+      .replace(/[\n]/g, '\\n')
+      .replace(/[\r]/g, '\\r')
+      .replace(/[\t]/g, '\\t');
   }
 
   /** Quote the name if it is not a valid identifier */
