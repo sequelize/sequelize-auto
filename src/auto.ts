@@ -7,7 +7,7 @@ import { AutoWriter } from "./auto-writer";
 import { dialects } from "./dialects/dialects";
 import { AutoOptions, TableData } from "./types";
 
-export { AutoOptions };
+export * from "./types";
 
 export class SequelizeAuto {
   sequelize: Sequelize;
@@ -45,7 +45,7 @@ export class SequelizeAuto {
 
   }
 
-  async run() {
+  async run(): Promise<TableData> {
     const td = await this.build();
     const tt = this.generate(td);
     await this.write(tt);

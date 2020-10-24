@@ -4,6 +4,7 @@
 
  * Escape special chars in table comments (#439)
  * Map mysql longtext/mediumtext/tinytext to DataTypes.TEXT
+ * Export SequelizeAuto types in npm package (#140)
 
 ## [0.6.4] - 2020-10-15
 
