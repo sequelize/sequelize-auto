@@ -1,6 +1,6 @@
 # sequelize-auto change log
 
-## [0.6.5]
+## [0.6.5] - 2020-10-26
 
  * Escape special chars in table comments (#439)
  * Map mysql longtext/mediumtext/tinytext to DataTypes.TEXT

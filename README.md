@@ -344,4 +344,4 @@ Then run one of the test commands below:
     # sqlite only
     npm run test-sqlite
 
-Also see the [sample](./sample) directory which has an example including database scripts, export script, and a sample app.
+Also see the [sample](https://github.com/sequelize/sequelize-auto/tree/master/sample) directory which has an example including database scripts, export script, and a sample app.
