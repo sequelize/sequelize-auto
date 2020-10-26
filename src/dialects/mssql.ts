@@ -50,7 +50,7 @@ export const mssqlOptions: DialectOptions = {
     // https://docs.microsoft.com/en-us/sql/relational-databases/system-information-schema-views/system-information-schema-views-transact-sql
     // When it is supported, countTriggerGeneric() could be used instead, but it is better
     // to keep backwards compatibility.
-    var qname = addTicks((schemaName ? schemaName + "." : "") + tableName)
+    let qname = addTicks((schemaName ? schemaName + "." : "") + tableName);
     return `SELECT COUNT(0) AS trigger_count
               FROM sys.objects tr,  sys.objects tb
              WHERE tr.type = 'TR'
@@ -108,7 +108,7 @@ export const mssqlOptions: DialectOptions = {
    * @param {String} schemaName Optional. The schema from which to list tables.
    * @return {String}
    */
-  showTablesQuery: (schemaName: string) => {
+  showTablesQuery: (schemaName?: string) => {
     return `SELECT table_name, table_schema
               FROM INFORMATION_SCHEMA.TABLES
              WHERE table_type = 'BASE TABLE' AND table_name != 'sysdiagrams'

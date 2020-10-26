@@ -10,7 +10,7 @@ export interface DialectOptions {
   isUnique?: (record: FKRow, records: FKRow[]) => boolean;
   isPrimaryKey: (record: any) => boolean;
   isSerialKey: (record: any) => boolean;
-  showTablesQuery?: (tableName: string) => string;
+  showTablesQuery?: (schemaName?: string) => string;
 }
 
 export interface FKRow {
@@ -50,11 +50,11 @@ export function addTicks(value: any) {
   return Utils.addTicks(value, "'");
 }
 
-export function makeCondition(columnName: string, value: any) {
+export function makeCondition(columnName: string, value?: string) {
   return value ? ` AND ${columnName} = ${addTicks(value)} ` : "";
 }
 
-export function showTablesGeneric(schemaName: string) {
+export function showTablesGeneric(schemaName?: string) {
   return `SELECT table_name, table_schema
             FROM information_schema.tables
            WHERE table_type = 'BASE TABLE'

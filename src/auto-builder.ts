@@ -8,12 +8,12 @@ export class AutoBuilder {
   sequelize: Sequelize;
   queryInterface: QueryInterface;
   dialect: DialectOptions;
-  includeTables: string[];
-  skipTables: string[];
-  schema: string;
+  includeTables?: string[];
+  skipTables?: string[];
+  schema?: string;
   tableData: TableData;
 
-  constructor(sequelize: Sequelize, tables: string[], skipTables: string[], schema: string) {
+  constructor(sequelize: Sequelize, tables: string[] | undefined, skipTables: string[] | undefined, schema: string | undefined) {
     this.sequelize = sequelize;
     this.queryInterface = this.sequelize.getQueryInterface();
     this.dialect = dialects[this.sequelize.getDialect() as Dialect];
@@ -131,7 +131,7 @@ export class AutoBuilder {
 
 // option tables are a list of strings; each string is either
 // table name (e.g. "Customer") or schema dot table name (e.g. "dbo.Customer")
-function mapOptionTables(arr: string[], defaultSchema: string): Table[] {
+function mapOptionTables(arr: string[], defaultSchema: string | undefined): Table[] {
   return _.map(arr, (t: string) => {
     const sp = t.split('.');
     return {

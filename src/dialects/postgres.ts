@@ -15,13 +15,13 @@ export const postgresOptions: DialectOptions = {
     tc.constraint_name as constraint_name,
     tc.constraint_type as constraint_type,
     tc.constraint_schema as source_schema,
-    tc.table_name as source_table, 
+    tc.table_name as source_table,
     kcu.column_name as source_column,
     CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.constraint_schema ELSE null END AS target_schema,
     CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.table_name ELSE null END AS target_table,
     CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.column_name ELSE null END AS target_column,
     co.column_default as extra
-    FROM information_schema.table_constraints AS tc 
+    FROM information_schema.table_constraints AS tc
     JOIN information_schema.key_column_usage AS kcu
       ON tc.table_schema = kcu.table_schema AND tc.table_name = kcu.table_name AND tc.constraint_name = kcu.constraint_name
     JOIN information_schema.constraint_column_usage AS ccu
@@ -96,7 +96,7 @@ export const postgresOptions: DialectOptions = {
    * @param {String} schemaName Optional. The schema from which to list tables.
    * @return {String}
    */
-  showTablesQuery: (schemaName: string) => {
+  showTablesQuery: (schemaName?: string) => {
     return `${showTablesGeneric(schemaName)}
             AND table_schema NOT IN ('pg_catalog', 'information_schema')
             AND table_name != 'spatial_ref_sys'`;

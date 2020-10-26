@@ -7,8 +7,6 @@ import { AutoWriter } from "./auto-writer";
 import { dialects } from "./dialects/dialects";
 import { AutoOptions, TableData } from "./types";
 
-export * from "./types";
-
 export class SequelizeAuto {
   sequelize: Sequelize;
   options: AutoOptions;
@@ -74,5 +72,6 @@ export class SequelizeAuto {
     return writer.write();
   }
 }
-
 module.exports = SequelizeAuto;
+module.exports.SequelizeAuto = SequelizeAuto;
+module.exports.default = SequelizeAuto;

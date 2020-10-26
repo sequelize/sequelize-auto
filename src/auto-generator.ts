@@ -10,15 +10,15 @@ export class AutoGenerator {
   hasTriggerTables: { [tableName: string]: boolean };
   space: string[];
   options: {
-    indentation: number;
-    spaces: boolean;
-    typescript: boolean;
-    es6: boolean;
-    esm: boolean;
-    caseModel: CaseOption;
-    caseProp: CaseOption;
-    additional: any;
-    schema: string;
+    indentation?: number;
+    spaces?: boolean;
+    typescript?: boolean;
+    es6?: boolean;
+    esm?: boolean;
+    caseModel?: CaseOption;
+    caseProp?: CaseOption;
+    additional?: any;
+    schema?: string;
   };
 
   constructor(tableData: TableData, dialect: DialectOptions, options: AutoOptions) {
@@ -30,7 +30,7 @@ export class AutoGenerator {
 
     // build the space array of indentation strings
     let sp = '';
-    for (let x = 0; x < this.options.indentation; ++x) {
+    for (let x = 0; x < (this.options.indentation || 2); ++x) {
       sp += (this.options.spaces === true ? ' ' : "\t");
     }
     this.space = [];

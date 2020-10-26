@@ -37,29 +37,29 @@ export function qNameSplit(qname: string) {
 export type CaseOption = 'c'|'l'|'o'|'p'|'u';
 
 export interface AutoOptions {
-  additional: any;
-  caseFile: CaseOption;
-  caseModel: CaseOption;
-  caseProp: CaseOption;
-  closeConnectionAutomatically: boolean;
-  dialect: Dialect;
-  dialectOptions: { options: any };
+  additional?: any;
+  caseFile?: CaseOption;
+  caseModel?: CaseOption;
+  caseProp?: CaseOption;
+  closeConnectionAutomatically?: boolean;
+  dialect?: Dialect;
+  dialectOptions?: { options?: any };
   directory: string;
-  es6: boolean;
-  esm: boolean;
-  freezeTableName: boolean;
-  indentation: number;
-  noWrite: boolean;
-  schema: string;
-  skipTables: string[];
-  spaces: boolean;
-  storage: string;
-  tables: string[];
-  typescript: boolean;
+  es6?: boolean;
+  esm?: boolean;
+  freezeTableName?: boolean;
+  indentation?: number;
+  noWrite?: boolean;
+  schema?: string;
+  skipTables?: string[];
+  spaces?: boolean;
+  storage?: string;
+  tables?: string[];
+  typescript?: boolean;
 }
 
 /** Change casing of val string according to opt [c|l|o|p|u]  */
-export function recase(opt: CaseOption, val: string | null) {
+export function recase(opt: CaseOption | undefined, val: string | null) {
   if (!opt || opt === 'o' || !val) {
     return val || ''; // original
   }

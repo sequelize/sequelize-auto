@@ -8,11 +8,11 @@ const mkdirp = require('mkdirp');
 export class AutoWriter {
   tableText: { [name: string]: string };
   options: {
-    caseFile: CaseOption;
-    caseModel: CaseOption;
+    caseFile?: CaseOption;
+    caseModel?: CaseOption;
     directory: string;
-    typescript: boolean;
-    noWrite: boolean;
+    typescript?: boolean;
+    noWrite?: boolean;
   };
   constructor(tableText: { [name: string]: string }, options: AutoOptions) {
     this.tableText = tableText;
@@ -25,7 +25,7 @@ export class AutoWriter {
       return Promise.resolve();
     }
 
-    mkdirp.sync(path.resolve(this.options.directory));
+    mkdirp.sync(path.resolve(this.options.directory || "./models"));
 
     const tables = _.keys(this.tableText);
 
