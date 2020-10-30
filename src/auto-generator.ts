@@ -287,6 +287,9 @@ export class AutoGenerator {
             // remove () around mssql numeric values; don't quote numbers or json
             val_text = defaultVal.replace(/[)(]/g, '');
 
+          } else if (field_type === 'uuid' && (defaultVal === 'gen_random_uuid()' || defaultVal === 'uuid_generate_v4()')) {
+            val_text = "DataTypes.UUIDV4";
+
           } else if (_.endsWith(defaultVal, '()') || _.endsWith(defaultVal, '())')) {
             // wrap default value function
             val_text = "Sequelize.fn('" + defaultVal.replace(/[)(]/g, "") + "')";
