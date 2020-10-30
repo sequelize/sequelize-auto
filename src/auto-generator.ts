@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseOption, Field, qNameSplit, recase, TableData } from "./types";
+import { AutoOptions, CaseOption, Field, LangOption, qNameSplit, recase, TableData } from "./types";
 
 export class AutoGenerator {
   dialect: DialectOptions;
@@ -12,9 +12,7 @@ export class AutoGenerator {
   options: {
     indentation?: number;
     spaces?: boolean;
-    typescript?: boolean;
-    es6?: boolean;
-    esm?: boolean;
+    lang?: LangOption;
     caseModel?: CaseOption;
     caseProp?: CaseOption;
     additional?: any;
@@ -27,6 +25,7 @@ export class AutoGenerator {
     this.hasTriggerTables = tableData.hasTriggerTables;
     this.dialect = dialect;
     this.options = options;
+    this.options.lang = this.options.lang || 'es5';
 
     // build the space array of indentation strings
     let sp = '';
@@ -43,9 +42,9 @@ export class AutoGenerator {
     let header = "/* jshint indent: " + this.options.indentation + " */\n\n";
     const sp = this.space[1];
 
-    if (this.options.typescript) {
+    if (this.options.lang === 'ts') {
       header += "import { DataTypes, Model, Sequelize } from 'sequelize';\n\n";
-    } else if (this.options.es6) {
+    } else if (this.options.lang === 'es6') {
       header += "const Sequelize = require('sequelize');\n";
       header += "module.exports = (sequelize, DataTypes) => {\n";
       header += sp + "return #TABLE#.init(sequelize, DataTypes);\n";
@@ -53,7 +52,7 @@ export class AutoGenerator {
       header += "class #TABLE# extends Sequelize.Model {\n";
       header += sp + "static init(sequelize, DataTypes) {\n";
       header += sp + "super.init({\n";
-    } else if (this.options.esm) {
+    } else if (this.options.lang === 'esm') {
       header += "import { Model, Sequelize } from 'sequelize';\n\n";
       header += "export default class #TABLE# extends Model {\n";
       header += sp + "static init(sequelize, DataTypes) {\n";
@@ -77,7 +76,7 @@ export class AutoGenerator {
       const [schemaName, tableNameOrig] = qNameSplit(table);
       const tableName = recase(this.options.caseModel, tableNameOrig);
 
-      if (this.options.typescript) {
+      if (this.options.lang === 'ts') {
         str += "export interface #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table) + "}\n\n";
 
@@ -164,7 +163,8 @@ export class AutoGenerator {
     str += "\n" + space[2] + "}";
 
     str += ");\n";
-    if (this.options.es6 || this.options.esm || this.options.typescript) {
+    const lang = this.options.lang;
+    if (lang === 'es6' || lang === 'esm' || lang === 'ts') {
       str += space[1] + "return " + tableName + ";\n";
       str += space[1] + "}\n}\n";
     } else {

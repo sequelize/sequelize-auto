@@ -2,7 +2,7 @@ import fs from "fs";
 import _ from "lodash";
 import path from "path";
 import util from "util";
-import { AutoOptions, CaseOption, qNameSplit, recase } from "./types";
+import { AutoOptions, CaseOption, LangOption, qNameSplit, recase } from "./types";
 const mkdirp = require('mkdirp');
 
 export class AutoWriter {
@@ -11,7 +11,7 @@ export class AutoWriter {
     caseFile?: CaseOption;
     caseModel?: CaseOption;
     directory: string;
-    typescript?: boolean;
+    lang?: LangOption;
     noWrite?: boolean;
   };
   constructor(tableText: { [name: string]: string }, options: AutoOptions) {
@@ -42,7 +42,7 @@ export class AutoWriter {
     });
 
     // write the init-models file
-    const ists = this.options.typescript;
+    const ists = this.options.lang === 'ts';
     const initString = ists ? this.createTsInitString(tableNames) : this.createES5InitString(tableNames);
     const initFilePath = path.join(this.options.directory, "init-models" + (ists ? '.ts' : '.js'));
     const writeFile = util.promisify(fs.writeFile);
@@ -50,14 +50,6 @@ export class AutoWriter {
     promises.push(initPromise);
 
     return Promise.all(promises);
-
-    // Write out some Typescript d.ts files
-    // if (this.options.typescript) {
-    //   if (typescriptFiles !== null && typescriptFiles.length > 1) {
-    //     fs.writeFileSync(path.join(self.options.directory, 'db.d.ts'), typescriptFiles[0], 'utf8');
-    //     fs.writeFileSync(path.join(self.options.directory, 'db.tables.ts'), typescriptFiles[1], 'utf8');
-    //   }
-    // }
   }
 
   private createFile(table: string) {
@@ -66,7 +58,7 @@ export class AutoWriter {
     // folders for each different schema.
     const [schemaName, tableName] = qNameSplit(table);
     const fileName = recase(this.options.caseFile, tableName);
-    const filePath = path.join(this.options.directory, fileName + (this.options.typescript ? '.ts' : '.js'));
+    const filePath = path.join(this.options.directory, fileName + (this.options.lang === 'ts' ? '.ts' : '.js'));
 
     const writeFile = util.promisify(fs.writeFile);
     return writeFile(path.resolve(filePath), this.tableText[table]);

@@ -51,7 +51,8 @@ const argv = require('yargs')
 
 const dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
 
-let configFile = {
+/** @type {import('../types').AutoOptions}  */
+const configFile = {
   spaces: true,
   indentation: 2
 };
@@ -81,9 +82,7 @@ configFile.storage = argv.d;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
 configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(',')) || null;
 configFile.schema = argv.s || configFile.schema;
-configFile.typescript = (lang === 'ts');
-configFile.es6 = (lang === 'es6');
-configFile.esm = (lang === 'esm');
+configFile.lang = lang;
 configFile.caseModel = argv.cm || configFile.caseModel || 'o';
 configFile.caseFile = argv.cf || configFile.caseFile || 'o';
 configFile.caseProp = argv.cp || configFile.caseProp || 'o';

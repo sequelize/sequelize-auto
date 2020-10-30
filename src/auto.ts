@@ -30,14 +30,14 @@ export class SequelizeAuto {
       this.sequelize = new Sequelize(database, username, password, options || {});
     }
 
-
     this.options = _.extend({
       spaces: true,
       indentation: 2,
       directory: './models',
       additional: {},
       freezeTableName: true,
-      typescript: false,
+      host: 'localhost',
+      port: this.getDefaultPort(options.dialect),
       closeConnectionAutomatically: true
     }, options || {});
 
@@ -71,6 +71,18 @@ export class SequelizeAuto {
     const writer = new AutoWriter(tableText, this.options);
     return writer.write();
   }
+
+  getDefaultPort(dialect?: Dialect) {
+    switch (dialect) {
+      case 'mssql':
+        return 1433;
+      case 'postgres':
+        return 5432;
+      default:
+        return 3306;
+    }
+  }
+
 }
 module.exports = SequelizeAuto;
 module.exports.SequelizeAuto = SequelizeAuto;

@@ -1,5 +1,11 @@
 # sequelize-auto change log
 
+## [0.6.6]
+
+ * **BREAKING CHANGE** Change es6/esm/ts flags to `lang` option
+ * Add JSDoc commments to type declarations
+ * Add DataTypes.UUIDV4 default for postgres (#155) (thanks @roytz)
+
 ## [0.6.5] - 2020-10-26
 
  * Escape special chars in table comments (#439)
