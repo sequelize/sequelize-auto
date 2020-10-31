@@ -96,7 +96,7 @@ export interface AutoOptions {
   /** Number of spaces or tabs to indent (default 2) */
   indentation?: number;
   /** Model language */
-  lang: LangOption;
+  lang?: LangOption;
   /** Whether to skip writing the files */
   noWrite?: boolean;
   /** Database port */

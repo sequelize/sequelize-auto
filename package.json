@@ -1,6 +1,6 @@
 {
   "name": "sequelize-auto",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "publishConfig": {
     "tag": "latest"
   },
@@ -54,7 +54,8 @@
   "engines": {
     "node": ">= 6"
   },
-  "author": "Daniel Durante <me@danieldurante.com>",
+  "author": "Steve Schmitt (https://github.com/steveschmitt)",
+  "contributors": ["Daniel Durante <me@danieldurante.com>"],
   "license": "MIT",
   "dependencies": {
     "async": "^3.2.0",

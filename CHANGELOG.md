@@ -1,6 +1,6 @@
 # sequelize-auto change log
 
-## [0.6.6]
+## [0.6.6] - 2020-10-30
 
  * Add `indexes` to table options (#162)
  * **BREAKING CHANGE** Change es6/esm/ts flags to `lang` option
