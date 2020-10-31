@@ -2,6 +2,7 @@
 
 ## [0.6.6]
 
+ * Add `indexes` to table options (#162)
  * **BREAKING CHANGE** Change es6/esm/ts flags to `lang` option
  * Add JSDoc commments to type declarations
  * Add DataTypes.UUIDV4 default for postgres (#155) (thanks @roytz)

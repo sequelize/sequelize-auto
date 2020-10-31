@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Dialect, QueryInterface, QueryTypes, Sequelize } from "sequelize";
 import { DialectOptions, FKRow, FKSpec } from "./dialects/dialect-options";
 import { dialects } from "./dialects/dialects";
-import { Table, TableData } from "./types";
+import { IndexSpec, Table, TableData } from "./types";
 
 export class AutoBuilder {
   sequelize: Sequelize;
@@ -113,6 +113,10 @@ export class AutoBuilder {
   private mapTable(table: Table) {
     return this.queryInterface.describeTable(table.table_name, table.table_schema).then(fields => {
       this.tableData.tables[makeTableQName(table)] = fields;
+
+      this.queryInterface.showIndex({ tableName: table.table_name, schema: table.table_schema}).then(inxs => {
+        this.tableData.indexes[makeTableQName(table)] = inxs as IndexSpec[];
+      });
 
       const countTriggerSql = this.dialect.countTriggerQuery(table.table_name, table.table_schema || "");
       return this.sequelize.query(countTriggerSql, {

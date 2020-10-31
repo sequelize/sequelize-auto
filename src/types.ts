@@ -14,14 +14,44 @@ export interface Field extends ColumnDescription {
   unique: boolean;
 }
 
+export interface IndexField {
+  /** field name */
+  attribute: string;
+  collate: string;
+  length: string;
+  order: string;
+}
+
+export interface IndexSpec {
+  /** name of index */
+  name: string;
+  /** whether index is primary key */
+  primary: boolean;
+  unique: boolean;
+  fields: IndexField[];
+
+  /** postgres only */
+  indkey: string;
+  /** postgres only */
+  definition: string;
+
+  /** mysql only */
+  tableName: string;
+  /** mysql only - 'BTREE' */
+  type: string;
+
+}
+
 export class TableData {
   tables: { [tableName: string]: { [fieldName: string]: ColumnDescription } };
   foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec } };
   hasTriggerTables: { [tableName: string]: boolean };
+  indexes: { [tableName: string]: IndexSpec[] };
   text?: { [name: string]: string };
   constructor() {
     this.tables = {};
     this.foreignKeys = {};
+    this.indexes = {};
     this.hasTriggerTables = {};
   }
 }

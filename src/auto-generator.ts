@@ -1,13 +1,14 @@
-import _ from "lodash";
+import _, { isDate } from "lodash";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseOption, Field, LangOption, qNameSplit, recase, TableData } from "./types";
+import { AutoOptions, CaseOption, Field, IndexSpec, LangOption, qNameSplit, recase, TableData } from "./types";
 
 export class AutoGenerator {
   dialect: DialectOptions;
   tables: { [tableName: string]: { [fieldName: string]: ColumnDescription } };
   foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec } };
   hasTriggerTables: { [tableName: string]: boolean };
+  indexes: { [tableName: string]: IndexSpec[] };
   space: string[];
   options: {
     indentation?: number;
@@ -23,6 +24,7 @@ export class AutoGenerator {
     this.tables = tableData.tables;
     this.foreignKeys = tableData.foreignKeys;
     this.hasTriggerTables = tableData.hasTriggerTables;
+    this.indexes = tableData.indexes;
     this.dialect = dialect;
     this.options = options;
     this.options.lang = this.options.lang || 'es5';
@@ -158,9 +160,12 @@ export class AutoGenerator {
       });
     }
 
+    // add indexes
+    str += this.addIndexes(table);
+
     str = space[2] + str.trim();
     str = str.substring(0, str.length - 1);
-    str += "\n" + space[2] + "}";
+    str += "\n" + space[1] + "}";
 
     str += ");\n";
     const lang = this.options.lang;
@@ -344,6 +349,49 @@ export class AutoGenerator {
     return str;
   }
 
+  private addIndexes(table: string) {
+    const indexes = this.indexes[table];
+    const space = this.space;
+    let str = "";
+    if (indexes && indexes.length) {
+      str += space[2] + "indexes: [\n";
+      indexes.forEach(idx => {
+        str += space[3] + "{\n";
+        if (idx.name) {
+          str += space[4] + `name: "${idx.name}",\n`;
+        }
+        if (idx.unique) {
+          str += space[4] + "unique: true,\n";
+        }
+        if (idx.type) {
+          if (['UNIQUE', 'FULLTEXT', 'SPATIAL'].includes(idx.type)) {
+            str += space[4] + `type: "${idx.type}",\n`;
+          } else {
+            str += space[4] + `using: "${idx.type}",\n`;
+          }
+        }
+        str += space[4] + `fields: [\n`;
+        idx.fields.forEach(ff => {
+          str += space[5] + `{ name: "${ff.attribute}"`;
+          if (ff.collate) {
+            str += `, collate: "${ff.collate}"`;
+          }
+          if (ff.length) {
+            str += `, length: ${ff.length}`;
+          }
+          if (ff.order && ff.order !== "ASC") {
+            str += `, order: "${ff.order}"`;
+          }
+          str += " },\n";
+        });
+        str += space[4] + "]\n";
+        str += space[3] + "},\n";
+      });
+      str += space[2] + "],\n";
+    }
+    return str;
+  }
+
   /** Get the sequelize type from the Field */
   private getSqType(fieldObj: Field, attr: string): string {
     const attrValue = (fieldObj as any)[attr];
@@ -382,7 +430,7 @@ export class AutoGenerator {
     } else if (type.match(/^(date|timestamp)/)) {
       val = 'DataTypes.DATE' + (!_.isNull(length) ? length : '');
     } else if (type.match(/^(time)/)) {
-      val = 'DataTypes.TIME' + (!_.isNull(length) ? length : '');
+      val = 'DataTypes.TIME'; // + (!_.isNull(length) ? length : '');
     } else if (type.match(/^(float|float4)/)) {
       val = 'DataTypes.FLOAT';
     } else if (type.match(/^decimal/)) {
@@ -495,7 +543,7 @@ export class AutoGenerator {
   }
 
   private isString(fieldType: string): boolean {
-    return /^(char|nchar|string|varying|varchar|nvarchar|text|ntext|uuid|uniqueidentifier)/.test(fieldType);
+    return /^(char|nchar|string|varying|varchar|nvarchar|text|longtext|mediumtext|tinytext|ntext|uuid|uniqueidentifier)/.test(fieldType);
   }
 
   private isArray(fieldType: string): boolean {
