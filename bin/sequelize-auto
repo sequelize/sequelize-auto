@@ -52,7 +52,7 @@ const argv = require('yargs')
 const dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
 
 /** @type {import('../types').AutoOptions}  */
-const configFile = {
+let configFile = {
   spaces: true,
   indentation: 2
 };
