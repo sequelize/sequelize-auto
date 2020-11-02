@@ -11,31 +11,50 @@ export class AutoBuilder {
   includeTables?: string[];
   skipTables?: string[];
   schema?: string;
+  views: boolean;
   tableData: TableData;
 
-  constructor(sequelize: Sequelize, tables: string[] | undefined, skipTables: string[] | undefined, schema: string | undefined) {
+  constructor(sequelize: Sequelize, tables: string[] | undefined, skipTables: string[] | undefined, schema: string | undefined,
+    views: boolean | undefined) {
     this.sequelize = sequelize;
     this.queryInterface = this.sequelize.getQueryInterface();
     this.dialect = dialects[this.sequelize.getDialect() as Dialect];
     this.includeTables = tables;
     this.skipTables = skipTables;
     this.schema = schema;
+    this.views = !!views;
     this.tableData = new TableData();
   }
 
   build(): Promise<TableData> {
 
+    let prom: Promise<any[]>;
     if (this.dialect.showTablesQuery) {
       const showTablesSql = this.dialect.showTablesQuery(this.schema);
-      return this.sequelize.query(showTablesSql, {
+      prom = this.sequelize.query(showTablesSql, {
         raw: true,
         type: QueryTypes.SELECT
-      }).then(tr => this.processTables(tr))
-        .catch(err => { console.error(err); return this.tableData; });
+      });
     } else {
-      return this.queryInterface.showAllTables().then(tr => this.processTables(tr))
-        .catch(err => { console.error(err); return this.tableData; });
+      prom = this.queryInterface.showAllTables();
     }
+
+    if (this.views) {
+      // Add views to the list of tables
+      prom = prom.then(tr => {
+        // in mysql, use database name instead of schema
+        const vschema = this.dialect.name === 'mysql' ? this.sequelize.getDatabaseName() : this.schema;
+
+        const showViewsSql = this.dialect.showViewsQuery(vschema);
+        return this.sequelize.query(showViewsSql, {
+          raw: true,
+          type: QueryTypes.SELECT
+        }).then(tr2 => tr.concat(tr2));
+      });
+    }
+
+    return prom.then(tr => this.processTables(tr))
+      .catch(err => { console.error(err); return this.tableData; });
 
   }
 

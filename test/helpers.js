@@ -5,6 +5,7 @@ const fs = require('fs');
 
 module.exports = {
   Sequelize: Sequelize,
+  views: false, // true to test generating models from views
 
   isSnakeTables() {
     // For mysql+innodb on Windows, table names are all lowercase, so we use snake_case to preserve word boundaries 
@@ -121,8 +122,11 @@ module.exports = {
         test.sequelize.sync().then(function () {
           var tableName = isSnakeTables ? 'history_logs' : 'HistoryLogs';
           var trigger = helpers.getDummyCreateTriggerStatement(tableName);
+          var crview = helpers.getCreateViewStatement(tableName);
           test.sequelize.query(trigger).then(function (_) {
-            done();
+            test.sequelize.query(crview).then(function (_) {
+              done();
+            }, done);
           }, done);
         }, done);
       },
@@ -193,12 +197,12 @@ module.exports = {
     );
   },
 
-  clearDatabase: function(sequelize, callback) {
+  clearDatabase: function(sequelize, callback, close) {
     if (!sequelize) {
       return callback && callback();
     }
 
-    function success() {
+    function deleteModelFiles() {
       fs.readdir(config.directory, function(err, files) {
         if (err || !files || files.length < 1) {
           return callback && callback();
@@ -215,15 +219,27 @@ module.exports = {
       });
     }
 
+    function dropViews() {
+      var drop = helpers.getDropViewStatement();
+      return sequelize.query(drop);
+    }
+
+    function dropTables() {
+      return sequelize.getQueryInterface().dropAllTables().then(_ => {
+        if (close) {
+          sequelize.close();
+        }
+      });
+    }
+
     function error(err) {
       callback && callback(err);
     }
 
     try {
-      sequelize
-        .getQueryInterface()
-        .dropAllTables()
-        .then(success, error);
+      dropViews().then(
+        dropTables().then(
+          deleteModelFiles, error)).catch(error);
     } catch(ex) {
       callback && callback(ex);
     }
@@ -278,5 +294,33 @@ module.exports = {
     if (statement) return statement;
 
     throw new Error("CREATE TRIGGER not set for dialect " + this.getTestDialect());
+  },
+
+  // for testing view inclusion/exclusion
+  getCreateViewStatement: function(tableName) {
+    var statement = {
+      mysql:    'CREATE OR REPLACE VIEW v_history AS SELECT aRandomId FROM ' + tableName + ';',
+      postgres: 'CREATE OR REPLACE VIEW "VHistory" AS SELECT "aRandomId" FROM "' + tableName + '";',
+      mssql:    'CREATE OR ALTER VIEW VHistory AS SELECT aRandomId FROM ' + tableName + ';',
+      sqlite:   'CREATE VIEW IF NOT EXISTS "VHistory" AS SELECT aRandomId FROM ' + tableName + ';'
+    }[this.getTestDialect()];
+
+    if (statement) return statement;
+
+    throw new Error("CREATE VIEW not set for dialect " + this.getTestDialect());
+  },
+
+  getDropViewStatement: function() {
+    var statement = {
+      mysql:    'DROP VIEW IF EXISTS v_history;',
+      postgres: 'DROP VIEW IF EXISTS "VHistory";',
+      mssql:    'DROP VIEW IF EXISTS VHistory;',
+      sqlite:   'DROP VIEW IF EXISTS "VHistory";'
+    }[this.getTestDialect()];
+
+    if (statement) return statement;
+
+    throw new Error("DROP VIEW not set for dialect " + this.getTestDialect());
   }
+
 };

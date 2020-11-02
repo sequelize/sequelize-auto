@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { addTicks, countTriggerGeneric, DialectOptions, FKRow, makeCondition, showTablesGeneric } from "./dialect-options";
+import { addTicks, countTriggerGeneric, DialectOptions, FKRow, makeCondition, showTablesGeneric, showViewsGeneric } from "./dialect-options";
 
 export const postgresOptions: DialectOptions = {
   name: 'postgres',
@@ -100,6 +100,11 @@ export const postgresOptions: DialectOptions = {
     return `${showTablesGeneric(schemaName)}
             AND table_schema NOT IN ('pg_catalog', 'information_schema')
             AND table_name != 'spatial_ref_sys'`;
+  },
+
+  showViewsQuery: (schemaName?: string) => {
+    return `${showViewsGeneric(schemaName)}
+            AND table_schema NOT IN ('pg_catalog', 'information_schema')`;
   }
 
 };

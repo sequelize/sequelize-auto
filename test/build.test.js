@@ -13,7 +13,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
   self.timeout(10000);
 
   after(function(done) {
-    helpers.clearDatabase(self.sequelize, done);
+    helpers.clearDatabase(self.sequelize, done, true);
   });
 
   before(function(done) {
@@ -28,6 +28,7 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
       logging: false,
       directory: testConfig.directory,
       dialect: helpers.getTestDialect(),
+      views: helpers.views,
       caseModel: isSnakeTables ? 'p' : undefined,
       caseProp: isSnakeTables ? 'p' : undefined 
     }, testConfig[helpers.getTestDialect()], self.sequelize.config);
@@ -58,8 +59,10 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
         if (isSnakeTables) {
           expectedTables = expectedTables.map(t => _.snakeCase(t));
         }
+        var vhistory = isSnakeTables ? "v_history": "VHistory";
+        var tablesAndViews = helpers.views ? expectedTables.concat(vhistory) : expectedTables;
+        expect(tables).to.have.keys(tablesAndViews);
 
-        expect(tables).to.have.keys(expectedTables);
         expect(hasTriggerTables).to.have.keys([isSnakeTables ? 'history_logs': 'HistoryLogs']);
 
         const fkUsers = foreignKeys[isSnakeTables ? 'users': 'Users'];

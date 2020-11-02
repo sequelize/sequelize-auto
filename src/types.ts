@@ -111,6 +111,8 @@ export interface AutoOptions {
   storage?: string;
   /** Tables to export (default all) */
   tables?: string[];
+  /** Whether to export views (default false) */
+  views?: boolean;
 }
 
 /** Change casing of val string according to opt [c|l|o|p|u]  */

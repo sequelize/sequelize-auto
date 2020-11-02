@@ -82,6 +82,10 @@ export const mysqlOptions: DialectOptions = {
    */
   isSerialKey: (record: FKRow) => {
     return _.isObject(record) && _.has(record, 'extra') && record.extra === 'auto_increment';
+  },
+
+  showViewsQuery: (dbName?: string) => {
+    return `select table_name from information_schema.tables where table_type = 'VIEW' and table_schema = '${dbName}'`;
   }
 
 };

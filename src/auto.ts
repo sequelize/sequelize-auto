@@ -52,7 +52,7 @@ export class SequelizeAuto {
   }
 
   build(): Promise<TableData> {
-    const builder = new AutoBuilder(this.sequelize, this.options.tables, this.options.skipTables, this.options.schema);
+    const builder = new AutoBuilder(this.sequelize, this.options.tables, this.options.skipTables, this.options.schema, this.options.views);
     return builder.build().then(tableData => {
       if (this.options.closeConnectionAutomatically) {
         return this.sequelize.close().then(() => tableData);

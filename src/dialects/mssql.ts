@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { addTicks, DialectOptions, FKRow, makeCondition } from "./dialect-options";
+import { addTicks, DialectOptions, FKRow, makeCondition, showViewsGeneric } from "./dialect-options";
 
 export const mssqlOptions: DialectOptions = {
   name: 'mssql',
@@ -50,7 +50,7 @@ export const mssqlOptions: DialectOptions = {
     // https://docs.microsoft.com/en-us/sql/relational-databases/system-information-schema-views/system-information-schema-views-transact-sql
     // When it is supported, countTriggerGeneric() could be used instead, but it is better
     // to keep backwards compatibility.
-    let qname = addTicks((schemaName ? schemaName + "." : "") + tableName);
+    const qname = addTicks((schemaName ? schemaName + "." : "") + tableName);
     return `SELECT COUNT(0) AS trigger_count
               FROM sys.objects tr,  sys.objects tb
              WHERE tr.type = 'TR'
@@ -113,6 +113,10 @@ export const mssqlOptions: DialectOptions = {
               FROM INFORMATION_SCHEMA.TABLES
              WHERE table_type = 'BASE TABLE' AND table_name != 'sysdiagrams'
                    ${makeCondition("table_schema", schemaName)}`;
+  },
+
+  showViewsQuery: (schemaName?: string) => {
+    return showViewsGeneric(schemaName);
   }
 
 };

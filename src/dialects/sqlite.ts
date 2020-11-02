@@ -74,4 +74,8 @@ export const sqliteOptions: DialectOptions = {
     );
   },
 
+  showViewsQuery: () => {
+    return `SELECT name FROM "sqlite_master" WHERE type='view'`;
+  }
+
 };

@@ -11,6 +11,7 @@ export interface DialectOptions {
   isPrimaryKey: (record: any) => boolean;
   isSerialKey: (record: any) => boolean;
   showTablesQuery?: (schemaName?: string) => string;
+  showViewsQuery: (schemaName?: string) => string;
 }
 
 export interface FKRow {
@@ -58,6 +59,13 @@ export function showTablesGeneric(schemaName?: string) {
   return `SELECT table_name, table_schema
             FROM information_schema.tables
            WHERE table_type = 'BASE TABLE'
+                 ${makeCondition("table_schema", schemaName)}`;
+}
+
+export function showViewsGeneric(schemaName?: string) {
+  return `SELECT table_name, table_schema
+            FROM information_schema.tables
+           WHERE table_type = 'VIEW'
                  ${makeCondition("table_schema", schemaName)}`;
 }
 

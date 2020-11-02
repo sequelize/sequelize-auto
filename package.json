@@ -43,7 +43,7 @@
     "tsc": "tsc",
     "clean": "rimraf lib && rimraf types && rimraf models && rimraf sample/models && rimraf *.tgz",
     "build": "npm run clean && tsc",
-    "test": "cross-env DEBUG='sequelize-auto:*' nyc mocha",
+    "test": "npm run test-mssql && npm run test-mysql && npm run test-postgres && npm run test-sqlite",
     "test-postgres": "cross-env DEBUG='sequelize-auto:*' DIALECT=postgres nyc mocha",
     "test-postgres-native": "cross-env DEBUG='sequelize-auto:*' DIALECT=postgres-native nyc mocha",
     "test-mysql": "cross-env DEBUG='sequelize-auto:*' DIALECT=mysql nyc mocha",
