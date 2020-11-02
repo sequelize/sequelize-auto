@@ -1,5 +1,10 @@
 # sequelize-auto change log
 
+## [0.6.7] - 2020-11-01
+
+  * Fix "Assignment to constant" error introduced in 0.6.6 (#440) (thanks @xuezier)
+  * Add support for generating models from views, `--views` option (#77)
+
 ## [0.6.6] - 2020-10-30
 
  * Add `indexes` to table options (#162)

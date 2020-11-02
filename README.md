@@ -58,6 +58,7 @@ MSSQL | `npm install sequelize tedious`
       --cp, --caseProp   Set case of property names: c|l|o|p|u
       -n, --no-write     Prevent writing the models to disk.               [boolean]
       -s, --schema       Database schema from which to retrieve tables      [string]
+      -v, --views        Include database views in generated models        [boolean]
       -l, --lang         Language for Model output: es5|es6|esm|ts
                           es5 = ES5 CJS modules (default)
                           es6 = ES6 CJS modules
