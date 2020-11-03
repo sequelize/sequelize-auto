@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Dialect, QueryInterface, QueryTypes, Sequelize } from "sequelize";
-import { DialectOptions, FKRow, FKSpec } from "./dialects/dialect-options";
+import { ColumnElementType, DialectOptions, FKRow, FKSpec } from "./dialects/dialect-options";
 import { dialects } from "./dialects/dialects";
 import { IndexSpec, Table, TableData } from "./types";
 
@@ -132,6 +132,23 @@ export class AutoBuilder {
   private mapTable(table: Table) {
     return this.queryInterface.describeTable(table.table_name, table.table_schema).then(fields => {
       this.tableData.tables[makeTableQName(table)] = fields;
+
+      // for postgres array types, get element type
+      if (this.dialect.showElementTypeQuery && _.some(fields, { type: "ARRAY" })) {
+        // get the subtype of the fields
+        const stquery = this.dialect.showElementTypeQuery(table.table_name, table.table_schema);
+
+        this.sequelize.query(stquery, {
+          type: QueryTypes.SELECT,
+          raw: true
+        }).then(res => {
+          // add element type to "special" property of field
+          (res as ColumnElementType[]).forEach(et => {
+            const fld = fields[et.column_name];
+            (fld as any).special = et.element_type;
+          });
+        }).catch(err => console.error(err));
+      }
 
       this.queryInterface.showIndex({ tableName: table.table_name, schema: table.table_schema}).then(inxs => {
         this.tableData.indexes[makeTableQName(table)] = inxs as IndexSpec[];

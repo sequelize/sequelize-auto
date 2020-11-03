@@ -124,7 +124,9 @@ export class AutoWriter {
     });
     str += '  };\n';
     str += '}\n';
-    str += 'module.exports = { initModels };\n';
+    str += 'module.exports = initModels;\n';
+    str += 'module.exports.initModels = initModels;\n';
+    str += 'module.exports.default = initModels;\n';
     return str;
   }
 

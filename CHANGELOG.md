@@ -1,5 +1,9 @@
 # sequelize-auto change log
 
+## [0.6.8]
+
+  * Add element type to Postgres ARRAY data types (#151)
+
 ## [0.6.7] - 2020-11-01
 
   * Fix "Assignment to constant" error introduced in 0.6.6 (#440) (thanks @xuezier)

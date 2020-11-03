@@ -452,7 +452,8 @@ export class AutoGenerator {
     } else if (type.match(/^geography/)) {
       val = "DataTypes.GEOGRAPHY('POINT', 4326)";
     } else if (type.match(/^array/)) {
-      val = 'DataTypes.ARRAY';
+      const eltype = this.getSqType(fieldObj, "special");
+      val = `DataTypes.ARRAY(${eltype})`;
     } else if (type.match(/^(varbinary|image)/)) {
       val = 'DataTypes.BLOB';
     } else if (type.match(/^hstore/)) {

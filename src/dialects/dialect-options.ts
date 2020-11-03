@@ -12,6 +12,7 @@ export interface DialectOptions {
   isSerialKey: (record: any) => boolean;
   showTablesQuery?: (schemaName?: string) => string;
   showViewsQuery: (schemaName?: string) => string;
+  showElementTypeQuery?: (tableName: string, schemaName?: string) => string;
 }
 
 export interface FKRow {
@@ -45,6 +46,12 @@ export interface FKSpec extends FKRelation {
   isPrimaryKey: boolean;
   isUnique: boolean | string;
   foreignSources: { [source: string]: any };
+}
+
+export interface ColumnElementType {
+  column_name: string;
+  data_type: string;
+  element_type: string;
 }
 
 export function addTicks(value: any) {
