@@ -13,7 +13,7 @@ var Customer = models.Customer;
 var Order = models.Order;
 
 // get a customer using known values in the sample data
-return Customer.findOne({ where: { "firstName": "Hanna", "lastName": "Moos" }}).then(cust => {
+return Customer.findOne({ where: { "firstName": "Hanna", "lastName": "Moos" }, include: [Order] }).then(cust => {
   console.log(cust);
   if (cust == null) {
     return;

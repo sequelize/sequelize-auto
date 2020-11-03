@@ -59,7 +59,7 @@ export const mysqlOptions: DialectOptions = {
     if (!_.isObject(record) || !_.has(record, 'column_key')) {
       return false;
     }
-    return records.some(row => row.constraint_name === record.constraint_name && (row.column_key.toUpperCase() === 'UNI' || row.column_key.toUpperCase() === 'MUL'));
+    return records.some(row => row.constraint_name === record.constraint_name && (row.column_key.toUpperCase() === 'UNI'));
   },
 
   /**

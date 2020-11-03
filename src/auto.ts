@@ -46,8 +46,8 @@ export class SequelizeAuto {
   async run(): Promise<TableData> {
     const td = await this.build();
     const tt = this.generate(td);
-    await this.write(tt);
     td.text = tt;
+    await this.write(td);
     return td;
   }
 
@@ -67,8 +67,8 @@ export class SequelizeAuto {
     return generator.generateText();
   }
 
-  write(tableText: { [name: string]: string }) {
-    const writer = new AutoWriter(tableText, this.options);
+  write(tableData: TableData) {
+    const writer = new AutoWriter(tableData, this.options);
     return writer.write();
   }
 

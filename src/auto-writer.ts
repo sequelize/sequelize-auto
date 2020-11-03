@@ -2,20 +2,24 @@ import fs from "fs";
 import _ from "lodash";
 import path from "path";
 import util from "util";
+import { FKSpec, TableData } from ".";
 import { AutoOptions, CaseOption, LangOption, qNameSplit, recase } from "./types";
 const mkdirp = require('mkdirp');
 
 export class AutoWriter {
   tableText: { [name: string]: string };
+  foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec } };
   options: {
     caseFile?: CaseOption;
     caseModel?: CaseOption;
+    caseProp?: CaseOption;
     directory: string;
     lang?: LangOption;
     noWrite?: boolean;
   };
-  constructor(tableText: { [name: string]: string }, options: AutoOptions) {
-    this.tableText = tableText;
+  constructor(tableData: TableData, options: AutoOptions) {
+    this.tableText = tableData.text as  { [name: string]: string };
+    this.foreignKeys = tableData.foreignKeys;
     this.options = options;
   }
 
@@ -34,16 +38,18 @@ export class AutoWriter {
       return this.createFile(t);
     });
 
+    const assoc = this.createAssociations();
+
     // get table names without schema
     // TODO: add schema to model and file names when schema is non-default for the dialect
     const tableNames = tables.map(t => {
       const [schemaName, tableName] = qNameSplit(t);
       return tableName as string;
-    });
+    }).sort();
 
     // write the init-models file
     const ists = this.options.lang === 'ts';
-    const initString = ists ? this.createTsInitString(tableNames) : this.createES5InitString(tableNames);
+    const initString = ists ? this.createTsInitString(tableNames, assoc) : this.createES5InitString(tableNames, assoc);
     const initFilePath = path.join(this.options.directory, "init-models" + (ists ? '.ts' : '.js'));
     const writeFile = util.promisify(fs.writeFile);
     const initPromise = writeFile(path.resolve(initFilePath), initString);
@@ -64,8 +70,37 @@ export class AutoWriter {
     return writeFile(path.resolve(filePath), this.tableText[table]);
   }
 
+  /** Create the belongsTo/hasMany/hasOne association strings */
+  private createAssociations() {
+    let str = "";
+    const fkTables = _.keys(this.foreignKeys).sort();
+    fkTables.forEach(t => {
+      const [schemaName, tableName] = qNameSplit(t);
+      const modelName = recase(this.options.caseModel, tableName);
+      const fkFields = this.foreignKeys[t];
+      const fkFieldNames = _.keys(fkFields);
+      fkFieldNames.forEach(fkFieldName => {
+        const spec = fkFields[fkFieldName];
+        if (spec.isForeignKey) {
+          const targetModel = recase(this.options.caseModel, spec.foreignSources.target_table as string);
+          const targetProp = recase(this.options.caseProp, spec.foreignSources.target_column as string);
+          const sourceProp = recase(this.options.caseProp, fkFieldName);
+
+          str += `  ${modelName}.belongsTo(${targetModel}, { foreignKey: "${targetProp}"});\n`;
+
+          // use "hasOne" cardinality if this FK is also a single-column Primary or Unique key; else "hasMany"
+          const isOne = ((spec.isPrimaryKey && !_.some(fkFields, f => f.isPrimaryKey && f.source_column !== fkFieldName) ||
+            (spec.isUnique && !_.some(fkFields, f => f.isUnique === spec.isUnique && f.source_column !== fkFieldName))));
+          const hasRel = isOne ? "hasOne" : "hasMany";
+          str += `  ${targetModel}.${hasRel}(${modelName}, { foreignKey: "${sourceProp}"});\n`;
+        }
+      });
+    });
+    return str;
+  }
+
   // create the TypeScript init-models file to load all the models into Sequelize
-  private createTsInitString(tables: string[]) {
+  private createTsInitString(tables: string[], assoc: string) {
     let str = 'import { Sequelize } from "sequelize";\n';
     const modelNames: string[] = [];
     // import statements
@@ -88,6 +123,9 @@ export class AutoWriter {
       str += `  ${m}.initModel(sequelize);\n`;
     });
 
+    // add the asociations
+    str += "\n" + assoc;
+
     // return the models
     str += "\n  return {\n";
     modelNames.forEach(m => {
@@ -100,7 +138,7 @@ export class AutoWriter {
   }
 
   // create the ES5 init-models file to load all the models into Sequelize
-  private createES5InitString(tables: string[]) {
+  private createES5InitString(tables: string[], assoc: string) {
     let str = 'var DataTypes = require("sequelize").DataTypes;\n';
     const modelNames: string[] = [];
     // import statements
@@ -116,6 +154,9 @@ export class AutoWriter {
     modelNames.forEach(m => {
       str += `  var ${m} = _${m}(sequelize, DataTypes);\n`;
     });
+
+    // add the asociations
+    str += "\n" + assoc;
 
     // return the models
     str += "\n  return {\n";

@@ -401,24 +401,23 @@ export class AutoGenerator {
     }
     const type: string = attrValue.toLowerCase();
     const length = type.match(/\(\d+\)/);
+    const precision = type.match(/\(\d+,\d+\)/);
     let val = null;
+    let typematch = null;
 
     if (type === "boolean" || type === "bit(1)" || type === "bit") {
       val = 'DataTypes.BOOLEAN';
-    } else if (type.match(/^(smallint|mediumint|tinyint|int)/)) {
-      val = 'DataTypes.INTEGER' + (!_.isNull(length) ? length : '');
+    } else if (typematch = type.match(/^(bigint|smallint|mediumint|tinyint|int)/)) {
+      // integer subtypes
+      val = 'DataTypes.' + (typematch[0] === 'int' ? 'INTEGER' : typematch[0].toUpperCase());
       if (/unsigned/i.test(type)) {
         val += '.UNSIGNED';
       }
       if (/zerofill/i.test(type)) {
         val += '.ZEROFILL';
       }
-    } else if (type.match(/^bigint/)) {
-      val = 'DataTypes.BIGINT';
-    } else if (type.match(/^n?varchar/)) {
+    } else if (type.match(/n?varchar|string|varying/)) {
       val = 'DataTypes.STRING' + (!_.isNull(length) ? length : '');
-    } else if (type.match(/^string|varying|nvarchar/)) {
-      val = 'DataTypes.STRING';
     } else if (type.match(/^n?char/)) {
       val = 'DataTypes.CHAR' + (!_.isNull(length) ? length : '');
     } else if (type.match(/^real/)) {
@@ -430,17 +429,17 @@ export class AutoGenerator {
     } else if (type.match(/^(date|timestamp)/)) {
       val = 'DataTypes.DATE' + (!_.isNull(length) ? length : '');
     } else if (type.match(/^(time)/)) {
-      val = 'DataTypes.TIME'; // + (!_.isNull(length) ? length : '');
+      val = 'DataTypes.TIME';
     } else if (type.match(/^(float|float4)/)) {
-      val = 'DataTypes.FLOAT';
+      val = 'DataTypes.FLOAT' + (!_.isNull(precision) ? precision : '');
     } else if (type.match(/^decimal/)) {
-      val = 'DataTypes.DECIMAL';
+      val = 'DataTypes.DECIMAL' + (!_.isNull(precision) ? precision : '');
     } else if (type.match(/^money/)) {
       val = 'DataTypes.DECIMAL(19,4)';
     } else if (type.match(/^smallmoney/)) {
       val = 'DataTypes.DECIMAL(10,4)';
     } else if (type.match(/^(float8|double|numeric)/)) {
-      val = 'DataTypes.DOUBLE';
+      val = 'DataTypes.DOUBLE' + (!_.isNull(precision) ? precision : '');
     } else if (type.match(/^uuid|uniqueidentifier/)) {
       val = 'DataTypes.UUID';
     } else if (type.match(/^jsonb/)) {
@@ -454,7 +453,7 @@ export class AutoGenerator {
     } else if (type.match(/^array/)) {
       const eltype = this.getSqType(fieldObj, "special");
       val = `DataTypes.ARRAY(${eltype})`;
-    } else if (type.match(/^(varbinary|image)/)) {
+    } else if (type.match(/(binary|image|blob)/)) {
       val = 'DataTypes.BLOB';
     } else if (type.match(/^hstore/)) {
       val = 'DataTypes.HSTORE';
@@ -475,7 +474,11 @@ export class AutoGenerator {
 
   private getTypeScriptType(table: string, field: string) {
     const fieldObj = this.tables[table][field];
-    const fieldType = (fieldObj["type"] || '').toLowerCase();
+    return this.getTypeScriptFieldType(fieldObj, "type");
+  }
+
+  private getTypeScriptFieldType(fieldObj: any, attr: string) {
+    const fieldType = (fieldObj[attr] || '').toLowerCase();
     let jsType: string;
     if (this.isString(fieldType)) {
       jsType = 'string';
@@ -486,9 +489,10 @@ export class AutoGenerator {
     } else if (this.isDate(fieldType)) {
       jsType = 'Date';
     } else if (this.isArray(fieldType)) {
-      jsType = 'any[]';
+      const eltype = this.getTypeScriptFieldType(fieldObj, "special");
+      jsType = eltype + '[]';
     } else {
-      console.log(`Missing type: ${fieldType}`);
+      console.log(`Missing TypeScript type: ${fieldType}`);
       jsType = 'any';
     }
     return jsType;

@@ -18,7 +18,7 @@ class SampleApp {
     // });
 
     // get a customer using known values in the sample data
-    const cust = await Customer.findOne({ where: { "firstName": "Hanna", "lastName": "Moos" } });
+    const cust = await Customer.findOne({ where: { "firstName": "Hanna", "lastName": "Moos" }, include: [Order as any] });
     console.log(cust);
     if (cust == null) {
       return;
@@ -36,7 +36,7 @@ class SampleApp {
       totalAmount: 223.45
     };
 
-    Order.create(attr).then(order => {
+    Order.create(attr).then(() => {
       // display list of orders
       Order.findAll({ where: { "customerId": cust.id } }).then(rows => {
         rows.forEach(r => console.log(r.orderNumber + " " + r.totalAmount));

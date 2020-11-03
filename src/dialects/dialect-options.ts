@@ -45,7 +45,14 @@ export interface FKSpec extends FKRelation {
   isSerialKey: boolean;
   isPrimaryKey: boolean;
   isUnique: boolean | string;
-  foreignSources: { [source: string]: any };
+  foreignSources: {
+    source_table?: string;
+    source_schema?: string;
+    source_column?: string;
+    target_table?: string;
+    target_schema?: string;
+    target_column?: string;
+  };
 }
 
 export interface ColumnElementType {
