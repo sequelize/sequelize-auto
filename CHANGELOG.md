@@ -2,7 +2,9 @@
 
 ## [0.6.8]
 
-  * Add element type to Postgres ARRAY data types (#151)
+  * Add `belongsTo/hasOne/hasMany` to initModels (#34) (#61) (#65) (#82) (#215) (#369)
+  * Add precision to DECIMAL, DOUBLE, and FLOAT types
+  * Add element type to Postgres ARRAY data types and TypeScript definitions (#151) 
 
 ## [0.6.7] - 2020-11-01
 

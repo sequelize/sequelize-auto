@@ -79,17 +79,17 @@ Produces a file/files such as `./models/User.js` which looks like:
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('User', {
     id: {
-      type: DataTypes.INTEGER(11),
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true
     },
     username: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(20),
       allowNull: true
     },
     aNumber: {
-      type: DataTypes.INTEGER(11),
+      type: DataTypes.SMALLINT,
       allowNull: true
     },
     dateAllowNullTrue: {
@@ -139,7 +139,7 @@ You can use the `-l es6` option to create the model definition files as ES6 clas
 
 ## TypeScript
 
-Add `-l ts` to cli options or `typescript: true` to programmatic options.  This will generate a TypeScript class in each model file, and an `init-model.ts` file 
+Add `-l ts` to cli options or `lang: 'ts'` to programmatic options.  This will generate a TypeScript class in each model file, and an `init-model.ts` file 
 to import and initialize all the classes.
 
 Example model class, `order.ts`:
@@ -195,7 +195,7 @@ export class Order extends Model<OrderAttributes, OrderAttributes> implements Or
       field: 'CustomerId'
     },
     totalAmount: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.DECIMAL(19,4),
       allowNull: true,
       defaultValue: 0,
       field: 'TotalAmount'
@@ -215,32 +215,41 @@ Example `init-models.ts`:
 ```js
 import { Sequelize } from "sequelize";
 import { Customer, CustomerAttributes } from "./customer";
-import { Supplier, SupplierAttributes } from "./supplier";
-import { Product, ProductAttributes } from "./product";
 import { Order, OrderAttributes } from "./order";
 import { OrderItem, OrderItemAttributes } from "./order_item";
+import { Product, ProductAttributes } from "./product";
+import { Supplier, SupplierAttributes } from "./supplier";
 
 export {
   Customer, CustomerAttributes,
-  Supplier, SupplierAttributes,
-  Product, ProductAttributes,
   Order, OrderAttributes,
   OrderItem, OrderItemAttributes,
+  Product, ProductAttributes,
+  Supplier, SupplierAttributes,
 };
 
 export function initModels(sequelize: Sequelize) {
   Customer.initModel(sequelize);
-  Supplier.initModel(sequelize);
-  Product.initModel(sequelize);
   Order.initModel(sequelize);
   OrderItem.initModel(sequelize);
+  Product.initModel(sequelize);
+  Supplier.initModel(sequelize);
+
+  Order.belongsTo(Customer, { foreignKey: "id"});
+  Customer.hasMany(Order, { foreignKey: "customerId"});
+  OrderItem.belongsTo(Product, { foreignKey: "id"});
+  Product.hasMany(OrderItem, { foreignKey: "productId"});
+  OrderItem.belongsTo(Order, { foreignKey: "id"});
+  Order.hasMany(OrderItem, { foreignKey: "orderId"});
+  Product.belongsTo(Supplier, { foreignKey: "id"});
+  Supplier.hasMany(Product, { foreignKey: "supplierId"});
 
   return {
     Customer,
-    Supplier,
-    Product,
     Order,
     OrderItem,
+    Product,
+    Supplier,
   };
 }
 ```
