@@ -1,28 +1,33 @@
 # sequelize-auto change log
 
-## [0.6.8]
+## [0.7.1] - 2020-11-05
 
-  * Add `belongsTo/hasOne/hasMany` to initModels (#34) (#61) (#65) (#82) (#215) (#369)
-  * Add precision to DECIMAL, DOUBLE, and FLOAT types
-  * Add element type to Postgres ARRAY data types and TypeScript definitions (#151) 
+* Fix `foreignKey` property in `belongsTo` (#369)
+* Add `belongsToMany` when junction has 2 foreign keys that are also primary keys (#34)
+
+## [0.7.0] - 2020-11-03
+
+* Add `belongsTo/hasOne/hasMany` to initModels (#34) (#61) (#65) (#82) (#215) (#369)
+* Add precision to DECIMAL, DOUBLE, and FLOAT types
+* Add element type to Postgres ARRAY data types and TypeScript definitions (#151) 
 
 ## [0.6.7] - 2020-11-01
 
-  * Fix "Assignment to constant" error introduced in 0.6.6 (#440) (thanks @xuezier)
-  * Add support for generating models from views, `--views` option (#77)
+* Fix "Assignment to constant" error introduced in 0.6.6 (#440) (thanks @xuezier)
+* Add support for generating models from views, `--views` option (#77)
 
 ## [0.6.6] - 2020-10-30
 
- * Add `indexes` to table options (#162)
- * **BREAKING CHANGE** Change es6/esm/ts flags to `lang` option
- * Add JSDoc commments to type declarations
- * Add DataTypes.UUIDV4 default for postgres (#155) (thanks @roytz)
+* Add `indexes` to table options (#162)
+* **BREAKING CHANGE** Change es6/esm/ts flags to `lang` option
+* Add JSDoc commments to type declarations
+* Add DataTypes.UUIDV4 default for postgres (#155) (thanks @roytz)
 
 ## [0.6.5] - 2020-10-26
 
- * Escape special chars in table comments (#439)
- * Map mysql longtext/mediumtext/tinytext to DataTypes.TEXT
- * Export SequelizeAuto types in npm package (#140)
+* Escape special chars in table comments (#439)
+* Map mysql longtext/mediumtext/tinytext to DataTypes.TEXT
+* Export SequelizeAuto types in npm package (#140)
 
 ## [0.6.4] - 2020-10-15
 
