@@ -24,6 +24,9 @@ class SampleApp {
       return;
     }
 
+    const ord = await Order.findOne({ where: { orderNumber: "542639"}, include: [Customer as any]});
+    console.log(ord);
+
     // make pseudo-incremental order number for demo
     const millis = new Date().getTime().toString();
     const orderNumber = "55" + millis.substring(6, 10);

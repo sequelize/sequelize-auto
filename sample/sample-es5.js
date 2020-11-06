@@ -19,6 +19,10 @@ return Customer.findOne({ where: { "firstName": "Hanna", "lastName": "Moos" }, i
     return;
   }
 
+  Order.findOne({ where: { orderNumber: "542639"}, include: [Customer]}).then(ord => {
+    console.log(ord);
+  });
+
   // make pseudo-incremental order number for demo
   var millis = new Date().getTime().toString();
   var orderNumber = "55" + millis.substring(6, 10);

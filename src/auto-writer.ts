@@ -83,10 +83,18 @@ export class AutoWriter {
         const spec = fkFields[fkFieldName];
         if (spec.isForeignKey) {
           const targetModel = recase(this.options.caseModel, spec.foreignSources.target_table as string);
-          const targetProp = recase(this.options.caseProp, spec.foreignSources.target_column as string);
           const sourceProp = recase(this.options.caseProp, fkFieldName);
+          str += `  ${modelName}.belongsTo(${targetModel}, { foreignKey: "${sourceProp}"});\n`;
 
-          str += `  ${modelName}.belongsTo(${targetModel}, { foreignKey: "${targetProp}"});\n`;
+          if (spec.isPrimaryKey) {
+            // if FK is also part of the PK, see if there is a "many-to-many" junction
+            const otherKey = _.find(fkFields, k => k.isForeignKey && k.isPrimaryKey && k.source_column !== fkFieldName);
+            if (otherKey) {
+              const otherModel = recase(this.options.caseModel, otherKey.foreignSources.target_table as string);
+              const otherProp = recase(this.options.caseProp, otherKey.source_column);
+              str += `  ${otherModel}.belongsToMany(${targetModel}, { through: ${modelName}, foreignKey: "${otherProp}", otherKey: "${sourceProp}" });\n`;
+            }
+          }
 
           // use "hasOne" cardinality if this FK is also a single-column Primary or Unique key; else "hasMany"
           const isOne = ((spec.isPrimaryKey && !_.some(fkFields, f => f.isPrimaryKey && f.source_column !== fkFieldName) ||
