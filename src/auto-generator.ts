@@ -491,6 +491,9 @@ export class AutoGenerator {
     } else if (this.isArray(fieldType)) {
       const eltype = this.getTypeScriptFieldType(fieldObj, "special");
       jsType = eltype + '[]';
+    } else if (this.isEnum(fieldType)) {
+      const values = fieldType.substring(5, fieldType.length - 1).split(',').join(' | ');
+      jsType = values;
     } else {
       console.log(`Missing TypeScript type: ${fieldType}`);
       jsType = 'any';
@@ -553,5 +556,9 @@ export class AutoGenerator {
 
   private isArray(fieldType: string): boolean {
     return /^(array)/.test(fieldType);
+  }
+    
+  private isEnum(fieldType: string): boolean {
+    return /^(enum)/.test(fieldType);
   }
 }
