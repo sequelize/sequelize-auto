@@ -1,5 +1,11 @@
 # sequelize-auto change log
 
+## [0.7.2] - 2020-11-19
+
+* Add enum support for TypeScript types (#443) (thanks @JonathanWolfe)
+* Make `init-modules` ts version compliant with `--isolatedModules` (#444) (thanks @JonathanWolfe).  This is a **BREAKING CHANGE** because `--lang ts` output now requires TypeScript >= 3.8
+* Fix geometry/geography types in Postgres (#445)
+
 ## [0.7.1] - 2020-11-05
 
 * Fix `foreignKey` property in `belongsTo` (#369)
