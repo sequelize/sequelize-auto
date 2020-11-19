@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Dialect, QueryInterface, QueryTypes, Sequelize } from "sequelize";
-import { ColumnElementType, DialectOptions, FKRow, FKSpec } from "./dialects/dialect-options";
+import { ColumnElementType, DialectOptions, FKRow, FKSpec, TriggerCount } from "./dialects/dialect-options";
 import { dialects } from "./dialects/dialects";
 import { IndexSpec, Table, TableData } from "./types";
 
@@ -31,10 +31,7 @@ export class AutoBuilder {
     let prom: Promise<any[]>;
     if (this.dialect.showTablesQuery) {
       const showTablesSql = this.dialect.showTablesQuery(this.schema);
-      prom = this.sequelize.query(showTablesSql, {
-        raw: true,
-        type: QueryTypes.SELECT
-      });
+      prom = this.executeQuery<string>(showTablesSql);
     } else {
       prom = this.queryInterface.showAllTables();
     }
@@ -46,10 +43,7 @@ export class AutoBuilder {
         const vschema = this.dialect.name === 'mysql' ? this.sequelize.getDatabaseName() : this.schema;
 
         const showViewsSql = this.dialect.showViewsQuery(vschema);
-        return this.sequelize.query(showViewsSql, {
-          raw: true,
-          type: QueryTypes.SELECT
-        }).then(tr2 => tr.concat(tr2));
+        return this.executeQuery<string>(showViewsSql).then(tr2 => tr.concat(tr2));
       });
     }
 
@@ -96,11 +90,8 @@ export class AutoBuilder {
     const dialect = this.dialect;
     const foreignKeys = this.tableData.foreignKeys;
 
-    return this.sequelize.query(sql, {
-      type: QueryTypes.SELECT,
-      raw: true
-    }).then(res => {
-      (res as FKRow[]).forEach(assignColumnDetails);
+    return this.executeQuery<FKRow>(sql).then(res => {
+      res.forEach(assignColumnDetails);
     }).catch(err => console.error(err));
 
     function assignColumnDetails(row: FKRow, ix: number, rows: FKRow[]) {
@@ -129,42 +120,71 @@ export class AutoBuilder {
     }
   }
 
-  private mapTable(table: Table) {
-    return this.queryInterface.describeTable(table.table_name, table.table_schema).then(fields => {
+  private async mapTable(table: Table) {
+    try {
+      const fields = await this.queryInterface.describeTable(table.table_name, table.table_schema);
       this.tableData.tables[makeTableQName(table)] = fields;
 
-      // for postgres array types, get element type
-      if (this.dialect.showElementTypeQuery && _.some(fields, { type: "ARRAY" })) {
+      // for postgres array or user-defined types, get element type
+      if (this.dialect.showElementTypeQuery && (_.some(fields, { type: "ARRAY" }) || _.some(fields, { type: "USER-DEFINED" }))) {
         // get the subtype of the fields
         const stquery = this.dialect.showElementTypeQuery(table.table_name, table.table_schema);
 
-        this.sequelize.query(stquery, {
-          type: QueryTypes.SELECT,
-          raw: true
-        }).then(res => {
+        const elementTypes = await this.executeQuery<ColumnElementType>(stquery);
           // add element type to "special" property of field
-          (res as ColumnElementType[]).forEach(et => {
-            const fld = fields[et.column_name];
+        elementTypes.forEach(et => {
+          const fld = fields[et.column_name];
+          if (fld.type === "ARRAY") {
             (fld as any).special = et.element_type;
+          } else if (fld.type === "USER-DEFINED") {
+            (fld as any).type = et.udt_name;
+          }
+        });
+
+        // TODO - in postgres, query geography_columns and geometry_columns for detail type and srid
+        if (elementTypes.some(et => et.udt_name === 'geography') && this.dialect.showGeographyTypeQuery) {
+          const gquery = this.dialect.showGeographyTypeQuery(table.table_name, table.table_schema);
+          const gtypes = await this.executeQuery<ColumnElementType>(gquery);
+          gtypes.forEach(gt => {
+            const fld = fields[gt.column_name];
+            if (fld.type === 'geography') {
+              (fld as any).special = `'${gt.udt_name}', ${gt.data_type}`;
+            }
           });
-        }).catch(err => console.error(err));
+        }
+
+        if (elementTypes.some(et => et.udt_name === 'geometry') && this.dialect.showGeometryTypeQuery) {
+          const gquery = this.dialect.showGeometryTypeQuery(table.table_name, table.table_schema);
+          const gtypes = await this.executeQuery<ColumnElementType>(gquery);
+          gtypes.forEach(gt => {
+            const fld = fields[gt.column_name];
+            if (fld.type === 'geometry') {
+              (fld as any).special = `'${gt.udt_name}', ${gt.data_type}`;
+            }
+          });
+        }
+
       }
 
-      this.queryInterface.showIndex({ tableName: table.table_name, schema: table.table_schema}).then(inxs => {
-        this.tableData.indexes[makeTableQName(table)] = inxs as IndexSpec[];
-      });
+      this.tableData.indexes[makeTableQName(table)] = await this.queryInterface.showIndex(
+        { tableName: table.table_name, schema: table.table_schema }) as IndexSpec[];
 
       const countTriggerSql = this.dialect.countTriggerQuery(table.table_name, table.table_schema || "");
-      return this.sequelize.query(countTriggerSql, {
-        raw: true,
-        type: QueryTypes.SELECT,
-      }).then((triggerResult: any) => {
-        const triggerCount = parseInt(triggerResult && triggerResult[0] && triggerResult[0].trigger_count);
-        if (triggerCount > 0) {
-          this.tableData.hasTriggerTables[makeTableQName(table)] = true;
-        }
-      });
-    }).catch(err => console.error(err));
+      const triggerResult = await this.executeQuery<TriggerCount>(countTriggerSql);
+      const triggerCount = triggerResult && triggerResult[0] && triggerResult[0].trigger_count;
+      if (triggerCount > 0) {
+        this.tableData.hasTriggerTables[makeTableQName(table)] = true;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  private executeQuery<T>(query: string): Promise<T[]> {
+    return this.sequelize.query(query, {
+      type: QueryTypes.SELECT,
+      raw: true
+    }) as any as Promise<T[]>;
   }
 
 }

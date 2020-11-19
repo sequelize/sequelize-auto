@@ -107,13 +107,25 @@ export const postgresOptions: DialectOptions = {
             AND table_schema NOT IN ('pg_catalog', 'information_schema')`;
   },
 
-  /** Get the element type for ARRAY data types */
+  /** Get the element type for ARRAY and USER-DEFINED data types */
   showElementTypeQuery: (tableName: string, schemaName?: string) => {
-    return `SELECT c.column_name, c.data_type, e.data_type AS element_type
-    FROM information_schema.columns c JOIN information_schema.element_types e
+    return `SELECT c.column_name, c.data_type, c.udt_name, e.data_type AS element_type
+    FROM information_schema.columns c LEFT JOIN information_schema.element_types e
      ON ((c.table_catalog, c.table_schema, c.table_name, 'TABLE', c.dtd_identifier)
        = (e.object_catalog, e.object_schema, e.object_name, e.object_type, e.collection_type_identifier))
     WHERE c.table_name = '${tableName}'` + (!schemaName ? '' : ` AND c.table_schema = '${schemaName}'`);
+  },
+
+  showGeographyTypeQuery: (tableName: string, schemaName?: string) => {
+    return `SELECT f_geography_column AS column_name, type AS udt_name, srid AS data_type, coord_dimension AS element_type
+    FROM geography_columns
+    WHERE f_table_name = '${tableName}'` + (!schemaName ? '' : ` AND f_table_schema = '${schemaName}'`);
+  },
+
+  showGeometryTypeQuery: (tableName: string, schemaName?: string) => {
+    return `SELECT f_geometry_column AS column_name, type AS udt_name, srid AS data_type, coord_dimension AS element_type
+    FROM geometry_columns
+    WHERE f_table_name = '${tableName}'` + (!schemaName ? '' : ` AND f_table_schema = '${schemaName}'`);
   }
 
 };

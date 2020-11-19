@@ -13,6 +13,8 @@ export interface DialectOptions {
   showTablesQuery?: (schemaName?: string) => string;
   showViewsQuery: (schemaName?: string) => string;
   showElementTypeQuery?: (tableName: string, schemaName?: string) => string;
+  showGeographyTypeQuery?: (tableName: string, schemaName?: string) => string;
+  showGeometryTypeQuery?: (tableName: string, schemaName?: string) => string;
 }
 
 export interface FKRow {
@@ -58,7 +60,12 @@ export interface FKSpec extends FKRelation {
 export interface ColumnElementType {
   column_name: string;
   data_type: string;
+  udt_name: string;
   element_type: string;
+}
+
+export interface TriggerCount {
+  trigger_count: number;
 }
 
 export function addTicks(value: any) {

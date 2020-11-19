@@ -447,9 +447,11 @@ export class AutoGenerator {
     } else if (type.match(/^json/)) {
       val = 'DataTypes.JSON';
     } else if (type.match(/^geometry/)) {
-      val = 'DataTypes.GEOMETRY';
+      const gtype = fieldObj.special ? `(${fieldObj.special})` : '';
+      val = `DataTypes.GEOMETRY${gtype}`;
     } else if (type.match(/^geography/)) {
-      val = "DataTypes.GEOGRAPHY('POINT', 4326)";
+      const gtype = fieldObj.special ? `(${fieldObj.special})` : '';
+      val = `DataTypes.GEOGRAPHY${gtype}`;
     } else if (type.match(/^array/)) {
       const eltype = this.getSqType(fieldObj, "special");
       val = `DataTypes.ARRAY(${eltype})`;
@@ -557,7 +559,7 @@ export class AutoGenerator {
   private isArray(fieldType: string): boolean {
     return /^(array)/.test(fieldType);
   }
-    
+
   private isEnum(fieldType: string): boolean {
     return /^(enum)/.test(fieldType);
   }
