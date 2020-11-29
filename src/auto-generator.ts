@@ -210,9 +210,9 @@ export class AutoGenerator {
 
     const unique = fieldObj.unique || fieldObj.foreignKey && fieldObj.foreignKey.isUnique;
 
-    const isSerialKey = _.isFunction(this.dialect.isSerialKey) &&
-      (this.dialect.isSerialKey(fieldObj) ||
-        (fieldObj.foreignKey && this.dialect.isSerialKey(fieldObj.foreignKey)));
+    const isSerialKey = (fieldObj.foreignKey && fieldObj.foreignKey.isSerialKey) ||
+      this.dialect.isSerialKey && this.dialect.isSerialKey(fieldObj);
+
     let wroteAutoIncrement = false;
     const space = this.space;
 
