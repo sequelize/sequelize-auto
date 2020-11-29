@@ -1,5 +1,10 @@
 # sequelize-auto change log
 
+## [0.7.3] - 2020-11-29
+
+* Fix autoIncrement for non-key fields in Postgres (#446 and #448)
+* Remove obsolete dependencies `async` and `graceful-fs-extra`
+
 ## [0.7.2] - 2020-11-19
 
 * Add enum support for TypeScript types (#443) (thanks @JonathanWolfe)

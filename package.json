@@ -1,6 +1,6 @@
 {
   "name": "sequelize-auto",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "publishConfig": {
     "tag": "latest"
   },
@@ -55,11 +55,11 @@
     "node": ">= 6"
   },
   "author": "Steve Schmitt (https://github.com/steveschmitt)",
-  "contributors": ["Daniel Durante <me@danieldurante.com>"],
+  "contributors": [
+    "Daniel Durante <me@danieldurante.com>"
+  ],
   "license": "MIT",
   "dependencies": {
-    "async": "^3.2.0",
-    "graceful-fs-extra": "^2.0.0",
     "mkdirp": "^1.0.4",
     "yargs": "^15.4.1",
     "lodash": "^4.17.20"
