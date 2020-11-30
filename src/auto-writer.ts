@@ -117,7 +117,7 @@ export class AutoWriter {
       const modelName = recase(this.options.caseModel, t);
       modelNames.push(modelName);
       str += `import { ${modelName} } from "./${fileName}";\n`;
-      str += `import type { ${modelName}Attributes } from "./${fileName}";\n`;
+      str += `import type { ${modelName}Attributes, ${modelName}CreationAttributes } from "./${fileName}";\n`;
     });
     // re-export the model classes
     str += '\nexport {\n';
@@ -129,6 +129,7 @@ export class AutoWriter {
     str += '\nexport type {\n';
     modelNames.forEach(m => {
       str += `  ${m}Attributes,\n`;
+      str += `  ${m}CreationAttributes,\n`;
     });
     str += '};\n\n';
 
