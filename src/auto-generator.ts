@@ -469,9 +469,15 @@ export class AutoGenerator {
     let str = '';
     fields.forEach(field => {
       const name = this.quoteName(recase(this.options.caseProp, field));
-      str += `${sp}${name}?: ${this.getTypeScriptType(table, field)};\n`;
+      const allowNull = this.getTypeScriptAllowNull(table, field);
+      str += `${sp}${name}${allowNull ? '?' : ''}: ${this.getTypeScriptType(table, field)};\n`;
     });
     return str;
+  }
+
+  private getTypeScriptAllowNull(table: string, field: string) {
+    const fieldObj = this.tables[table][field];
+    return fieldObj['allowNull'];
   }
 
   private getTypeScriptType(table: string, field: string) {
