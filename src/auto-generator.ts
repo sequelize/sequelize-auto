@@ -45,7 +45,7 @@ export class AutoGenerator {
     const sp = this.space[1];
 
     if (this.options.lang === 'ts') {
-      header += "import { DataTypes, Model, Sequelize } from 'sequelize';\n\n";
+      header += "import { DataTypes, Model, Optional, Sequelize } from 'sequelize';\n\n";
     } else if (this.options.lang === 'es6') {
       header += "const Sequelize = require('sequelize');\n";
       header += "module.exports = (sequelize, DataTypes) => {\n";
@@ -82,9 +82,13 @@ export class AutoGenerator {
         str += "export interface #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table) + "}\n\n";
 
-        // str += "export interface #TABLE#CreationAttributes extends Optional<#TABLE#Attributes, 'Id'> {}\n\n";
+        const primaryKeys = this.getTypeScriptPrimaryKeys(table);
 
-        str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#Attributes> implements #TABLE#Attributes {\n";
+        str += "export interface #TABLE#CreationAttributes extends Optional<#TABLE#Attributes, "
+        str += primaryKeys.map((k) => `"${k}"`).join(' | ');
+        str += "> {}\n\n";
+
+        str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table);
         str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize) {\n";
         str += this.space[2] + tableName + ".init({\n";
@@ -461,6 +465,14 @@ export class AutoGenerator {
       val = 'DataTypes.HSTORE';
     }
     return val as string;
+  }
+
+  private getTypeScriptPrimaryKeys(table: string): Array<string> {
+    const fields = _.keys(this.tables[table]);
+    return fields.filter((field): boolean => {
+      const fieldObj = this.tables[table][field];
+      return fieldObj['primaryKey'];
+    });
   }
 
   private addTypeScriptFields(table: string) {
