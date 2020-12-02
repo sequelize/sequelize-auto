@@ -94,6 +94,7 @@ export class AutoGenerator {
 
         str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table, false);
+        str += this.addTypeScriptAssociationMixins(table);
         str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize.Sequelize): typeof " + tableName + " {\n";
         str += this.space[2] + tableName + ".init({\n";
       }
@@ -478,6 +479,70 @@ export class AutoGenerator {
       return fieldObj['primaryKey'];
     });
   }
+
+  private addTypeScriptAssociationMixins(table: string): string {
+    const sp = this.space[1];
+    const [mySchemaName, myTableName] = qNameSplit(table);
+    let str = '';
+    const fkTables = _.keys(this.foreignKeys).sort();
+    fkTables.forEach(t => {
+      const [_theirSchemaName, theirTableName] = qNameSplit(t);
+      const modelName = recase(this.options.caseModel, myTableName);
+      const fkFields = this.foreignKeys[t];
+      const fkFieldNames = _.keys(fkFields);
+      fkFieldNames.forEach(fkFieldName => {
+        const spec = fkFields[fkFieldName];
+        if (spec.isForeignKey) {
+          const targetModel = recase(this.options.caseModel, spec.foreignSources.target_table as string);
+
+          if (spec.source_schema === mySchemaName && spec.source_table === myTableName) {
+            const btModel = recase(this.options.caseModel, spec.foreignSources.target_table as string);
+            const btModelSingular = btModel.replace(/s$/, '');
+            str += `${sp}// ${modelName} belongsTo ${btModel}\n`;
+            str += `${sp}get${btModelSingular}: Sequelize.BelongsToGetAssociationMixin<${btModel}>;\n`;
+            str += `${sp}set${btModelSingular}: Sequelize.BelongsToSetAssociationMixin<${btModel}, ${btModel}Id>;\n`;
+            str += `${sp}create${btModelSingular}: Sequelize.BelongsToCreateAssociationMixin<${btModel}>;\n`;
+          } else if (spec.target_schema === mySchemaName && spec.target_table === myTableName) {
+            const hasModel = recase(this.options.caseModel, spec.foreignSources.source_table as string);
+            const isOne = ((spec.isPrimaryKey && !_.some(fkFields, f => f.isPrimaryKey && f.source_column !== fkFieldName) ||
+              (spec.isUnique && !_.some(fkFields, f => f.isUnique === spec.isUnique && f.source_column !== fkFieldName))));
+            if (isOne) {
+              const hasModelSingular = hasModel.replace(/s$/, '');
+              str += `${sp}// ${modelName} hasOne ${hasModel}\n`;
+              str += `${sp}get${hasModelSingular}: Sequelize.HasOneGetAssociationMixin<${hasModel}>;\n`;
+              str += `${sp}set${hasModelSingular}: Sequelize.HasOneSetAssociationMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}create${hasModelSingular}: Sequelize.HasOneCreateAssociationMixin<${hasModel}CreationAttributes>;\n`;
+            } else {
+              str += `${sp}// ${modelName} hasMany ${hasModel}\n`;
+              str += `${sp}get${hasModel}: Sequelize.HasManyGetAssociationsMixin<${hasModel}>;\n`;
+              str += `${sp}set${hasModel}: Sequelize.HasManySetAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}add${hasModel}: Sequelize.HasManyAddAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}remove${hasModel}: Sequelize.HasManyRemoveAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}has${hasModel}: Sequelize.HasManyHasAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}count${hasModel}: Sequelize.HasManyCountAssociationsMixin;\n`;
+            }
+            if (spec.isPrimaryKey) {
+              // if FK is also part of the PK, see if there is a "many-to-many" junction
+              const otherKey = _.find(fkFields, k => k.isForeignKey && k.isPrimaryKey && k.source_column !== fkFieldName);
+              if (otherKey) {
+                const otherModel = recase(this.options.caseModel, otherKey.foreignSources.target_table as string);
+                str += `${sp}// ${modelName} belongsToMany ${otherModel}\n`;
+                str += `${sp}get${otherModel}: Sequelize.BelongsToManyGetAssociationsMixin<${otherModel}>;\n`;
+                str += `${sp}set${otherModel}: Sequelize.BelongsToManySetAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
+                str += `${sp}add${otherModel}: Sequelize.BelongsToManyAddAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
+                str += `${sp}remove${otherModel}: Sequelize.BelongsToManyRemoveAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
+                str += `${sp}has${otherModel}: Sequelize.BelongsToManyHasAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
+                str += `${sp}count${otherModel}: Sequelize.BelongsToManyCountAssociationsMixin;\n`;
+
+              }
+            }
+          }
+        }
+      });
+    });
+    return str;
+  }
+
 
   private addTypeScriptFields(table: string, isInterface: boolean) {
     const sp = this.space[1];
