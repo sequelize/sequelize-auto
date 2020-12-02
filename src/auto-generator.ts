@@ -94,7 +94,7 @@ export class AutoGenerator {
 
         str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table, false);
-        str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize.Sequelize) {\n";
+        str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize.Sequelize): typeof " + tableName + " {\n";
         str += this.space[2] + tableName + ".init({\n";
       }
 
