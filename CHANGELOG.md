@@ -6,6 +6,7 @@
 * TypeScript - add the ModelCreationAttributes to the generated files (#451) (thanks @mat813)
 * TypeScript - add not-null assertions (with `!`) for fields
 * Put `belongsToMany` relationships first in init-models (#449)
+* Set `noWrite` = true when directory == false (#447)
 
 ## [0.7.3] - 2020-11-29
 

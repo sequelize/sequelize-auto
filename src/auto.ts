@@ -41,6 +41,10 @@ export class SequelizeAuto {
       closeConnectionAutomatically: true
     }, options || {});
 
+    if (!this.options.directory) {
+      this.options.noWrite = true;
+    }
+
   }
 
   async run(): Promise<TableData> {
