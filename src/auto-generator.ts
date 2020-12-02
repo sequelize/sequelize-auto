@@ -86,6 +86,7 @@ export class AutoGenerator {
 
         if (primaryKeys.length) {
           str += `export type #TABLE#Pk = ${primaryKeys.map((k) => `"${recase(this.options.caseProp, k)}"`).join(' | ')};\n`;
+          str += `export type #TABLE#Id = #TABLE#[#TABLE#Pk];\n\n`;
           str += "export type #TABLE#CreationAttributes = Optional<#TABLE#Attributes, #TABLE#Pk>\n\n";
         } else {
           str += "export type #TABLE#CreationAttributes = #TABLE#Attributes\n\n";
