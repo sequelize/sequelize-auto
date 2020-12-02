@@ -85,11 +85,11 @@ export class AutoGenerator {
         const primaryKeys = this.getTypeScriptPrimaryKeys(table);
 
         if (primaryKeys.length) {
-          str += "export interface #TABLE#CreationAttributes extends Optional<#TABLE#Attributes, ";
+          str += "export type #TABLE#CreationAttributes = Optional<#TABLE#Attributes, ";
           str += primaryKeys.map((k) => `"${recase(this.options.caseProp, k)}"`).join(' | ');
-          str += "> {}\n\n";
+          str += ">\n\n";
         } else {
-          str += "export interface #TABLE#CreationAttributes extends #TABLE#Attributes {}\n\n";
+          str += "export type #TABLE#CreationAttributes = #TABLE#Attributes\n\n";
         }
 
         str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
