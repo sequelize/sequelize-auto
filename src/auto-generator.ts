@@ -45,7 +45,7 @@ export class AutoGenerator {
     const sp = this.space[1];
 
     if (this.options.lang === 'ts') {
-      header += "import { DataTypes, Model, Optional, Sequelize } from 'sequelize';\n\n";
+      header += "import Sequelize, { DataTypes, Model, Optional } from 'sequelize';\n\n";
     } else if (this.options.lang === 'es6') {
       header += "const Sequelize = require('sequelize');\n";
       header += "module.exports = (sequelize, DataTypes) => {\n";
@@ -94,7 +94,7 @@ export class AutoGenerator {
 
         str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table, false);
-        str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize) {\n";
+        str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize.Sequelize) {\n";
         str += this.space[2] + tableName + ".init({\n";
       }
 
