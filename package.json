@@ -1,6 +1,6 @@
 {
   "name": "sequelize-auto",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "publishConfig": {
     "tag": "latest"
   },
@@ -41,7 +41,7 @@
   },
   "scripts": {
     "tsc": "tsc",
-    "clean": "rimraf lib && rimraf types && rimraf models && rimraf sample/models && rimraf *.tgz",
+    "clean": "rimraf lib && rimraf types && rimraf **/models && rimraf *.tgz",
     "build": "npm run clean && tsc",
     "test": "npm run test-mssql && npm run test-mysql && npm run test-postgres && npm run test-sqlite",
     "test-postgres": "cross-env DEBUG='sequelize-auto:*' DIALECT=postgres nyc mocha",

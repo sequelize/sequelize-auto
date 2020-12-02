@@ -1,6 +1,6 @@
 # sequelize-auto change log
 
-## [0.7.4]
+## [0.7.4] - 2020-12-01
 
 * TypeScript - only declare properties optional (with `?`) when field is nullable (#450) (thanks @mat813)
 * TypeScript - add the ModelCreationAttributes to the generated files (#451) (thanks @mat813)
