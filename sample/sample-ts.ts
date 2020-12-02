@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { initModels, Customer, Order, OrderAttributes } from "./models/init-models";
+import { initModels, Customer, Order, OrderAttributes, OrderCreationAttributes } from "./models/init-models";
 import config from "./config";
 
 class SampleApp {
@@ -32,7 +32,7 @@ class SampleApp {
     const orderNumber = "55" + millis.substring(6, 10);
 
     // create a new Order for the customer
-    const attr: OrderAttributes = {
+    const attr: OrderCreationAttributes = {
       customerId: cust.id,
       orderDate: new Date(),
       orderNumber: orderNumber,

@@ -80,16 +80,20 @@ export class AutoGenerator {
 
       if (this.options.lang === 'ts') {
         str += "export interface #TABLE#Attributes {\n";
-        str += this.addTypeScriptFields(table) + "}\n\n";
+        str += this.addTypeScriptFields(table, true) + "}\n\n";
 
         const primaryKeys = this.getTypeScriptPrimaryKeys(table);
 
-        str += "export interface #TABLE#CreationAttributes extends Optional<#TABLE#Attributes, "
-        str += primaryKeys.map((k) => `"${k}"`).join(' | ');
-        str += "> {}\n\n";
+        if (primaryKeys.length) {
+          str += "export interface #TABLE#CreationAttributes extends Optional<#TABLE#Attributes, ";
+          str += primaryKeys.map((k) => `"${recase(this.options.caseProp, k)}"`).join(' | ');
+          str += "> {}\n\n";
+        } else {
+          str += "export interface #TABLE#CreationAttributes extends #TABLE#Attributes {}\n\n";
+        }
 
         str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
-        str += this.addTypeScriptFields(table);
+        str += this.addTypeScriptFields(table, false);
         str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize) {\n";
         str += this.space[2] + tableName + ".init({\n";
       }
@@ -475,14 +479,15 @@ export class AutoGenerator {
     });
   }
 
-  private addTypeScriptFields(table: string) {
+  private addTypeScriptFields(table: string, isInterface: boolean) {
     const sp = this.space[1];
     const fields = _.keys(this.tables[table]);
+    const notNull = isInterface ? '' : '!';
     let str = '';
     fields.forEach(field => {
       const name = this.quoteName(recase(this.options.caseProp, field));
       const allowNull = this.getTypeScriptAllowNull(table, field);
-      str += `${sp}${name}${allowNull ? '?' : ''}: ${this.getTypeScriptType(table, field)};\n`;
+      str += `${sp}${name}${allowNull ? '?' : notNull}: ${this.getTypeScriptType(table, field)};\n`;
     });
     return str;
   }

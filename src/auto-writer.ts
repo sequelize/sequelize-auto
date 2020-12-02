@@ -38,7 +38,8 @@ export class AutoWriter {
       return this.createFile(t);
     });
 
-    const assoc = this.createAssociations();
+    const ists = this.options.lang === 'ts';
+    const assoc = this.createAssociations(ists);
 
     // get table names without schema
     // TODO: add schema to model and file names when schema is non-default for the dialect
@@ -48,7 +49,6 @@ export class AutoWriter {
     }).sort();
 
     // write the init-models file
-    const ists = this.options.lang === 'ts';
     const initString = ists ? this.createTsInitString(tableNames, assoc) : this.createES5InitString(tableNames, assoc);
     const initFilePath = path.join(this.options.directory, "init-models" + (ists ? '.ts' : '.js'));
     const writeFile = util.promisify(fs.writeFile);
@@ -70,9 +70,12 @@ export class AutoWriter {
     return writeFile(path.resolve(filePath), this.tableText[table]);
   }
 
-  /** Create the belongsTo/hasMany/hasOne association strings */
-  private createAssociations() {
-    let str = "";
+  /** Create the belongsToMany/belongsTo/hasMany/hasOne association strings */
+  private createAssociations(typeScript: boolean) {
+    let strBelongs = "";
+    let strBelongsToMany = "";
+    // declare through model "as any" because typings don't match
+    const asAny = typeScript ? " as any" : "";
     const fkTables = _.keys(this.foreignKeys).sort();
     fkTables.forEach(t => {
       const [schemaName, tableName] = qNameSplit(t);
@@ -84,7 +87,7 @@ export class AutoWriter {
         if (spec.isForeignKey) {
           const targetModel = recase(this.options.caseModel, spec.foreignSources.target_table as string);
           const sourceProp = recase(this.options.caseProp, fkFieldName);
-          str += `  ${modelName}.belongsTo(${targetModel}, { foreignKey: "${sourceProp}"});\n`;
+          strBelongs += `  ${modelName}.belongsTo(${targetModel}, { foreignKey: "${sourceProp}"});\n`;
 
           if (spec.isPrimaryKey) {
             // if FK is also part of the PK, see if there is a "many-to-many" junction
@@ -92,7 +95,7 @@ export class AutoWriter {
             if (otherKey) {
               const otherModel = recase(this.options.caseModel, otherKey.foreignSources.target_table as string);
               const otherProp = recase(this.options.caseProp, otherKey.source_column);
-              str += `  ${otherModel}.belongsToMany(${targetModel}, { through: ${modelName}, foreignKey: "${otherProp}", otherKey: "${sourceProp}" });\n`;
+              strBelongsToMany += `  ${otherModel}.belongsToMany(${targetModel}, { through: ${modelName}${asAny}, foreignKey: "${otherProp}", otherKey: "${sourceProp}" });\n`;
             }
           }
 
@@ -100,11 +103,12 @@ export class AutoWriter {
           const isOne = ((spec.isPrimaryKey && !_.some(fkFields, f => f.isPrimaryKey && f.source_column !== fkFieldName) ||
             (spec.isUnique && !_.some(fkFields, f => f.isUnique === spec.isUnique && f.source_column !== fkFieldName))));
           const hasRel = isOne ? "hasOne" : "hasMany";
-          str += `  ${targetModel}.${hasRel}(${modelName}, { foreignKey: "${sourceProp}"});\n`;
+          strBelongs += `  ${targetModel}.${hasRel}(${modelName}, { foreignKey: "${sourceProp}"});\n`;
         }
       });
     });
-    return str;
+    // belongsToMany must come first
+    return strBelongsToMany + strBelongs;
   }
 
   // create the TypeScript init-models file to load all the models into Sequelize

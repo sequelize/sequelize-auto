@@ -1,5 +1,12 @@
 # sequelize-auto change log
 
+## [0.7.4]
+
+* TypeScript - only declare properties optional (with `?`) when field is nullable (#450) (thanks @mat813)
+* TypeScript - add the ModelCreationAttributes to the generated files (#451) (thanks @mat813)
+* TypeScript - add not-null assertions (with `!`) for fields
+* Put `belongsToMany` relationships first in init-models (#449)
+
 ## [0.7.3] - 2020-11-29
 
 * Fix autoIncrement for non-key fields in Postgres (#446 and #448)

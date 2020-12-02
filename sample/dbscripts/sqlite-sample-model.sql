@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS "Order";
 DROP TABLE IF EXISTS "Customer";
 
 CREATE TABLE "Customer" (
-   "Id"                   INTEGER             PRIMARY KEY,
+   "Id"                   INTEGER             NOT NULL PRIMARY KEY,
    "FirstName"            VARCHAR(40)         NOT NULL,
    "LastName"             VARCHAR(40)         NOT NULL,
    "City"                 VARCHAR(40)         NULL,
@@ -15,7 +15,7 @@ CREATE TABLE "Customer" (
 );
 
 CREATE TABLE "Supplier" (
-   "Id"                   INTEGER             PRIMARY KEY,
+   "Id"                   INTEGER             NOT NULL PRIMARY KEY,
    "CompanyName"          VARCHAR(40)         NOT NULL,
    "ContactName"          VARCHAR(50)         NULL,
    "ContactTitle"         VARCHAR(40)         NULL,
@@ -27,7 +27,7 @@ CREATE TABLE "Supplier" (
 );
 
 CREATE TABLE "Product" (
-   "Id"                   INTEGER             PRIMARY KEY,
+   "Id"                   INTEGER             NOT NULL PRIMARY KEY,
    "ProductName"          VARCHAR(50)         NOT NULL,
    "SupplierId"           INT                 NOT NULL,
    "UnitPrice"            DECIMAL(12,2)       NULL DEFAULT 0,
@@ -38,7 +38,7 @@ CREATE TABLE "Product" (
 );
 
 CREATE TABLE "Order" (
-   "Id"                   INTEGER             PRIMARY KEY,
+   "Id"                   INTEGER             NOT NULL PRIMARY KEY,
    "OrderDate"            TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
    "OrderNumber"          VARCHAR(10)         NULL,
    "CustomerId"           INT                 NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE "Order" (
 );
 
 CREATE TABLE "OrderItem" (
-   "Id"                   INTEGER             PRIMARY KEY,
+   "Id"                   INTEGER              NOT NULL PRIMARY KEY,
    "OrderId"              INT                  NOT NULL,
    "ProductId"            INT                  NOT NULL,
    "UnitPrice"            DECIMAL(12,2)        NOT NULL DEFAULT 0,
