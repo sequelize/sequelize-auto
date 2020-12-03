@@ -1,4 +1,5 @@
 import _, { isDate } from "lodash";
+import { Utils } from "sequelize";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
 import { AutoOptions, CaseOption, Field, IndexSpec, LangOption, qNameSplit, recase, TableData } from "./types";
@@ -80,7 +81,7 @@ export class AutoGenerator {
       const tableName = recase(this.options.caseModel, tableNameOrig);
 
       if (this.options.lang === 'ts') {
-        const associations = this.addTypeScriptAssociationMixins(table)
+        const associations = this.addTypeScriptAssociationMixins(table);
         const needed = _.keys(associations.needed).sort();
         needed.forEach(model => {
           const set = associations.needed[model];
@@ -97,10 +98,10 @@ export class AutoGenerator {
 
         if (primaryKeys.length) {
           str += `export type #TABLE#Pk = ${primaryKeys.map((k) => `"${recase(this.options.caseProp, k)}"`).join(' | ')};\n`;
-          str += `export type #TABLE#Id = #TABLE#[#TABLE#Pk];\n\n`;
-          str += "export type #TABLE#CreationAttributes = Optional<#TABLE#Attributes, #TABLE#Pk>\n\n";
+          str += `export type #TABLE#Id = #TABLE#[#TABLE#Pk];\n`;
+          str += "export type #TABLE#CreationAttributes = Optional<#TABLE#Attributes, #TABLE#Pk>;\n\n";
         } else {
-          str += "export type #TABLE#CreationAttributes = #TABLE#Attributes\n\n";
+          str += "export type #TABLE#CreationAttributes = #TABLE#Attributes;\n\n";
         }
 
         str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
@@ -494,12 +495,11 @@ export class AutoGenerator {
   private addTypeScriptAssociationMixins(table: string): Record<string, any> {
     const sp = this.space[1];
     const [mySchemaName, myTableName] = qNameSplit(table);
+    const modelName = recase(this.options.caseModel, myTableName);
     let str = '';
     const needed: Record<string, Set<String>> = {};
     const fkTables = _.keys(this.foreignKeys).sort();
     fkTables.forEach(t => {
-      const [_theirSchemaName, theirTableName] = qNameSplit(t);
-      const modelName = recase(this.options.caseModel, myTableName);
       const fkFields = this.foreignKeys[t];
       const fkFieldNames = _.keys(fkFields);
       fkFieldNames.forEach(fkFieldName => {
@@ -509,60 +509,67 @@ export class AutoGenerator {
 
           if (spec.source_schema === mySchemaName && spec.source_table === myTableName) {
             const btModel = recase(this.options.caseModel, spec.foreignSources.target_table as string);
-            const btModelSingular = btModel.replace(/s$/, '');
+            const btModelSingular = Utils.singularize(btModel);
             needed[btModel] ??= new Set();
             str += `${sp}// ${modelName} belongsTo ${btModel}\n`;
-            str += `${sp}get${btModelSingular}: Sequelize.BelongsToGetAssociationMixin<${btModel}>;\n`;
-            str += `${sp}set${btModelSingular}: Sequelize.BelongsToSetAssociationMixin<${btModel}, ${btModel}Id>;\n`;
-            str += `${sp}create${btModelSingular}: Sequelize.BelongsToCreateAssociationMixin<${btModel}>;\n`;
-            needed[btModel].add(btModel)
-            needed[btModel].add(btModel+'Id');
+            str += `${sp}get${btModelSingular}!: Sequelize.BelongsToGetAssociationMixin<${btModel}>;\n`;
+            str += `${sp}set${btModelSingular}!: Sequelize.BelongsToSetAssociationMixin<${btModel}, ${btModel}Id>;\n`;
+            str += `${sp}create${btModelSingular}!: Sequelize.BelongsToCreateAssociationMixin<${btModel}>;\n`;
+            needed[btModel].add(btModel);
+            needed[btModel].add(btModel + 'Id');
+
           } else if (spec.target_schema === mySchemaName && spec.target_table === myTableName) {
             const hasModel = recase(this.options.caseModel, spec.foreignSources.source_table as string);
             const isOne = ((spec.isPrimaryKey && !_.some(fkFields, f => f.isPrimaryKey && f.source_column !== fkFieldName) ||
               (spec.isUnique && !_.some(fkFields, f => f.isUnique === spec.isUnique && f.source_column !== fkFieldName))));
             needed[hasModel] ??= new Set();
             if (isOne) {
-              const hasModelSingular = hasModel.replace(/s$/, '');
+              const hasModelSingular = Utils.singularize(hasModel);
               str += `${sp}// ${modelName} hasOne ${hasModel}\n`;
-              str += `${sp}get${hasModelSingular}: Sequelize.HasOneGetAssociationMixin<${hasModel}>;\n`;
-              str += `${sp}set${hasModelSingular}: Sequelize.HasOneSetAssociationMixin<${hasModel}, ${hasModel}Id>;\n`;
-              str += `${sp}create${hasModelSingular}: Sequelize.HasOneCreateAssociationMixin<${hasModel}CreationAttributes>;\n`;
+              str += `${sp}get${hasModelSingular}!: Sequelize.HasOneGetAssociationMixin<${hasModel}>;\n`;
+              str += `${sp}set${hasModelSingular}!: Sequelize.HasOneSetAssociationMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}create${hasModelSingular}!: Sequelize.HasOneCreateAssociationMixin<${hasModel}CreationAttributes>;\n`;
               needed[hasModel].add(hasModel);
               needed[hasModel].add(`${hasModel}Id`);
               needed[hasModel].add(`${hasModel}CreationAttributes`);
             } else {
+              const hasModelPlural = Utils.pluralize(hasModel);
               str += `${sp}// ${modelName} hasMany ${hasModel}\n`;
-              str += `${sp}get${hasModel}: Sequelize.HasManyGetAssociationsMixin<${hasModel}>;\n`;
-              str += `${sp}set${hasModel}: Sequelize.HasManySetAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
-              str += `${sp}add${hasModel}: Sequelize.HasManyAddAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
-              str += `${sp}remove${hasModel}: Sequelize.HasManyRemoveAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
-              str += `${sp}has${hasModel}: Sequelize.HasManyHasAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
-              str += `${sp}count${hasModel}: Sequelize.HasManyCountAssociationsMixin;\n`;
+              str += `${sp}get${hasModelPlural}!: Sequelize.HasManyGetAssociationsMixin<${hasModel}>;\n`;
+              str += `${sp}set${hasModelPlural}!: Sequelize.HasManySetAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}add${hasModel}!: Sequelize.HasManyAddAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}remove${hasModel}!: Sequelize.HasManyRemoveAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}has${hasModel}!: Sequelize.HasManyHasAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}count${hasModelPlural}!: Sequelize.HasManyCountAssociationsMixin;\n`;
               needed[hasModel].add(hasModel);
               needed[hasModel].add(`${hasModel}Id`);
             }
-            if (spec.isPrimaryKey) {
-              // if FK is also part of the PK, see if there is a "many-to-many" junction
-              const otherKey = _.find(fkFields, k => k.isForeignKey && k.isPrimaryKey && k.source_column !== fkFieldName);
-              if (otherKey) {
-                const otherModel = recase(this.options.caseModel, otherKey.foreignSources.target_table as string);
-                needed[otherModel] ??= new Set();
-                str += `${sp}// ${modelName} belongsToMany ${otherModel}\n`;
-                str += `${sp}get${otherModel}: Sequelize.BelongsToManyGetAssociationsMixin<${otherModel}>;\n`;
-                str += `${sp}set${otherModel}: Sequelize.BelongsToManySetAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
-                str += `${sp}add${otherModel}: Sequelize.BelongsToManyAddAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
-                str += `${sp}remove${otherModel}: Sequelize.BelongsToManyRemoveAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
-                str += `${sp}has${otherModel}: Sequelize.BelongsToManyHasAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
-                str += `${sp}count${otherModel}: Sequelize.BelongsToManyCountAssociationsMixin;\n`;
-                needed[otherModel].add(otherModel);
-                needed[otherModel].add(`${otherModel}Id`);
-              }
+          } else if (spec.isPrimaryKey && spec.foreignSources.target_schema === mySchemaName &&
+              spec.foreignSources.target_table === myTableName) {
+            // if FK is also part of the PK, see if there is a "many-to-many" junction
+            const otherKey = _.find(fkFields, k => k.isForeignKey && k.isPrimaryKey && k.source_column !== fkFieldName);
+            if (otherKey) {
+              const otherModel = recase(this.options.caseModel, otherKey.foreignSources.target_table as string);
+              needed[otherModel] ??= new Set();
+              const otherModelPlural = Utils.pluralize(otherModel);
+              str += `${sp}// ${modelName} belongsToMany ${otherModel}\n`;
+              str += `${sp}get${otherModelPlural}!: Sequelize.BelongsToManyGetAssociationsMixin<${otherModel}>;\n`;
+              str += `${sp}set${otherModelPlural}!: Sequelize.BelongsToManySetAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
+              str += `${sp}add${otherModel}!: Sequelize.BelongsToManyAddAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
+              str += `${sp}remove${otherModel}!: Sequelize.BelongsToManyRemoveAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
+              str += `${sp}has${otherModel}!: Sequelize.BelongsToManyHasAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
+              str += `${sp}count${otherModelPlural}!: Sequelize.BelongsToManyCountAssociationsMixin;\n`;
+              needed[otherModel].add(otherModel);
+              needed[otherModel].add(`${otherModel}Id`);
             }
           }
+
         }
       });
     });
+    if (needed[modelName]) {
+      delete needed[modelName]; // don't add import for self
+    }
     return {needed, str};
   }
 
