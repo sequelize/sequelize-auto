@@ -113,7 +113,7 @@ export class AutoWriter {
 
   // create the TypeScript init-models file to load all the models into Sequelize
   private createTsInitString(tables: string[], assoc: string) {
-    let str = 'import type { Sequelize } from "sequelize";\n';
+    let str = 'import type { Sequelize, Model } from "sequelize";\n';
     const modelNames: string[] = [];
     // import statements
     tables.forEach(t => {
