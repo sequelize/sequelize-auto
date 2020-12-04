@@ -113,7 +113,7 @@ export class AutoWriter {
 
   // create the TypeScript init-models file to load all the models into Sequelize
   private createTsInitString(tables: string[], assoc: string) {
-    let str = 'import type { Sequelize } from "sequelize";\n';
+    let str = 'import type { Sequelize, Model } from "sequelize";\n';
     const modelNames: string[] = [];
     // import statements
     tables.forEach(t => {
@@ -138,7 +138,7 @@ export class AutoWriter {
     str += '};\n\n';
 
     // create the initialization function
-    str += 'export function initModels(sequelize: Sequelize) {\n';
+    str += 'export function initModels(sequelize: Sequelize): Record<string, typeof Model> {\n';
     modelNames.forEach(m => {
       str += `  ${m}.initModel(sequelize);\n`;
     });
@@ -149,7 +149,7 @@ export class AutoWriter {
     // return the models
     str += "\n  return {\n";
     modelNames.forEach(m => {
-      str += `    ${m},\n`;
+      str += `    ${m}: ${m} as typeof Model,\n`;
     });
     str += '  };\n';
     str += '}\n';
