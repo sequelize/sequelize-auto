@@ -43,11 +43,11 @@ export class AutoGenerator {
   }
 
   makeHeaderTemplate() {
-    let header = "/* jshint indent: " + this.options.indentation + " */\n\n";
+    let header = "";
     const sp = this.space[1];
 
     if (this.options.lang === 'ts') {
-      header += "import Sequelize, { DataTypes, Model, Optional } from 'sequelize';\n\n";
+      header += "import Sequelize, { DataTypes, Model, Optional } from 'sequelize';\n";
     } else if (this.options.lang === 'es6') {
       header += "const Sequelize = require('sequelize');\n";
       header += "module.exports = (sequelize, DataTypes) => {\n";
@@ -88,10 +88,10 @@ export class AutoGenerator {
           const filename = recase(this.options.caseFile, model);
           str += 'import type { ';
           str += Array.from(set.values()).sort().join(', ');
-          str += ` } from './${filename}';\n\n`;
+          str += ` } from './${filename}';\n`;
         });
 
-        str += "export interface #TABLE#Attributes {\n";
+        str += "\nexport interface #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table, true) + "}\n\n";
 
         const primaryKeys = this.getTypeScriptPrimaryKeys(table);
@@ -505,8 +505,6 @@ export class AutoGenerator {
       fkFieldNames.forEach(fkFieldName => {
         const spec = fkFields[fkFieldName];
         if (spec.isForeignKey) {
-          const targetModel = recase(this.options.caseModel, spec.foreignSources.target_table as string);
-
           if ((!mySchemaName || spec.source_schema === mySchemaName) && spec.source_table === myTableName) {
             const btModel = recase(this.options.caseModel, spec.foreignSources.target_table as string);
             const btModelSingular = Utils.singularize(btModel);
@@ -518,7 +516,8 @@ export class AutoGenerator {
             needed[btModel].add(btModel);
             needed[btModel].add(btModel + 'Id');
 
-          } else if ((!mySchemaName || spec.target_schema === mySchemaName) && spec.target_table === myTableName) {
+          } else if (((!mySchemaName || spec.target_schema === mySchemaName) && spec.target_table === myTableName) ||
+              ((!mySchemaName || spec.foreignSources.target_schema === mySchemaName) && spec.foreignSources.target_table === myTableName)) {
             const hasModel = recase(this.options.caseModel, spec.foreignSources.source_table as string);
             const isOne = ((spec.isPrimaryKey && !_.some(fkFields, f => f.isPrimaryKey && f.source_column !== fkFieldName) ||
               (spec.isUnique && !_.some(fkFields, f => f.isUnique === spec.isUnique && f.source_column !== fkFieldName))));
