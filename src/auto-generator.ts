@@ -544,7 +544,8 @@ export class AutoGenerator {
               needed[hasModel].add(hasModel);
               needed[hasModel].add(`${hasModel}Id`);
             }
-          } else if (spec.isPrimaryKey && (!mySchemaName || spec.foreignSources.target_schema === mySchemaName) &&
+          }
+          if (spec.isPrimaryKey && (!mySchemaName || spec.foreignSources.target_schema === mySchemaName) &&
               spec.foreignSources.target_table === myTableName) {
             // if FK is also part of the PK, see if there is a "many-to-many" junction
             const otherKey = _.find(fkFields, k => k.isForeignKey && k.isPrimaryKey && k.source_column !== fkFieldName);
