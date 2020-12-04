@@ -74,8 +74,8 @@ export class AutoWriter {
   private createAssociations(typeScript: boolean) {
     let strBelongs = "";
     let strBelongsToMany = "";
-    // declare through model "as any" because typings don't match
-    const asAny = typeScript ? " as any" : "";
+    // declare through model "as Model" because typings don't match
+    const asAny = typeScript ? " as typeof Model" : "";
     const fkTables = _.keys(this.foreignKeys).sort();
     fkTables.forEach(t => {
       const [schemaName, tableName] = qNameSplit(t);
