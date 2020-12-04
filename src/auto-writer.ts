@@ -138,7 +138,7 @@ export class AutoWriter {
     str += '};\n\n';
 
     // create the initialization function
-    str += 'export function initModels(sequelize: Sequelize) {\n';
+    str += 'export function initModels(sequelize: Sequelize): Record<string, typeof Model> {\n';
     modelNames.forEach(m => {
       str += `  ${m}.initModel(sequelize);\n`;
     });
@@ -149,7 +149,7 @@ export class AutoWriter {
     // return the models
     str += "\n  return {\n";
     modelNames.forEach(m => {
-      str += `    ${m},\n`;
+      str += `    ${m}: ${m} as typeof Model,\n`;
     });
     str += '  };\n';
     str += '}\n';
