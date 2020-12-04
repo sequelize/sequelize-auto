@@ -507,7 +507,7 @@ export class AutoGenerator {
         if (spec.isForeignKey) {
           const targetModel = recase(this.options.caseModel, spec.foreignSources.target_table as string);
 
-          if (spec.source_schema === mySchemaName && spec.source_table === myTableName) {
+          if ((!mySchemaName || spec.source_schema === mySchemaName) && spec.source_table === myTableName) {
             const btModel = recase(this.options.caseModel, spec.foreignSources.target_table as string);
             const btModelSingular = Utils.singularize(btModel);
             needed[btModel] ??= new Set();
@@ -518,7 +518,7 @@ export class AutoGenerator {
             needed[btModel].add(btModel);
             needed[btModel].add(btModel + 'Id');
 
-          } else if (spec.target_schema === mySchemaName && spec.target_table === myTableName) {
+          } else if ((!mySchemaName || spec.target_schema === mySchemaName) && spec.target_table === myTableName) {
             const hasModel = recase(this.options.caseModel, spec.foreignSources.source_table as string);
             const isOne = ((spec.isPrimaryKey && !_.some(fkFields, f => f.isPrimaryKey && f.source_column !== fkFieldName) ||
               (spec.isUnique && !_.some(fkFields, f => f.isUnique === spec.isUnique && f.source_column !== fkFieldName))));
@@ -544,7 +544,7 @@ export class AutoGenerator {
               needed[hasModel].add(hasModel);
               needed[hasModel].add(`${hasModel}Id`);
             }
-          } else if (spec.isPrimaryKey && spec.foreignSources.target_schema === mySchemaName &&
+          } else if (spec.isPrimaryKey && (!mySchemaName || spec.foreignSources.target_schema === mySchemaName) &&
               spec.foreignSources.target_table === myTableName) {
             // if FK is also part of the PK, see if there is a "many-to-many" junction
             const otherKey = _.find(fkFields, k => k.isForeignKey && k.isPrimaryKey && k.source_column !== fkFieldName);
