@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Dialect, QueryInterface, QueryTypes, Sequelize } from "sequelize";
 import { ColumnElementType, DialectOptions, FKRow, FKSpec, TriggerCount } from "./dialects/dialect-options";
 import { dialects } from "./dialects/dialects";
-import { IndexSpec, Table, TableData } from "./types";
+import { Field, IndexSpec, Table, TableData } from "./types";
 
 export class AutoBuilder {
   sequelize: Sequelize;
@@ -133,11 +133,11 @@ export class AutoBuilder {
         const elementTypes = await this.executeQuery<ColumnElementType>(stquery);
           // add element type to "special" property of field
         elementTypes.forEach(et => {
-          const fld = fields[et.column_name];
+          const fld = fields[et.column_name] as Field;
           if (fld.type === "ARRAY") {
-            (fld as any).special = et.element_type;
-          } else if (fld.type === "USER-DEFINED") {
-            (fld as any).type = et.udt_name;
+            fld.special = et.element_type as any;
+          } else if (fld.type === "USER-DEFINED" && !fld.special.length) {
+            fld.type = et.udt_name;
           }
         });
 
