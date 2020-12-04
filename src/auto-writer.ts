@@ -16,6 +16,7 @@ export class AutoWriter {
     directory: string;
     lang?: LangOption;
     noWrite?: boolean;
+    singularize?: boolean;
   };
   constructor(tableData: TableData, options: AutoOptions) {
     this.tableText = tableData.text as  { [name: string]: string };
@@ -63,7 +64,7 @@ export class AutoWriter {
     // is up to the developer to pick the right schema, and potentially chose different output
     // folders for each different schema.
     const [schemaName, tableName] = qNameSplit(table);
-    const fileName = recase(this.options.caseFile, tableName);
+    const fileName = recase(this.options.caseFile, tableName, this.options.singularize);
     const filePath = path.join(this.options.directory, fileName + (this.options.lang === 'ts' ? '.ts' : '.js'));
 
     const writeFile = util.promisify(fs.writeFile);
@@ -79,13 +80,13 @@ export class AutoWriter {
     const fkTables = _.keys(this.foreignKeys).sort();
     fkTables.forEach(t => {
       const [schemaName, tableName] = qNameSplit(t);
-      const modelName = recase(this.options.caseModel, tableName);
+      const modelName = recase(this.options.caseModel, tableName, this.options.singularize);
       const fkFields = this.foreignKeys[t];
       const fkFieldNames = _.keys(fkFields);
       fkFieldNames.forEach(fkFieldName => {
         const spec = fkFields[fkFieldName];
         if (spec.isForeignKey) {
-          const targetModel = recase(this.options.caseModel, spec.foreignSources.target_table as string);
+          const targetModel = recase(this.options.caseModel, spec.foreignSources.target_table as string, this.options.singularize);
           const sourceProp = recase(this.options.caseProp, fkFieldName);
           strBelongs += `  ${modelName}.belongsTo(${targetModel}, { foreignKey: "${sourceProp}"});\n`;
 
@@ -93,7 +94,7 @@ export class AutoWriter {
             // if FK is also part of the PK, see if there is a "many-to-many" junction
             const otherKey = _.find(fkFields, k => k.isForeignKey && k.isPrimaryKey && k.source_column !== fkFieldName);
             if (otherKey) {
-              const otherModel = recase(this.options.caseModel, otherKey.foreignSources.target_table as string);
+              const otherModel = recase(this.options.caseModel, otherKey.foreignSources.target_table as string, this.options.singularize);
               const otherProp = recase(this.options.caseProp, otherKey.source_column);
               strBelongsToMany += `  ${otherModel}.belongsToMany(${targetModel}, { through: ${modelName}${asAny}, foreignKey: "${otherProp}", otherKey: "${sourceProp}" });\n`;
             }
@@ -117,8 +118,8 @@ export class AutoWriter {
     const modelNames: string[] = [];
     // import statements
     tables.forEach(t => {
-      const fileName = recase(this.options.caseFile, t);
-      const modelName = recase(this.options.caseModel, t);
+      const fileName = recase(this.options.caseFile, t, this.options.singularize);
+      const modelName = recase(this.options.caseModel, t, this.options.singularize);
       modelNames.push(modelName);
       str += `import { ${modelName} } from "./${fileName}";\n`;
       str += `import type { ${modelName}Attributes, ${modelName}CreationAttributes } from "./${fileName}";\n`;
@@ -128,7 +129,7 @@ export class AutoWriter {
     modelNames.forEach(m => {
       str += `  ${m},\n`;
     });
-    str += '};\n\n';
+    str += '};\n';
     // re-export the model attirbutes
     str += '\nexport type {\n';
     modelNames.forEach(m => {
@@ -163,8 +164,8 @@ export class AutoWriter {
     const modelNames: string[] = [];
     // import statements
     tables.forEach(t => {
-      const fileName = recase(this.options.caseFile, t);
-      const modelName = recase(this.options.caseModel, t);
+      const fileName = recase(this.options.caseFile, t, this.options.singularize);
+      const modelName = recase(this.options.caseModel, t, this.options.singularize);
       modelNames.push(modelName);
       str += `var _${modelName} = require("./${fileName}");\n`;
     });

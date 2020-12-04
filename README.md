@@ -64,6 +64,7 @@ MSSQL | `npm install sequelize tedious`
                           es6 = ES6 CJS modules
                           esm = ES6 ESM modules
                           ts = TypeScript                                    [string]
+      --sg, --singularize Singularize model and file names from plural table names
 
 > On Windows, provide the path to sequelize-auto: `node_modules\.bin\sequelize-auto [args]`
 
@@ -74,8 +75,6 @@ MSSQL | `npm install sequelize tedious`
 Produces a file/files such as `./models/User.js` which looks like:
 
 ```js
-/* jshint indent: 2 */
-
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('User', {
     id: {
@@ -103,7 +102,6 @@ module.exports = function(sequelize, DataTypes) {
     }
   }, {
     tableName: 'User',
-    freezeTableName: true
   });
 };
 ```
@@ -129,9 +127,19 @@ module.exports = { initModels };
 
 This makes it easy to import all your models into Sequelize by calling `initModels(sequelize)`.
 
+```js
+var initModels = require("./models/init-models"); 
+...
+var models = initModels(sequelize);
+
+models.User.findAll({ where: { username: "tony" }}).then(...);
+```
+
 Alternatively, you can [Sequelize.import](http://docs.sequelizejs.com/en/latest/docs/models-definition/#import) each model (for Sequelize versions < 6), or `require` each file and call the returned function:
 
-    var User = require('path/to/user')(sequelize, DataTypes);
+```js
+var User = require('path/to/user')(sequelize, DataTypes);
+```
 
 ## ES6
 
@@ -142,10 +150,12 @@ You can use the `-l es6` option to create the model definition files as ES6 clas
 Add `-l ts` to cli options or `lang: 'ts'` to programmatic options.  This will generate a TypeScript class in each model file, and an `init-model.ts` file 
 to import and initialize all the classes.
 
+The TypeScript model classes are created as described in the [Sequelize manual](https://sequelize.org/master/manual/typescript.html)
+
 Example model class, `order.ts`:
 
 ```js
-import { DataTypes, Model, Sequelize } from 'sequelize';
+import Sequelize, { DataTypes, Model, Optional } from 'sequelize';
 
 export interface OrderAttributes {
   id?: number;
@@ -155,12 +165,28 @@ export interface OrderAttributes {
   totalAmount?: number;
 }
 
+export type OrderPk = "id";
+export type OrderId = Order[OrderPk];
+export type OrderCreationAttributes = Optional<OrderAttributes, OrderPk>;
+
 export class Order extends Model<OrderAttributes, OrderAttributes> implements OrderAttributes {
   id?: number;
   orderDate?: Date;
   orderNumber?: string;
   customerId?: number;
   totalAmount?: number;
+
+  // Order hasMany OrderItem
+  getOrderItems!: Sequelize.HasManyGetAssociationsMixin<OrderItem>;
+  setOrderItems!: Sequelize.HasManySetAssociationsMixin<OrderItem, OrderItemId>;
+  addOrderItem!: Sequelize.HasManyAddAssociationsMixin<OrderItem, OrderItemId>;
+  removeOrderItem!: Sequelize.HasManyRemoveAssociationsMixin<OrderItem, OrderItemId>;
+  hasOrderItem!: Sequelize.HasManyHasAssociationsMixin<OrderItem, OrderItemId>;
+  countOrderItems!: Sequelize.HasManyCountAssociationsMixin;
+  // Order belongsTo Customer
+  getCustomer!: Sequelize.BelongsToGetAssociationMixin<Customer>;
+  setCustomer!: Sequelize.BelongsToSetAssociationMixin<Customer, CustomerId>;
+  createCustomer!: Sequelize.BelongsToCreateAssociationMixin<Customer>;
 
   static initModel(sequelize: Sequelize) {
     Order.init({
@@ -266,7 +292,7 @@ initModels(this.sequelize);
 
 const myOrders = await Order.findAll({ where: { "customerId": cust.id } });
 
-const attr: OrderAttributes = {
+const attr: OrderCreationAttributes = {
   customerId: cust.id,
   orderDate: new Date(),
   orderNumber: "ORD123",
@@ -299,13 +325,14 @@ With options:
 const auto = new SequelizeAuto('database', 'user', 'pass', {
     host: 'localhost',
     dialect: 'mysql'|'mariadb'|'sqlite'|'postgres'|'mssql',
-    directory: false, // prevents the program from writing to disk
+    directory: './models', // where to write files
     port: 'port',
     caseModel: 'c', // convert snake_case column names to camelCase field names: user_id -> userId
     caseFile: 'c', // file names created for each model use camelCase.js not snake_case.js
+    singularize: true, // convert plural table names to singular model names
     additional: {
         timestamps: false
-        //...
+        // ...options added to each model
     },
     tables: ['table1', 'table2', 'myschema.table3'] // use all tables, if omitted
     //...

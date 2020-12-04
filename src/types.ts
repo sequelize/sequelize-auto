@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { Utils } from "sequelize";
 import { ColumnDescription, Dialect } from "sequelize/types";
 import { FKSpec } from "./dialects/dialect-options";
 
@@ -90,7 +91,6 @@ export interface AutoOptions {
   dialectOptions?: { options?: any };
   /** Where to write the model files */
   directory: string;
-  freezeTableName?: boolean;
   /** Database host */
   host?: string;
   /** Number of spaces or tabs to indent (default 2) */
@@ -103,6 +103,8 @@ export interface AutoOptions {
   port?: number;
   /** Database schema to export */
   schema?: string;
+  /** Whether to singularize model names */
+  singular?: boolean;
   /** Tables to skip exporting */
   skipTables?: string[];
   /** Whether to indent with spaces instead of tabs (default true) */
@@ -116,7 +118,10 @@ export interface AutoOptions {
 }
 
 /** Change casing of val string according to opt [c|l|o|p|u]  */
-export function recase(opt: CaseOption | undefined, val: string | null) {
+export function recase(opt: CaseOption | undefined, val: string | null, singularize = false) {
+  if (singularize && val) {
+    val = Utils.singularize(val);
+  }
   if (!opt || opt === 'o' || !val) {
     return val || ''; // original
   }

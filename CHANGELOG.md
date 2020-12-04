@@ -1,5 +1,10 @@
 # sequelize-auto change log
 
+## [0.7.5]
+
+* Add `--singularize` option, to singularize model and file names from plural table names
+* TypeScript - add get/set/add/remove/has/count/create association methods to TypeScript models 
+
 ## [0.7.4] - 2020-12-01
 
 * TypeScript - only declare properties optional (with `?`) when field is nullable (#450) (thanks @mat813)

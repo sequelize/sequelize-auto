@@ -20,6 +20,7 @@ export class AutoGenerator {
     caseFile?: CaseOption;
     additional?: any;
     schema?: string;
+    singularize?: boolean;
   };
 
   constructor(tableData: TableData, dialect: DialectOptions, options: AutoOptions) {
@@ -78,14 +79,14 @@ export class AutoGenerator {
     tableNames.forEach(table => {
       let str = header;
       const [schemaName, tableNameOrig] = qNameSplit(table);
-      const tableName = recase(this.options.caseModel, tableNameOrig);
+      const tableName = recase(this.options.caseModel, tableNameOrig, this.options.singularize);
 
       if (this.options.lang === 'ts') {
         const associations = this.addTypeScriptAssociationMixins(table);
         const needed = _.keys(associations.needed).sort();
         needed.forEach(model => {
           const set = associations.needed[model];
-          const filename = recase(this.options.caseFile, model);
+          const filename = recase(this.options.caseFile, model, this.options.singularize);
           str += 'import type { ';
           str += Array.from(set.values()).sort().join(', ');
           str += ` } from './${filename}';\n`;
@@ -106,7 +107,7 @@ export class AutoGenerator {
 
         str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table, false);
-        str += associations.str;
+        str += "\n" + associations.str;
         str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize.Sequelize): typeof " + tableName + " {\n";
         str += this.space[2] + tableName + ".init({\n";
       }
@@ -126,7 +127,7 @@ export class AutoGenerator {
   private addTable(table: string) {
 
     const [schemaName, tableNameOrig] = qNameSplit(table);
-    const tableName = recase(this.options.caseModel, tableNameOrig);
+    const tableName = recase(this.options.caseModel, tableNameOrig, this.options.singularize);
     const space = this.space;
     let timestamps = (this.options.additional && this.options.additional.timestamps === true) || false;
     let paranoid = false;
@@ -495,7 +496,7 @@ export class AutoGenerator {
   private addTypeScriptAssociationMixins(table: string): Record<string, any> {
     const sp = this.space[1];
     const [mySchemaName, myTableName] = qNameSplit(table);
-    const modelName = recase(this.options.caseModel, myTableName);
+    const modelName = recase(this.options.caseModel, myTableName, this.options.singularize);
     let str = '';
     const needed: Record<string, Set<String>> = {};
     const fkTables = _.keys(this.foreignKeys).sort();
@@ -506,7 +507,7 @@ export class AutoGenerator {
         const spec = fkFields[fkFieldName];
         if (spec.isForeignKey) {
           if ((!mySchemaName || spec.source_schema === mySchemaName) && spec.source_table === myTableName) {
-            const btModel = recase(this.options.caseModel, spec.foreignSources.target_table as string);
+            const btModel = recase(this.options.caseModel, spec.foreignSources.target_table as string, this.options.singularize);
             const btModelSingular = Utils.singularize(btModel);
             needed[btModel] ??= new Set();
             str += `${sp}// ${modelName} belongsTo ${btModel}\n`;
@@ -518,7 +519,7 @@ export class AutoGenerator {
 
           } else if (((!mySchemaName || spec.target_schema === mySchemaName) && spec.target_table === myTableName) ||
               ((!mySchemaName || spec.foreignSources.target_schema === mySchemaName) && spec.foreignSources.target_table === myTableName)) {
-            const hasModel = recase(this.options.caseModel, spec.foreignSources.source_table as string);
+            const hasModel = recase(this.options.caseModel, spec.foreignSources.source_table as string, this.options.singularize);
             const isOne = ((spec.isPrimaryKey && !_.some(fkFields, f => f.isPrimaryKey && f.source_column !== fkFieldName) ||
               (spec.isUnique && !_.some(fkFields, f => f.isUnique === spec.isUnique && f.source_column !== fkFieldName))));
             needed[hasModel] ??= new Set();
@@ -549,7 +550,7 @@ export class AutoGenerator {
             // if FK is also part of the PK, see if there is a "many-to-many" junction
             const otherKey = _.find(fkFields, k => k.isForeignKey && k.isPrimaryKey && k.source_column !== fkFieldName);
             if (otherKey) {
-              const otherModel = recase(this.options.caseModel, otherKey.foreignSources.target_table as string);
+              const otherModel = recase(this.options.caseModel, otherKey.foreignSources.target_table as string, this.options.singularize);
               needed[otherModel] ??= new Set();
               const otherModelPlural = Utils.pluralize(otherModel);
               str += `${sp}// ${modelName} belongsToMany ${otherModel}\n`;

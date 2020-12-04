@@ -35,7 +35,6 @@ export class SequelizeAuto {
       indentation: 2,
       directory: './models',
       additional: {},
-      freezeTableName: true,
       host: 'localhost',
       port: this.getDefaultPort(options.dialect),
       closeConnectionAutomatically: true

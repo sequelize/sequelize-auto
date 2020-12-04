@@ -24,8 +24,10 @@ class SampleApp {
       return;
     }
 
-    const ord = await Order.findOne({ where: { orderNumber: "542639"}, include: [Customer as any]});
+    const ord = await Order.findOne({ where: { orderNumber: "542639"}});
     console.log(ord);
+    console.log(await ord?.getCustomer());
+    console.log(await ord?.getOrderItems());
 
     // make pseudo-incremental order number for demo
     const millis = new Date().getTime().toString();
@@ -39,12 +41,14 @@ class SampleApp {
       totalAmount: 223.45
     };
 
-    Order.create(attr).then(() => {
+    await Order.create(attr).then(() => {
       // display list of orders
-      Order.findAll({ where: { "customerId": cust.id } }).then(rows => {
+      return Order.findAll({ where: { "customerId": cust.id } }).then(rows => {
         rows.forEach(r => console.log(r.orderNumber + " " + r.totalAmount));
       });
     });
+
+    this.sequelize.close();
   }
 }
 

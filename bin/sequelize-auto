@@ -25,6 +25,7 @@ const argv = require('yargs')
   .alias('s', 'schema').string('s')
   .alias('v', 'views').boolean('v')
   .alias('l', 'lang').string('l')
+  .alias('sg', 'singularize').boolean('sg')
   .describe('h', 'IP/Hostname for the database.')
   .describe('d', 'Database name.')
   .describe('u', 'Username for database.')
@@ -49,6 +50,7 @@ const argv = require('yargs')
   .describe('s', 'Database schema from which to retrieve tables')
   .describe('v', 'Include database views in generated models')
   .describe('l', 'Language for Model output: es5|es6|esm|ts \n es5 = ES5 CJS modules (default) \n es6 = ES6 CJS modules \n esm = ES6 ESM modules \n ts = TypeScript ')
+  .describe('sg', 'Singularize model and file names from plural table names')
   .argv;
 
 const dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
@@ -90,6 +92,7 @@ configFile.caseFile = argv.cf || configFile.caseFile || 'o';
 configFile.caseProp = argv.cp || configFile.caseProp || 'o';
 configFile.noWrite = argv.n || configFile.noWrite || false;
 configFile.views = argv.v || configFile.views || false;
+configFile.singularize = argv.sg || configFile.singularize || false;
 
 console.log(configFile);
 
