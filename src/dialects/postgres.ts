@@ -20,7 +20,8 @@ export const postgresOptions: DialectOptions = {
     CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.constraint_schema ELSE null END AS target_schema,
     CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.table_name ELSE null END AS target_table,
     CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.column_name ELSE null END AS target_column,
-    co.column_default as extra
+    co.column_default as extra,
+    co.identity_generation as generation
     FROM information_schema.table_constraints AS tc
     JOIN information_schema.key_column_usage AS kcu
       ON tc.table_schema = kcu.table_schema AND tc.table_name = kcu.table_name AND tc.constraint_name = kcu.constraint_name
@@ -82,10 +83,10 @@ export const postgresOptions: DialectOptions = {
    * @param {Object} record The row entry from getForeignKeysQuery
    * @return {Bool}
    */
-  isSerialKey: (record: { extra: string, defaultValue: string }) => {
-    const isSequence = (val: string) => !!val && _.startsWith(val, 'nextval') && _.includes(val, '_seq') && _.includes(val, '::regclass');
+  isSerialKey: (record: { extra: string, defaultValue: string, generation: string }) => {
+    const isSequence = (val: string) => !!val && ((_.startsWith(val, 'nextval') && _.includes(val, '_seq') && _.includes(val, '::regclass')) || (val === 'ALWAYS' || val === 'BY DEFAULT'));
     return (
-      _.isObject(record) && (isSequence(record.extra) || isSequence(record.defaultValue))
+      _.isObject(record) && (isSequence(record.extra) || isSequence(record.defaultValue) || isSequence(record.generation))
     );
   },
   /**
