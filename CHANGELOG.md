@@ -3,7 +3,11 @@
 ## [0.7.5]
 
 * Add `--singularize` option, to singularize model and file names from plural table names
-* TypeScript - add get/set/add/remove/has/count/create association methods to TypeScript models 
+* TypeScript - add association `get/set/add/remove/has/count/create` mixing methods to TypeScript models (#453) (thanks @mat813)
+* TypeScript - Add TableId and TablePk to model definitions (#453) (thanks @mat813)
+* Fix autoIncrement for generated keys in Postgres (#459 and #460) (thanks @divinebovine) 
+* Cast through class to `Model` instead of `any` (#454) (thanks @mat813)
+* Fix postgres enum types broken in 0.7.2 (#455)
 
 ## [0.7.4] - 2020-12-01
 
