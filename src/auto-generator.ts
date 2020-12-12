@@ -661,7 +661,7 @@ export class AutoGenerator {
   }
 
   private isNumber(fieldType: string): boolean {
-    return /^(smallint|mediumint|tinyint|int|bigint|float|money|smallmoney|double|decimal|numeric|real|date|time)(?:\(|$)/.test(fieldType);
+    return /^(smallint|mediumint|tinyint|int|bigint|float|money|smallmoney|double|decimal|numeric|real)/.test(fieldType);
   }
 
   private isBoolean(fieldType: string): boolean {
@@ -673,7 +673,7 @@ export class AutoGenerator {
   }
 
   private isString(fieldType: string): boolean {
-    return /^(char|nchar|string|varying|varchar|nvarchar|text|longtext|mediumtext|tinytext|ntext|uuid|uniqueidentifier)/.test(fieldType);
+    return /^(char|nchar|string|varying|varchar|nvarchar|text|longtext|mediumtext|tinytext|ntext|uuid|uniqueidentifier|date|time)(?:\(|$)/.test(fieldType);
   }
 
   private isArray(fieldType: string): boolean {
