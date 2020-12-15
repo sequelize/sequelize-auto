@@ -58,7 +58,8 @@ export class AutoGenerator {
       header += sp + "static init(sequelize, DataTypes) {\n";
       header += sp + "super.init({\n";
     } else if (this.options.lang === 'esm') {
-      header += "import { Model, Sequelize } from 'sequelize';\n\n";
+      header += "import _sequelize from 'sequelize';\n";
+      header += "const { Model, Sequelize } = _sequelize\n\n"
       header += "export default class #TABLE# extends Model {\n";
       header += sp + "static init(sequelize, DataTypes) {\n";
       header += sp + "super.init({\n";
