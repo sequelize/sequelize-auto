@@ -684,11 +684,11 @@ export class AutoGenerator {
   }
 
   private isDate(fieldType: string): boolean {
-    return /^(date|time|timestamp)/.test(fieldType);
+    return /^(datetime|timestamp)/.test(fieldType);
   }
 
   private isString(fieldType: string): boolean {
-    return /^(char|nchar|string|varying|varchar|nvarchar|text|longtext|mediumtext|tinytext|ntext|uuid|uniqueidentifier)/.test(fieldType);
+    return /^(char|nchar|string|varying|varchar|nvarchar|text|longtext|mediumtext|tinytext|ntext|uuid|uniqueidentifier|date|time)(?:\(|$)/.test(fieldType);
   }
 
   private isArray(fieldType: string): boolean {
