@@ -614,7 +614,8 @@ export class AutoGenerator {
   }
 
   private getTypeScriptFieldType(fieldObj: any, attr: string) {
-    const fieldType = (fieldObj[attr] || '').toLowerCase();
+    const rawFieldType = fieldObj[attr] || ''
+    const fieldType = rawFieldType.toLowerCase();
     let jsType: string;
     if (this.isString(fieldType)) {
       jsType = 'string';
@@ -628,7 +629,7 @@ export class AutoGenerator {
       const eltype = this.getTypeScriptFieldType(fieldObj, "special");
       jsType = eltype + '[]';
     } else if (this.isEnum(fieldType)) {
-      const values = fieldType.substring(5, fieldType.length - 1).split(',').join(' | ');
+      const values = rawFieldType.substring(5, rawFieldType.length - 1).split(',').join(' | ');
       jsType = values;
     } else {
       console.log(`Missing TypeScript type: ${fieldType}`);
