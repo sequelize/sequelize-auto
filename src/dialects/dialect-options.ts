@@ -62,6 +62,7 @@ export interface ColumnElementType {
   data_type: string;
   udt_name: string;
   element_type: string;
+  enum_values: string;
 }
 
 export interface TriggerCount {

@@ -59,7 +59,7 @@ export class AutoWriter {
     return Promise.all(promises);
   }
   private createInitString(tableNames: string[], assoc: string, lang?: string) {
-    switch(lang) {
+    switch (lang) {
       case 'ts':
         return this.createTsInitString(tableNames, assoc);
       case 'esm':

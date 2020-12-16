@@ -12,7 +12,7 @@
     "indent": [true, "spaces", 2],
     "interface-over-type-literal": true,
     "label-position": true,
-    "max-line-length": [true, 140],
+    "max-line-length": [true, 160],
     "member-access": false,
     "no-arg": true,
     "no-bitwise": true,

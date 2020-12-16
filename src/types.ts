@@ -12,6 +12,7 @@ export interface Table {
 export interface Field extends ColumnDescription {
   foreignKey: any;
   special: any[];
+  elementType: string;
   unique: boolean;
 }
 
