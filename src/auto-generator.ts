@@ -337,7 +337,7 @@ export class AutoGenerator {
       } else if (attr === "comment" && !fieldObj[attr]) {
         return true;
       } else {
-        let val = this.getSqType(fieldObj, attr);
+        let val = (attr !== "type") ? null : this.getSqType(fieldObj, attr);
         if (val == null) {
           val = (fieldObj as any)[attr];
           val = _.isString(val) ? quoteWrapper + this.escapeSpecial(val) + quoteWrapper : val;
