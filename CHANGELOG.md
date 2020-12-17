@@ -1,6 +1,16 @@
 # sequelize-auto change log
 
-## [0.7.5]
+## [0.7.6] - 2020-12-17
+
+* Fix postgres array of enum (#463)
+* Fix `init-models` for ES6 modules (#464) (thanks @djake)
+* Fix examples in README (#465) (thanks @brandomeniconi)
+* Fix bug parsing comments as field type (#471)
+* TypeScript - add missing create/remove/has association methods (#467) (thanks @mat813)
+* TypeScript - don't lowercase the enum values (#468) (thanks @JonathanWolfe)
+* TypeScript - get/set DATE and TIME types as `string` instead of `date` (#469) (thanks @JonathanWolfe)
+
+## [0.7.5] - 2020-12-05
 
 * Add `--singularize` option, to singularize model and file names from plural table names
 * TypeScript - add association `get/set/add/remove/has/count/create` mixing methods to TypeScript models (#453) (thanks @mat813)
