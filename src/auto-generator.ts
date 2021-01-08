@@ -221,7 +221,7 @@ export class AutoGenerator {
     const fieldName = recase(this.options.caseProp, field);
     let str = this.quoteName(fieldName) + ": {\n";
 
-    let defaultVal = fieldObj.defaultValue;
+    let defaultVal = this.escapeSpecial(fieldObj.defaultValue);
     const quoteWrapper = '"';
 
     const unique = fieldObj.unique || fieldObj.foreignKey && fieldObj.foreignKey.isUnique;
