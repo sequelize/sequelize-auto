@@ -128,7 +128,7 @@ module.exports = { initModels };
 This makes it easy to import all your models into Sequelize by calling `initModels(sequelize)`.
 
 ```js
-var initModels = require("./models/init-models"); 
+var initModels = require("./models/init-models");
 ...
 var models = initModels(sequelize);
 
@@ -147,7 +147,7 @@ You can use the `-l es6` option to create the model definition files as ES6 clas
 
 ## TypeScript
 
-Add `-l ts` to cli options or `lang: 'ts'` to programmatic options.  This will generate a TypeScript class in each model file, and an `init-model.ts` file 
+Add `-l ts` to cli options or `lang: 'ts'` to programmatic options.  This will generate a TypeScript class in each model file, and an `init-model.ts` file
 to import and initialize all the classes.
 
 The TypeScript model classes are created as described in the [Sequelize manual](https://sequelize.org/master/manual/typescript.html)
@@ -169,7 +169,7 @@ export type OrderPk = "id";
 export type OrderId = Order[OrderPk];
 export type OrderCreationAttributes = Optional<OrderAttributes, OrderPk>;
 
-export class Order extends Model<OrderAttributes, OrderAttributes> implements OrderAttributes {
+export class Order extends Model<OrderAttributes, OrderCreationAttributes> implements OrderAttributes {
   id?: number;
   orderDate?: Date;
   orderNumber?: string;
@@ -240,18 +240,18 @@ Example `init-models.ts`:
 
 ```js
 import { Sequelize } from "sequelize";
-import { Customer, CustomerAttributes } from "./customer";
-import { Order, OrderAttributes } from "./order";
-import { OrderItem, OrderItemAttributes } from "./order_item";
-import { Product, ProductAttributes } from "./product";
-import { Supplier, SupplierAttributes } from "./supplier";
+import { Customer, CustomerAttributes, CustomerCreationAttributes } from "./customer";
+import { Order, OrderAttributes, OrderCreationAttributes } from "./order";
+import { OrderItem, OrderItemAttributes, OrderItemCreationAttributes } from "./order_item";
+import { Product, ProductAttributes, ProductCreationAttributes } from "./product";
+import { Supplier, SupplierAttributes, SupplierCreationAttributes } from "./supplier";
 
 export {
-  Customer, CustomerAttributes,
-  Order, OrderAttributes,
-  OrderItem, OrderItemAttributes,
-  Product, ProductAttributes,
-  Supplier, SupplierAttributes,
+  Customer, CustomerAttributes, CustomerCreationAttributes,
+  Order, OrderAttributes, OrderCreationAttributes,
+  OrderItem, OrderItemAttributes, OrderItemCreationAttributes,
+  Product, ProductAttributes, ProductCreationAttributes,
+  Supplier, SupplierAttributes, SupplierCreationAttributes,
 };
 
 export function initModels(sequelize: Sequelize) {
@@ -285,7 +285,8 @@ Model usage in a TypeScript program:
 ```js
 // Order is the sequelize Model class
 // OrderAttributes is the interface defining the fields
-import { initModels, Order, OrderAttributes } from "./models/init-models";
+// OrderCreationAttributes is the interface defining the fields when creating a new record
+import { initModels, Order, OrderCreationAttributes } from "./models/init-models";
 
 // import models into sequelize instance
 initModels(this.sequelize);
@@ -359,7 +360,7 @@ auto.run();
 
 ## Testing
 
-To set up: 
+To set up:
 
 1. Create an empty database called `sequelize_auto_test` on your database server (sqlite excepted)
 2. Create a `.env` file from `sample.env` and set your username/password/port etc.  The env is read by `test/config.js`

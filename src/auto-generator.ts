@@ -1,4 +1,4 @@
-import _, { isDate } from "lodash";
+import _ from "lodash";
 import { Utils } from "sequelize";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
@@ -58,7 +58,8 @@ export class AutoGenerator {
       header += sp + "static init(sequelize, DataTypes) {\n";
       header += sp + "super.init({\n";
     } else if (this.options.lang === 'esm') {
-      header += "import { Model, Sequelize } from 'sequelize';\n\n";
+      header += "import _sequelize from 'sequelize';\n";
+      header += "const { Model, Sequelize } = _sequelize;\n\n";
       header += "export default class #TABLE# extends Model {\n";
       header += sp + "static init(sequelize, DataTypes) {\n";
       header += sp + "super.init({\n";
@@ -223,13 +224,6 @@ export class AutoGenerator {
     let defaultVal = fieldObj.defaultValue;
     const quoteWrapper = '"';
 
-    // ENUMs for postgres...
-    if (fieldObj.type === "USER-DEFINED" && !!fieldObj.special) {
-      fieldObj.type = "ENUM(" + fieldObj.special.map(function (f: string) {
-        return quoteWrapper + f + quoteWrapper;
-      }).join(',') + ")";
-    }
-
     const unique = fieldObj.unique || fieldObj.foreignKey && fieldObj.foreignKey.isUnique;
 
     const isSerialKey = (fieldObj.foreignKey && fieldObj.foreignKey.isSerialKey) ||
@@ -243,7 +237,7 @@ export class AutoGenerator {
     fieldAttrs.forEach(attr => {
 
       // We don't need the special attribute from postgresql; "unique" is handled separately
-      if (attr === "special" || attr === "unique") {
+      if (attr === "special" || attr === "elementType" || attr === "unique") {
         return true;
       }
 
@@ -340,12 +334,10 @@ export class AutoGenerator {
 
         str += space[3] + attr + ": " + val_text;
 
-      } else if (attr === "type" && fieldObj[attr].indexOf('ENUM') === 0) {
-        str += space[3] + attr + ": DataTypes." + fieldObj[attr];
       } else if (attr === "comment" && !fieldObj[attr]) {
         return true;
       } else {
-        let val = this.getSqType(fieldObj, attr);
+        let val = (attr !== "type") ? null : this.getSqType(fieldObj, attr);
         if (val == null) {
           val = (fieldObj as any)[attr];
           val = _.isString(val) ? quoteWrapper + this.escapeSpecial(val) + quoteWrapper : val;
@@ -469,19 +461,23 @@ export class AutoGenerator {
     } else if (type.match(/^json/)) {
       val = 'DataTypes.JSON';
     } else if (type.match(/^geometry/)) {
-      const gtype = fieldObj.special ? `(${fieldObj.special})` : '';
+      const gtype = fieldObj.elementType ? `(${fieldObj.elementType})` : '';
       val = `DataTypes.GEOMETRY${gtype}`;
     } else if (type.match(/^geography/)) {
-      const gtype = fieldObj.special ? `(${fieldObj.special})` : '';
+      const gtype = fieldObj.elementType ? `(${fieldObj.elementType})` : '';
       val = `DataTypes.GEOGRAPHY${gtype}`;
     } else if (type.match(/^array/)) {
-      const eltype = this.getSqType(fieldObj, "special");
+      const eltype = this.getSqType(fieldObj, "elementType");
       val = `DataTypes.ARRAY(${eltype})`;
     } else if (type.match(/(binary|image|blob)/)) {
       val = 'DataTypes.BLOB';
     } else if (type.match(/^hstore/)) {
       val = 'DataTypes.HSTORE';
+    } else if (type.match(/^enum$/)) {
+      const eltype = fieldObj.special.map(f => `"${f}"`).join(', ');
+      val = `DataTypes.ENUM(${eltype})`;
     }
+
     return val as string;
   }
 
@@ -511,6 +507,7 @@ export class AutoGenerator {
             const btModelSingular = Utils.singularize(btModel);
             needed[btModel] ??= new Set();
             str += `${sp}// ${modelName} belongsTo ${btModel}\n`;
+            str += `${sp}${btModelSingular}!: ${btModel};\n`;
             str += `${sp}get${btModelSingular}!: Sequelize.BelongsToGetAssociationMixin<${btModel}>;\n`;
             str += `${sp}set${btModelSingular}!: Sequelize.BelongsToSetAssociationMixin<${btModel}, ${btModel}Id>;\n`;
             str += `${sp}create${btModelSingular}!: Sequelize.BelongsToCreateAssociationMixin<${btModel}>;\n`;
@@ -526,6 +523,7 @@ export class AutoGenerator {
             if (isOne) {
               const hasModelSingular = Utils.singularize(hasModel);
               str += `${sp}// ${modelName} hasOne ${hasModel}\n`;
+              str += `${sp}${hasModelSingular}!: ${hasModel};\n`;
               str += `${sp}get${hasModelSingular}!: Sequelize.HasOneGetAssociationMixin<${hasModel}>;\n`;
               str += `${sp}set${hasModelSingular}!: Sequelize.HasOneSetAssociationMixin<${hasModel}, ${hasModel}Id>;\n`;
               str += `${sp}create${hasModelSingular}!: Sequelize.HasOneCreateAssociationMixin<${hasModel}CreationAttributes>;\n`;
@@ -533,13 +531,19 @@ export class AutoGenerator {
               needed[hasModel].add(`${hasModel}Id`);
               needed[hasModel].add(`${hasModel}CreationAttributes`);
             } else {
+              const hasModelSingular = Utils.singularize(hasModel);
               const hasModelPlural = Utils.pluralize(hasModel);
               str += `${sp}// ${modelName} hasMany ${hasModel}\n`;
+              str += `${sp}${hasModelPlural}!: ${hasModel}[];\n`;
               str += `${sp}get${hasModelPlural}!: Sequelize.HasManyGetAssociationsMixin<${hasModel}>;\n`;
               str += `${sp}set${hasModelPlural}!: Sequelize.HasManySetAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
-              str += `${sp}add${hasModel}!: Sequelize.HasManyAddAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
-              str += `${sp}remove${hasModel}!: Sequelize.HasManyRemoveAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
-              str += `${sp}has${hasModel}!: Sequelize.HasManyHasAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}add${hasModelSingular}!: Sequelize.HasManyAddAssociationMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}add${hasModelPlural}!: Sequelize.HasManyAddAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}create${hasModelSingular}!: Sequelize.HasManyCreateAssociationMixin<${hasModel}>;\n`;
+              str += `${sp}remove${hasModelSingular}!: Sequelize.HasManyRemoveAssociationMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}remove${hasModelPlural}!: Sequelize.HasManyRemoveAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}has${hasModelSingular}!: Sequelize.HasManyHasAssociationMixin<${hasModel}, ${hasModel}Id>;\n`;
+              str += `${sp}has${hasModelPlural}!: Sequelize.HasManyHasAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
               str += `${sp}count${hasModelPlural}!: Sequelize.HasManyCountAssociationsMixin;\n`;
               needed[hasModel].add(hasModel);
               needed[hasModel].add(`${hasModel}Id`);
@@ -552,13 +556,19 @@ export class AutoGenerator {
             if (otherKey) {
               const otherModel = recase(this.options.caseModel, otherKey.foreignSources.target_table as string, this.options.singularize);
               needed[otherModel] ??= new Set();
+              const otherModelSingular = Utils.singularize(otherModel);
               const otherModelPlural = Utils.pluralize(otherModel);
               str += `${sp}// ${modelName} belongsToMany ${otherModel}\n`;
+              str += `${sp}${otherModelPlural}!: ${otherModel}[];\n`;
               str += `${sp}get${otherModelPlural}!: Sequelize.BelongsToManyGetAssociationsMixin<${otherModel}>;\n`;
               str += `${sp}set${otherModelPlural}!: Sequelize.BelongsToManySetAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
-              str += `${sp}add${otherModel}!: Sequelize.BelongsToManyAddAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
-              str += `${sp}remove${otherModel}!: Sequelize.BelongsToManyRemoveAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
-              str += `${sp}has${otherModel}!: Sequelize.BelongsToManyHasAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
+              str += `${sp}add${otherModelSingular}!: Sequelize.BelongsToManyAddAssociationMixin<${otherModel}, ${otherModel}Id>;\n`;
+              str += `${sp}add${otherModelPlural}!: Sequelize.BelongsToManyAddAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
+              str += `${sp}create${otherModelSingular}!: Sequelize.BelongsToManyCreateAssociationMixin<${otherModel}>;\n`;
+              str += `${sp}remove${otherModelSingular}!: Sequelize.BelongsToManyRemoveAssociationMixin<${otherModel}, ${otherModel}Id>;\n`;
+              str += `${sp}remove${otherModelPlural}!: Sequelize.BelongsToManyRemoveAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
+              str += `${sp}has${otherModelSingular}!: Sequelize.BelongsToManyHasAssociationMixin<${otherModel}, ${otherModel}Id>;\n`;
+              str += `${sp}has${otherModelPlural}!: Sequelize.BelongsToManyHasAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;
               str += `${sp}count${otherModelPlural}!: Sequelize.BelongsToManyCountAssociationsMixin;\n`;
               needed[otherModel].add(otherModel);
               needed[otherModel].add(`${otherModel}Id`);
@@ -599,21 +609,22 @@ export class AutoGenerator {
   }
 
   private getTypeScriptFieldType(fieldObj: any, attr: string) {
-    const fieldType = (fieldObj[attr] || '').toLowerCase();
+    const rawFieldType = fieldObj[attr] || '';
+    const fieldType = rawFieldType.toLowerCase();
     let jsType: string;
-    if (this.isString(fieldType)) {
-      jsType = 'string';
-    } else if (this.isNumber(fieldType)) {
+    if (this.isNumber(fieldType)) {
       jsType = 'number';
     } else if (this.isBoolean(fieldType)) {
       jsType = 'boolean';
     } else if (this.isDate(fieldType)) {
       jsType = 'Date';
+    } else if (this.isString(fieldType)) {
+      jsType = 'string';
     } else if (this.isArray(fieldType)) {
-      const eltype = this.getTypeScriptFieldType(fieldObj, "special");
+      const eltype = this.getTypeScriptFieldType(fieldObj, "elementType");
       jsType = eltype + '[]';
-    } else if (this.isEnum(fieldType)) {
-      const values = fieldType.substring(5, fieldType.length - 1).split(',').join(' | ');
+    } else if (this.isEnum(fieldType) && fieldObj.special) {
+      const values = fieldObj.special.map((v: string) => `"${v}"`).join(' | ');
       jsType = values;
     } else {
       console.log(`Missing TypeScript type: ${fieldType}`);
@@ -668,11 +679,11 @@ export class AutoGenerator {
   }
 
   private isDate(fieldType: string): boolean {
-    return /^(date|time|timestamp)/.test(fieldType);
+    return /^(datetime|timestamp)/.test(fieldType);
   }
 
   private isString(fieldType: string): boolean {
-    return /^(char|nchar|string|varying|varchar|nvarchar|text|longtext|mediumtext|tinytext|ntext|uuid|uniqueidentifier)/.test(fieldType);
+    return /^(char|nchar|string|varying|varchar|nvarchar|text|longtext|mediumtext|tinytext|ntext|uuid|uniqueidentifier|date|time)/.test(fieldType);
   }
 
   private isArray(fieldType: string): boolean {

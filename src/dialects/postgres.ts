@@ -108,7 +108,9 @@ export const postgresOptions: DialectOptions = {
 
   /** Get the element type for ARRAY and USER-DEFINED data types */
   showElementTypeQuery: (tableName: string, schemaName?: string) => {
-    return `SELECT c.column_name, c.data_type, c.udt_name, e.data_type AS element_type
+    return `SELECT c.column_name, c.data_type, c.udt_name, e.data_type AS element_type,
+    (SELECT array_agg(pe.enumlabel) FROM pg_catalog.pg_type pt JOIN pg_catalog.pg_enum pe ON pt.oid=pe.enumtypid
+ 	    WHERE pt.typname=c.udt_name OR CONCAT('_',pt.typname)=c.udt_name) AS enum_values
     FROM information_schema.columns c LEFT JOIN information_schema.element_types e
      ON ((c.table_catalog, c.table_schema, c.table_name, 'TABLE', c.dtd_identifier)
        = (e.object_catalog, e.object_schema, e.object_name, e.object_type, e.collection_type_identifier))

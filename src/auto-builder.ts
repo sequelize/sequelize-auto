@@ -131,13 +131,18 @@ export class AutoBuilder {
         const stquery = this.dialect.showElementTypeQuery(table.table_name, table.table_schema);
 
         const elementTypes = await this.executeQuery<ColumnElementType>(stquery);
-          // add element type to "special" property of field
+          // add element type to "elementType" property of field
         elementTypes.forEach(et => {
           const fld = fields[et.column_name] as Field;
           if (fld.type === "ARRAY") {
-            fld.special = et.element_type as any;
-          } else if (fld.type === "USER-DEFINED" && !fld.special.length) {
-            fld.type = et.udt_name;
+            fld.elementType = et.element_type;
+            if (et.element_type === "USER-DEFINED" && et.enum_values && !fld.special.length) {
+              fld.elementType = "ENUM";
+              // fromArray is a method defined on Postgres QueryGenerator only
+              fld.special = (this.queryInterface as any).queryGenerator.fromArray(et.enum_values);
+            }
+          } else if (fld.type === "USER-DEFINED") {
+            fld.type = !fld.special.length ? et.udt_name : "ENUM";
           }
         });
 
@@ -146,9 +151,9 @@ export class AutoBuilder {
           const gquery = this.dialect.showGeographyTypeQuery(table.table_name, table.table_schema);
           const gtypes = await this.executeQuery<ColumnElementType>(gquery);
           gtypes.forEach(gt => {
-            const fld = fields[gt.column_name];
+            const fld = fields[gt.column_name] as Field;
             if (fld.type === 'geography') {
-              (fld as any).special = `'${gt.udt_name}', ${gt.data_type}`;
+              fld.elementType = `'${gt.udt_name}', ${gt.data_type}`;
             }
           });
         }
@@ -157,9 +162,9 @@ export class AutoBuilder {
           const gquery = this.dialect.showGeometryTypeQuery(table.table_name, table.table_schema);
           const gtypes = await this.executeQuery<ColumnElementType>(gquery);
           gtypes.forEach(gt => {
-            const fld = fields[gt.column_name];
+            const fld = fields[gt.column_name] as Field;
             if (fld.type === 'geometry') {
-              (fld as any).special = `'${gt.udt_name}', ${gt.data_type}`;
+              fld.elementType = `'${gt.udt_name}', ${gt.data_type}`;
             }
           });
         }
