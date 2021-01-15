@@ -45,11 +45,11 @@ export interface IndexSpec {
 }
 
 export class TableData {
-  tables: { [tableName: string]: { [fieldName: string]: ColumnDescription } };
-  foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec } };
-  hasTriggerTables: { [tableName: string]: boolean };
-  indexes: { [tableName: string]: IndexSpec[] };
-  text?: { [name: string]: string };
+  tables: { [tableName: string]: { [fieldName: string]: ColumnDescription; }; };
+  foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec; }; };
+  hasTriggerTables: { [tableName: string]: boolean; };
+  indexes: { [tableName: string]: IndexSpec[]; };
+  text?: { [name: string]: string; };
   constructor() {
     this.tables = {};
     this.foreignKeys = {};
@@ -89,7 +89,7 @@ export interface AutoOptions {
   /** Database dialect */
   dialect?: Dialect;
   /** Dialect-specific options */
-  dialectOptions?: { options?: any };
+  dialectOptions?: { options?: any; };
   /** Where to write the model files */
   directory: string;
   /** Database host */
@@ -117,6 +117,8 @@ export interface AutoOptions {
   /** Whether to export views (default false) */
   views?: boolean;
 }
+
+export type TSField = { special: string[]; elementType: string; } & ColumnDescription;
 
 /** Change casing of val string according to opt [c|l|o|p|u]  */
 export function recase(opt: CaseOption | undefined, val: string | null, singularize = false) {

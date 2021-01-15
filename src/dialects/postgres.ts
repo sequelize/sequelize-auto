@@ -83,7 +83,7 @@ export const postgresOptions: DialectOptions = {
    * @param {Object} record The row entry from getForeignKeysQuery
    * @return {Bool}
    */
-  isSerialKey: (record: { extra: string, defaultValue: string, generation: string }) => {
+  isSerialKey: (record: { extra: string, defaultValue: string, generation: string; }) => {
     const isSequence = (val: string) => !!val && ((_.startsWith(val, 'nextval') && _.includes(val, '_seq') && _.includes(val, '::regclass')) || (val === 'ALWAYS' || val === 'BY DEFAULT'));
     return (
       _.isObject(record) && (isSequence(record.extra) || isSequence(record.defaultValue) || isSequence(record.generation))
