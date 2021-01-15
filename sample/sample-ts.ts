@@ -24,7 +24,7 @@ class SampleApp {
       return;
     }
 
-    const ord = await Order.findOne({ where: { orderNumber: "542639"}});
+    const ord = await Order.findOne({ where: { orderNumber: "542639" } });
     console.log(ord);
     console.log(await ord?.getCustomer());
     console.log(await ord?.getOrderItems());
@@ -43,7 +43,7 @@ class SampleApp {
 
     await Order.create(attr).then(() => {
       // display list of orders
-      return Order.findAll({ where: { "customerId": cust.id } }).then(rows => {
+      return Order.findAll({ where: { "customerId": cust.id } }).then((rows: OrderAttributes[]) => {
         rows.forEach(r => console.log(r.orderNumber + " " + r.totalAmount));
       });
     });
