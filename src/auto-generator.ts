@@ -221,7 +221,6 @@ export class AutoGenerator {
     const fieldName = recase(this.options.caseProp, field);
     let str = this.quoteName(fieldName) + ": {\n";
 
-    let defaultVal = fieldObj.defaultValue;
     const quoteWrapper = '"';
 
     const unique = fieldObj.unique || fieldObj.foreignKey && fieldObj.foreignKey.isUnique;
@@ -280,7 +279,7 @@ export class AutoGenerator {
       } else if (attr === "allowNull") {
         str += space[3] + attr + ": " + fieldObj[attr];
       } else if (attr === "defaultValue") {
-        const localName = fieldName;
+        let defaultVal = fieldObj.defaultValue;
         if (this.dialect.name === "mssql" && defaultVal && defaultVal.toLowerCase() === '(newid())') {
           defaultVal = null as any; // disable adding "default value" attribute for UUID fields if generating for MS SQL
         }
@@ -295,6 +294,7 @@ export class AutoGenerator {
         let val_text = defaultVal;
         if (_.isString(defaultVal)) {
           const field_type = fieldObj.type.toLowerCase();
+          defaultVal = this.escapeSpecial(defaultVal);
 
           if (field_type === 'bit(1)' || field_type === 'bit' || field_type === 'boolean') {
             // convert string to boolean
