@@ -1,5 +1,10 @@
 # sequelize-auto change log
 
+## [0.7.7]
+
+* Escape special characters in default value, #476 (thanks @divinebovine)
+* Quote strings in Postgres array default values, #474
+
 ## [0.7.6] - 2020-12-17
 
 * Fix postgres array of enum (#463)

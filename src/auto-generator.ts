@@ -300,9 +300,14 @@ export class AutoGenerator {
             // convert string to boolean
             val_text = /1|true/i.test(defaultVal) ? "true" : "false";
 
-          } else if (field_type === 'array') {
-            // change postgres array default '{}' to []
-            val_text = defaultVal.replace('{', '[').replace('}', ']');
+          } else if (this.isArray(field_type)) {
+            // remove outer {}
+            val_text = defaultVal.replace(/^{/, '').replace(/}$/, '');
+            if (val_text && this.isString(fieldObj.elementType)) {
+              // quote the array elements
+              val_text = val_text.split(',').map(s => `"${s}"`).join(',');
+            }
+            val_text = `[${val_text}]`;
 
           } else if (this.isNumber(field_type) || field_type.match(/^(json)/)) {
             // remove () around mssql numeric values; don't quote numbers or json
