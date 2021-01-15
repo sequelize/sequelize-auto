@@ -636,9 +636,8 @@ export class AutoGenerator {
       if (fieldObj.special) values = fieldObj.special.map((v) => `"${v}"`); // postgres
       else { // mysql
         const enums = fieldObj.type.substring(5, fieldObj.type.length - 1).split(',');
-        const noQuotes = enums.map(i => i.replace(/(?:^['"])|(?:['"]$)/gi, ''));
 
-        values = noQuotes;
+        values = enums;
       };
 
       jsType = values.join(' | ');
