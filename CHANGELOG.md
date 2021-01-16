@@ -1,9 +1,11 @@
 # sequelize-auto change log
 
-## [0.7.7]
+## [0.7.7] - 2021-01-16
 
-* Escape special characters in default value, #476 (thanks @divinebovine)
-* Quote strings in Postgres array default values, #474
+* Escape special characters in default value (#476) (thanks @divinebovine)
+* Quote strings in Postgres array default values (#474)
+* Support both Postgres and Mysql enums (#479) (thanks @JonathanWolfe)
+* Use `autoIncrementIdentity` for Postgres identity columns (#485) (thanks @AdamAld)
 
 ## [0.7.6] - 2020-12-17
 
