@@ -19,11 +19,12 @@ CREATE TABLE Customer (
 );
 
 CREATE TABLE `Order` (
-   Id                   INT                 NOT NULL AUTO_INCREMENT,
-   OrderDate            DATETIME            NOT NULL DEFAULT CURRENT_TIMESTAMP,
-   OrderNumber          VARCHAR(10)         NULL,
-   CustomerId           INT                 NOT NULL,
-   TotalAmount          DECIMAL(12,2)       NULL DEFAULT 0,
+   Id                   INT                                    NOT NULL AUTO_INCREMENT,
+   OrderDate            DATETIME                               NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   OrderNumber          VARCHAR(10)                            NULL,
+   CustomerId           INT                                    NOT NULL,
+   TotalAmount          DECIMAL(12,2)                          NULL DEFAULT 0,
+   Status               ENUM('PROCESSING','SHIPPED','UNKNOWN') NOT NULL DEFAULT 'UNKNOWN',
    PRIMARY KEY (`Id`),
    KEY `Key_Order_CustomerId` (`CustomerId`),
    KEY `Key_Order_OrderDate` (`OrderDate`)

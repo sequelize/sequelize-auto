@@ -2,14 +2,14 @@ import _ from "lodash";
 import { Utils } from "sequelize";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseOption, Field, IndexSpec, LangOption, qNameSplit, recase, TableData } from "./types";
+import { AutoOptions, CaseOption, Field, IndexSpec, LangOption, qNameSplit, recase, TableData, TSField } from "./types";
 
 export class AutoGenerator {
   dialect: DialectOptions;
-  tables: { [tableName: string]: { [fieldName: string]: ColumnDescription } };
-  foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec } };
-  hasTriggerTables: { [tableName: string]: boolean };
-  indexes: { [tableName: string]: IndexSpec[] };
+  tables: { [tableName: string]: { [fieldName: string]: ColumnDescription; }; };
+  foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec; }; };
+  hasTriggerTables: { [tableName: string]: boolean; };
+  indexes: { [tableName: string]: IndexSpec[]; };
   space: string[];
   options: {
     indentation?: number;
@@ -76,7 +76,7 @@ export class AutoGenerator {
 
     const header = this.makeHeaderTemplate();
 
-    const text: { [name: string]: string } = {};
+    const text: { [name: string]: string; } = {};
     tableNames.forEach(table => {
       let str = header;
       const [schemaName, tableNameOrig] = qNameSplit(table);
@@ -520,7 +520,7 @@ export class AutoGenerator {
             needed[btModel].add(btModel + 'Id');
 
           } else if (((!mySchemaName || spec.target_schema === mySchemaName) && spec.target_table === myTableName) ||
-              ((!mySchemaName || spec.foreignSources.target_schema === mySchemaName) && spec.foreignSources.target_table === myTableName)) {
+            ((!mySchemaName || spec.foreignSources.target_schema === mySchemaName) && spec.foreignSources.target_table === myTableName)) {
             const hasModel = recase(this.options.caseModel, spec.foreignSources.source_table as string, this.options.singularize);
             const isOne = ((spec.isPrimaryKey && !_.some(fkFields, f => f.isPrimaryKey && f.source_column !== fkFieldName) ||
               (spec.isUnique && !_.some(fkFields, f => f.isUnique === spec.isUnique && f.source_column !== fkFieldName))));
@@ -555,7 +555,7 @@ export class AutoGenerator {
             }
           }
           if (spec.isPrimaryKey && (!mySchemaName || spec.foreignSources.target_schema === mySchemaName) &&
-              spec.foreignSources.target_table === myTableName) {
+            spec.foreignSources.target_table === myTableName) {
             // if FK is also part of the PK, see if there is a "many-to-many" junction
             const otherKey = _.find(fkFields, k => k.isForeignKey && k.isPrimaryKey && k.source_column !== fkFieldName);
             if (otherKey) {
@@ -586,7 +586,7 @@ export class AutoGenerator {
     if (needed[modelName]) {
       delete needed[modelName]; // don't add import for self
     }
-    return {needed, str};
+    return { needed, str };
   }
 
 
@@ -609,14 +609,16 @@ export class AutoGenerator {
   }
 
   private getTypeScriptType(table: string, field: string) {
-    const fieldObj = this.tables[table][field];
+    const fieldObj = this.tables[table][field] as TSField;
     return this.getTypeScriptFieldType(fieldObj, "type");
   }
 
-  private getTypeScriptFieldType(fieldObj: any, attr: string) {
+  private getTypeScriptFieldType(fieldObj: TSField, attr: keyof TSField) {
     const rawFieldType = fieldObj[attr] || '';
-    const fieldType = rawFieldType.toLowerCase();
+    const fieldType = String(rawFieldType).toLowerCase();
+
     let jsType: string;
+
     if (this.isNumber(fieldType)) {
       jsType = 'number';
     } else if (this.isBoolean(fieldType)) {
@@ -628,9 +630,17 @@ export class AutoGenerator {
     } else if (this.isArray(fieldType)) {
       const eltype = this.getTypeScriptFieldType(fieldObj, "elementType");
       jsType = eltype + '[]';
-    } else if (this.isEnum(fieldType) && fieldObj.special) {
-      const values = fieldObj.special.map((v: string) => `"${v}"`).join(' | ');
-      jsType = values;
+    } else if (this.isEnum(fieldType)) {
+      let values = [];
+
+      if (fieldObj.special) values = fieldObj.special.map((v) => `"${v}"`); // postgres
+      else { // mysql
+        const enums = fieldObj.type.substring(5, fieldObj.type.length - 1).split(',');
+
+        values = enums;
+      };
+
+      jsType = values.join(' | ');
     } else {
       console.log(`Missing TypeScript type: ${fieldType}`);
       jsType = 'any';
@@ -655,8 +665,8 @@ export class AutoGenerator {
     return ((!additional.deletedAt && field.toLowerCase() === 'deletedat') || additional.deletedAt === field);
   }
 
-  private escapeSpecial (val: string) {
-    if (typeof(val) !== "string") {
+  private escapeSpecial(val: string) {
+    if (typeof (val) !== "string") {
       return val;
     }
     return val

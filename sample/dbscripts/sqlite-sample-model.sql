@@ -38,11 +38,12 @@ CREATE TABLE "Product" (
 );
 
 CREATE TABLE "Order" (
-   "Id"                   INTEGER             NOT NULL PRIMARY KEY,
-   "OrderDate"            TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
-   "OrderNumber"          VARCHAR(10)         NULL,
-   "CustomerId"           INT                 NOT NULL,
-   "TotalAmount"          DECIMAL(12,2)       NULL DEFAULT 0,
+   "Id"                   INTEGER                                                              NOT NULL PRIMARY KEY,
+   "OrderDate"            TIMESTAMP                                                            NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   "OrderNumber"          VARCHAR(10)                                                          NULL,
+   "CustomerId"           INT                                                                  NOT NULL,
+   "TotalAmount"          DECIMAL(12,2)                                                        NULL DEFAULT 0,
+   "Status"               VARCHAR(20) CHECK(Status IN ('PROCESSING','ORDERED','UNKNOWN'))      NOT NULL DEFAULT 'UNKNOWN',
    CONSTRAINT "UN_Order_CustomerId_OrderDate" UNIQUE ("CustomerId", "OrderDate", "OrderNumber"),
    CONSTRAINT "UN_Order_OrderNumber" UNIQUE ("OrderNumber"),
    FOREIGN KEY ("CustomerId") REFERENCES "Customer" ("Id")

@@ -174,6 +174,7 @@ create table "Order" (
    OrderNumber          nvarchar(10)         null,
    CustomerId           int                  not null,
    TotalAmount          decimal(12,2)        null default 0,
+   Status               varchar(20)          not null default 'UNKNOWN' check (Status in('PROCESSING','SHIPPED','UNKNOWN'))
    constraint PK_ORDER primary key (Id)
 )
 go
