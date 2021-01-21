@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { addTicks, DialectOptions, FKRow, makeCondition, showViewsGeneric } from "./dialect-options";
+import { addTicks, DialectOptions, FKRow, makeCondition } from "./dialect-options";
 
 export const mssqlOptions: DialectOptions = {
   name: 'mssql',
@@ -11,15 +11,15 @@ export const mssqlOptions: DialectOptions = {
    * @return {String}            The generated sql query.
    */
   getForeignKeysQuery: (tableName: string, schemaName: string) => {
-    return `SELECT ccu.table_name AS source_table,
-                   ccu.constraint_name AS constraint_name,
-                   ccu.constraint_schema AS source_schema,
-                   ccu.column_name AS source_column,
-                   kcu.table_name AS target_table,
-                   kcu.table_schema AS target_schema,
-                   kcu.column_name AS target_column,
-                   tc.constraint_type AS constraint_type,
-                   c.is_identity AS is_identity
+    return `SELECT ccu.TABLE_NAME AS source_table,
+                   ccu.CONSTRAINT_NAME AS constraint_name,
+                   ccu.CONSTRAINT_SCHEMA AS source_schema,
+                   ccu.COLUMN_NAME AS source_column,
+                   kcu.TABLE_NAME AS target_table,
+                   kcu.TABLE_SCHEMA AS target_schema,
+                   kcu.COLUMN_NAME AS target_column,
+                   tc.CONSTRAINT_TYPE AS constraint_type,
+                   c.IS_IDENTITY AS is_identity
               FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
              INNER JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu
                 ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
@@ -29,11 +29,11 @@ export const mssqlOptions: DialectOptions = {
                 ON kcu.CONSTRAINT_NAME = rc.UNIQUE_CONSTRAINT_NAME
                AND tc.CONSTRAINT_TYPE = 'FOREIGN KEY'
              INNER JOIN sys.columns c
-                ON c.name = ccu.column_name
+                ON c.name = ccu.COLUMN_NAME
                AND c.object_id = OBJECT_ID(ccu.TABLE_SCHEMA + '.' + ccu.TABLE_NAME)
-             WHERE tc.constraint_type != 'CHECK'
-               AND ccu.table_name = ${addTicks(tableName)}
-                   ${makeCondition('ccu.table_schema', schemaName)}`;
+             WHERE tc.CONSTRAINT_TYPE != 'CHECK'
+               AND ccu.TABLE_NAME = ${addTicks(tableName)}
+                   ${makeCondition('ccu.TABLE_SCHEMA', schemaName)}`;
   },
 
   /**
@@ -55,7 +55,7 @@ export const mssqlOptions: DialectOptions = {
               FROM sys.objects tr,  sys.objects tb
              WHERE tr.type = 'TR'
                AND tr.parent_object_id = tb.object_id
-               AND tb.object_id = object_id(${qname})`;
+               AND tb.object_id = OBJECT_ID(${qname})`;
   },
   /**
    * Determines if record entry from the getForeignKeysQuery
@@ -109,14 +109,17 @@ export const mssqlOptions: DialectOptions = {
    * @return {String}
    */
   showTablesQuery: (schemaName?: string) => {
-    return `SELECT table_name, table_schema
+    return `SELECT TABLE_NAME AS table_name, TABLE_SCHEMA AS table_schema
               FROM INFORMATION_SCHEMA.TABLES
-             WHERE table_type = 'BASE TABLE' AND table_name != 'sysdiagrams'
-                   ${makeCondition("table_schema", schemaName)}`;
+             WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME != 'sysdiagrams'
+                   ${makeCondition("TABLE_SCHEMA", schemaName)}`;
   },
 
   showViewsQuery: (schemaName?: string) => {
-    return showViewsGeneric(schemaName);
+    return `SELECT TABLE_NAME AS table_name, TABLE_SCHEMA AS table_schema
+              FROM INFORMATION_SCHEMA.TABLES
+             WHERE TABLE_TYPE = 'VIEW'
+                  ${makeCondition("TABLE_SCHEMA", schemaName)}`;
   }
 
 };

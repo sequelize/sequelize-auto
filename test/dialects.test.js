@@ -18,11 +18,11 @@ describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
 
       query = dialects.mysql.countTriggerQuery("mytable_a", "mydatabase_a");
       expect(query).to.include("SELECT COUNT(0) AS trigger_count");
-      expect(query).to.include("event_object_table = 'mytable_a'");
-      expect(query).to.include("event_object_schema = 'mydatabase_a'");
+      expect(query).to.include("EVENT_OBJECT_TABLE = 'mytable_a'");
+      expect(query).to.include("EVENT_OBJECT_SCHEMA = 'mydatabase_a'");
 
       query = dialects.mysql.countTriggerQuery("mytable_a", null);
-      expect(query).to.include("event_object_table = 'mytable_a'");
+      expect(query).to.include("EVENT_OBJECT_TABLE = 'mytable_a'");
       expect(query).to.not.include("mydatabase_a");
 
       done();
@@ -66,19 +66,19 @@ describe(helpers.getTestDialectTeaser('sequelize-auto dialects'), function() {
 
     it('mssql', function(done) {
       var query = dialects.mssql.getForeignKeysQuery('mytable_d', 'mydatabase_d');
-      expect(query).to.include("table_name = 'mytable_d'");
-      expect(query).to.include("table_schema = 'mydatabase_d'");
+      expect(query).to.include("TABLE_NAME = 'mytable_d'");
+      expect(query).to.include("TABLE_SCHEMA = 'mydatabase_d'");
 
       query = dialects.mssql.getForeignKeysQuery('mytable_d', null);
-      expect(query).to.include("table_name = 'mytable_d'");
+      expect(query).to.include("TABLE_NAME = 'mytable_d'");
       expect(query).to.not.include("mydatabase_d");
 
       query = dialects.mssql.countTriggerQuery("mytable_d", "mydatabase_d");
       expect(query).to.include("SELECT COUNT(0) AS trigger_count");
-      expect(query).to.include("object_id = object_id('mydatabase_d.mytable_d')");
+      expect(query).to.include("object_id = OBJECT_ID('mydatabase_d.mytable_d')");
 
       query = dialects.mssql.countTriggerQuery("mytable_d", null);
-      expect(query).to.include("object_id = object_id('mytable_d')");
+      expect(query).to.include("object_id = OBJECT_ID('mytable_d')");
 
       done();
     });

@@ -76,24 +76,3 @@ export function addTicks(value: any) {
 export function makeCondition(columnName: string, value?: string) {
   return value ? ` AND ${columnName} = ${addTicks(value)} ` : "";
 }
-
-export function showTablesGeneric(schemaName?: string) {
-  return `SELECT table_name, table_schema
-            FROM information_schema.tables
-           WHERE table_type = 'BASE TABLE'
-                 ${makeCondition("table_schema", schemaName)}`;
-}
-
-export function showViewsGeneric(schemaName?: string) {
-  return `SELECT table_name, table_schema
-            FROM information_schema.tables
-           WHERE table_type = 'VIEW'
-                 ${makeCondition("table_schema", schemaName)}`;
-}
-
-export function countTriggerGeneric(tableName: string, schemaName: string) {
-  return `SELECT COUNT(0) AS trigger_count
-            FROM information_schema.triggers AS t
-           WHERE t.event_object_table = ${addTicks(tableName)}
-                 ${makeCondition("t.event_object_schema", schemaName)}`;
-}

@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { addTicks, countTriggerGeneric, DialectOptions, FKRow, makeCondition, showTablesGeneric, showViewsGeneric } from "./dialect-options";
+import { addTicks, DialectOptions, FKRow, makeCondition } from "./dialect-options";
 
 export const postgresOptions: DialectOptions = {
   name: 'postgres',
@@ -42,7 +42,13 @@ export const postgresOptions: DialectOptions = {
    * @param  {String} schemaName The name of the schema.
    * @return {String}            The generated sql query.
    */
-  countTriggerQuery: countTriggerGeneric,
+  countTriggerQuery: (tableName: string, schemaName: string) => {
+    return `SELECT COUNT(0) AS trigger_count
+              FROM information_schema.triggers AS t
+             WHERE t.event_object_table = ${addTicks(tableName)}
+                  ${makeCondition("t.event_object_schema", schemaName)}`;
+  },
+
   /**
    * Determines if record entry from the getForeignKeysQuery
    * results is an actual foreign key
@@ -96,14 +102,20 @@ export const postgresOptions: DialectOptions = {
    * @return {String}
    */
   showTablesQuery: (schemaName?: string) => {
-    return `${showTablesGeneric(schemaName)}
+    return `SELECT table_name, table_schema
+              FROM information_schema.tables
+            WHERE table_type = 'BASE TABLE'
             AND table_schema NOT IN ('pg_catalog', 'information_schema')
-            AND table_name != 'spatial_ref_sys'`;
+            AND table_name != 'spatial_ref_sys'
+              ${makeCondition("table_schema", schemaName)}`;
   },
 
   showViewsQuery: (schemaName?: string) => {
-    return `${showViewsGeneric(schemaName)}
-            AND table_schema NOT IN ('pg_catalog', 'information_schema')`;
+    return `SELECT table_name, table_schema
+             FROM information_schema.tables
+            WHERE table_type = 'VIEW'
+            AND table_schema NOT IN ('pg_catalog', 'information_schema')
+              ${makeCondition("table_schema", schemaName)}`;
   },
 
   /** Get the element type for ARRAY and USER-DEFINED data types */

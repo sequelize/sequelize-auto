@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { addTicks, countTriggerGeneric, DialectOptions, FKRow, makeCondition } from "./dialect-options";
+import { addTicks, DialectOptions, FKRow, makeCondition } from "./dialect-options";
 
 export const mysqlOptions: DialectOptions = {
   name: 'mysql',
@@ -36,7 +36,13 @@ export const mysqlOptions: DialectOptions = {
    * @param  {String} schemaName The name of the schema.
    * @return {String}            The generated sql query.
    */
-  countTriggerQuery: countTriggerGeneric,
+  countTriggerQuery: (tableName: string, schemaName: string) => {
+    return `SELECT COUNT(0) AS trigger_count
+              FROM INFORMATION_SCHEMA.TRIGGERS AS t
+             WHERE t.EVENT_OBJECT_TABLE = ${addTicks(tableName)}
+                  ${makeCondition("t.EVENT_OBJECT_SCHEMA", schemaName)}`;
+  },
+
   /**
    * Determines if record entry from the getForeignKeysQuery
    * results is an actual foreign key
