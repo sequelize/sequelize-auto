@@ -3,6 +3,7 @@ import _ from "lodash";
 import { Dialect, Sequelize } from "sequelize";
 import { AutoBuilder } from "./auto-builder";
 import { AutoGenerator } from "./auto-generator";
+import { AutoRelater } from "./auto-relater";
 import { AutoWriter } from "./auto-writer";
 import { dialects } from "./dialects/dialects";
 import { AutoOptions, TableData } from "./types";
@@ -47,7 +48,8 @@ export class SequelizeAuto {
   }
 
   async run(): Promise<TableData> {
-    const td = await this.build();
+    let td = await this.build();
+    td = this.relate(td);
     const tt = this.generate(td);
     td.text = tt;
     await this.write(td);
@@ -55,13 +57,18 @@ export class SequelizeAuto {
   }
 
   build(): Promise<TableData> {
-    const builder = new AutoBuilder(this.sequelize, this.options.tables, this.options.skipTables, this.options.schema, this.options.views);
+    const builder = new AutoBuilder(this.sequelize, this.options);
     return builder.build().then(tableData => {
       if (this.options.closeConnectionAutomatically) {
         return this.sequelize.close().then(() => tableData);
       }
       return tableData;
     });
+  }
+
+  relate(td: TableData): TableData {
+    const relater = new AutoRelater(this.options);
+    return relater.buildRelations(td);
   }
 
   generate(tableData: TableData) {

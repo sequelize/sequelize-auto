@@ -44,26 +44,60 @@ export interface IndexSpec {
 
 }
 
+/** Relationship between two models, based on foreign keys */
+export interface Relation {
+  /** name of parent table, e.g. customers */
+  parentTable: string;
+  /** name of parent class, e.g. Customer */
+  parentModel: string;
+  /** name of property on child class that refers to parent, e.g. customer */
+  parentProp: string;
+  /** foreign key name */
+  parentId: string;
+  /** name of child table, e.g. orders */
+  childTable: string;
+  /** name of child class, e.g. Order */
+  childModel: string;
+  /** name of property on parent class that refers to children, e.g. orders */
+  childProp: string;
+  /** foreign key on child entity (many-to-many only) */
+  childId?: string;
+  /** join entity for many-to-many */
+  joinModel?: string;
+  /** One-to-One vs One-to-Many */
+  isOne: boolean;
+  /** Many-to-Many */
+  isM2M: boolean;
+}
+
 export class TableData {
   tables: { [tableName: string]: { [fieldName: string]: ColumnDescription; }; };
   foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec; }; };
   hasTriggerTables: { [tableName: string]: boolean; };
   indexes: { [tableName: string]: IndexSpec[]; };
+  relations: Relation[];
   text?: { [name: string]: string; };
   constructor() {
     this.tables = {};
     this.foreignKeys = {};
     this.indexes = {};
     this.hasTriggerTables = {};
+    this.relations = [];
   }
 }
 
+/** Split schema.table into [schema, table] */
 export function qNameSplit(qname: string) {
   if (qname.indexOf(".") > 0) {
     const [schemaName, tableNameOrig] = qname.split(".");
     return [schemaName, tableNameOrig];
   }
   return [null, qname];
+}
+
+/** Get combined schema.table name */
+export function qNameJoin(schema: string | undefined, table: string | undefined) {
+  return !!schema ? schema + "." + table : table as string;
 }
 
 /** Language of output model files */
@@ -105,7 +139,7 @@ export interface AutoOptions {
   /** Database schema to export */
   schema?: string;
   /** Whether to singularize model names */
-  singular?: boolean;
+  singularize: boolean;
   /** Tables to skip exporting */
   skipTables?: string[];
   /** Whether to indent with spaces instead of tabs (default true) */

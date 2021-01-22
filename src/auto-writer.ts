@@ -3,12 +3,14 @@ import _ from "lodash";
 import path from "path";
 import util from "util";
 import { FKSpec, TableData } from ".";
-import { AutoOptions, CaseOption, LangOption, qNameSplit, recase } from "./types";
+import { AutoOptions, CaseOption, LangOption, qNameSplit, recase, Relation } from "./types";
 const mkdirp = require('mkdirp');
 
+/** Writes text into files from TableData.text, and writes init-models */
 export class AutoWriter {
   tableText: { [name: string]: string };
   foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec } };
+  relations: Relation[];
   options: {
     caseFile?: CaseOption;
     caseModel?: CaseOption;
@@ -19,8 +21,9 @@ export class AutoWriter {
     singularize?: boolean;
   };
   constructor(tableData: TableData, options: AutoOptions) {
-    this.tableText = tableData.text as  { [name: string]: string };
+    this.tableText = tableData.text as { [name: string]: string };
     this.foreignKeys = tableData.foreignKeys;
+    this.relations = tableData.relations;
     this.options = options;
   }
 
@@ -86,37 +89,18 @@ export class AutoWriter {
     let strBelongsToMany = "";
     // declare through model "as Model" because typings don't match
     const asAny = typeScript ? " as typeof Model" : "";
-    const fkTables = _.keys(this.foreignKeys).sort();
-    fkTables.forEach(t => {
-      const [schemaName, tableName] = qNameSplit(t);
-      const modelName = recase(this.options.caseModel, tableName, this.options.singularize);
-      const fkFields = this.foreignKeys[t];
-      const fkFieldNames = _.keys(fkFields);
-      fkFieldNames.forEach(fkFieldName => {
-        const spec = fkFields[fkFieldName];
-        if (spec.isForeignKey) {
-          const targetModel = recase(this.options.caseModel, spec.foreignSources.target_table as string, this.options.singularize);
-          const sourceProp = recase(this.options.caseProp, fkFieldName);
-          strBelongs += `  ${modelName}.belongsTo(${targetModel}, { foreignKey: "${sourceProp}"});\n`;
 
-          if (spec.isPrimaryKey) {
-            // if FK is also part of the PK, see if there is a "many-to-many" junction
-            const otherKey = _.find(fkFields, k => k.isForeignKey && k.isPrimaryKey && k.source_column !== fkFieldName);
-            if (otherKey) {
-              const otherModel = recase(this.options.caseModel, otherKey.foreignSources.target_table as string, this.options.singularize);
-              const otherProp = recase(this.options.caseProp, otherKey.source_column);
-              strBelongsToMany += `  ${otherModel}.belongsToMany(${targetModel}, { through: ${modelName}${asAny}, foreignKey: "${otherProp}", otherKey: "${sourceProp}" });\n`;
-            }
-          }
-
-          // use "hasOne" cardinality if this FK is also a single-column Primary or Unique key; else "hasMany"
-          const isOne = ((spec.isPrimaryKey && !_.some(fkFields, f => f.isPrimaryKey && f.source_column !== fkFieldName) ||
-            (spec.isUnique && !_.some(fkFields, f => f.isUnique === spec.isUnique && f.source_column !== fkFieldName))));
-          const hasRel = isOne ? "hasOne" : "hasMany";
-          strBelongs += `  ${targetModel}.${hasRel}(${modelName}, { foreignKey: "${sourceProp}"});\n`;
-        }
-      });
+    const rels = this.relations;
+    rels.forEach(rel => {
+      if (rel.isM2M) {
+        strBelongsToMany += `  ${rel.parentModel}.belongsToMany(${rel.childModel}, { through: ${rel.joinModel}${asAny}, foreignKey: "${rel.parentId}", otherKey: "${rel.childId}" });\n`;
+      } else {
+        strBelongs += `  ${rel.childModel}.belongsTo(${rel.parentModel}, { as: "${rel.parentProp}", foreignKey: "${rel.parentId}"});\n`;
+        const hasRel = rel.isOne ? "hasOne" : "hasMany";
+        strBelongs += `  ${rel.parentModel}.${hasRel}(${rel.childModel}, { as: "${rel.childProp}", foreignKey: "${rel.parentId}"});\n`;
+      }
     });
+
     // belongsToMany must come first
     return strBelongsToMany + strBelongs;
   }
@@ -201,8 +185,8 @@ export class AutoWriter {
     return str;
   }
 
-   // create the ESM init-models file to load all the models into Sequelize
-   private createESMInitString(tables: string[], assoc: string) {
+  // create the ESM init-models file to load all the models into Sequelize
+  private createESMInitString(tables: string[], assoc: string) {
     let str = 'import _sequelize from "sequelize";\n';
     str += 'const DataTypes = _sequelize.DataTypes;\n';
     const modelNames: string[] = [];

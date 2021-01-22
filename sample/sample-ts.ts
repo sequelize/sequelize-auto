@@ -18,7 +18,7 @@ class SampleApp {
     // });
 
     // get a customer using known values in the sample data
-    const cust = await Customer.findOne({ where: { "firstName": "Hanna", "lastName": "Moos" }, include: [Order as any] });
+    const cust = await Customer.findOne({ where: { "firstName": "Hanna", "lastName": "Moos" }, include: ['orders'] });
     console.log(cust);
     if (cust == null) {
       return;

@@ -1,9 +1,11 @@
 import _ from "lodash";
 import { Dialect, QueryInterface, QueryTypes, Sequelize } from "sequelize";
+import { AutoOptions } from ".";
 import { ColumnElementType, DialectOptions, FKRow, FKSpec, TriggerCount } from "./dialects/dialect-options";
 import { dialects } from "./dialects/dialects";
 import { Field, IndexSpec, Table, TableData } from "./types";
 
+/** Queries the database and builds the tables, foreignKeys, indexes, and hasTriggerTables structures in TableData  */
 export class AutoBuilder {
   sequelize: Sequelize;
   queryInterface: QueryInterface;
@@ -14,15 +16,15 @@ export class AutoBuilder {
   views: boolean;
   tableData: TableData;
 
-  constructor(sequelize: Sequelize, tables: string[] | undefined, skipTables: string[] | undefined, schema: string | undefined,
-    views: boolean | undefined) {
+  constructor(sequelize: Sequelize, options: AutoOptions) {
     this.sequelize = sequelize;
     this.queryInterface = this.sequelize.getQueryInterface();
     this.dialect = dialects[this.sequelize.getDialect() as Dialect];
-    this.includeTables = tables;
-    this.skipTables = skipTables;
-    this.schema = schema;
-    this.views = !!views;
+    this.includeTables = options.tables;
+    this.skipTables = options.skipTables;
+    this.schema = options.schema;
+    this.views = !!options.views;
+
     this.tableData = new TableData();
   }
 
@@ -49,7 +51,6 @@ export class AutoBuilder {
 
     return prom.then(tr => this.processTables(tr))
       .catch(err => { console.error(err); return this.tableData; });
-
   }
 
   private processTables(tableResult: any[]) {
@@ -131,7 +132,7 @@ export class AutoBuilder {
         const stquery = this.dialect.showElementTypeQuery(table.table_name, table.table_schema);
 
         const elementTypes = await this.executeQuery<ColumnElementType>(stquery);
-          // add element type to "elementType" property of field
+        // add element type to "elementType" property of field
         elementTypes.forEach(et => {
           const fld = fields[et.column_name] as Field;
           if (fld.type === "ARRAY") {
