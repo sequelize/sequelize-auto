@@ -1,5 +1,11 @@
 # sequelize-auto change log
 
+## [0.7.8] - 2021-01-23
+
+* Make information_schema queries uppercase for mssql (#486)
+* Move meta queries from dialect-options to dialect-specific files
+* Create relations based on properties and alias instead of model names (#483, #466)
+
 ## [0.7.7] - 2021-01-16
 
 * Escape special characters in default value (#476) (thanks @divinebovine)
