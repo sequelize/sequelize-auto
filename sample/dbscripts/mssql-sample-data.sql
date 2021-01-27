@@ -123,11 +123,11 @@ INSERT INTO [Supplier] ([Id],[CompanyName],[ContactName],[City],[Country],[Phone
 INSERT INTO [Supplier] ([Id],[CompanyName],[ContactName],[City],[Country],[Phone],[Fax])VALUES(29,'Forêts d''érables','Chantal Goulet','Ste-Hyacinthe','Canada','(514) 555-2955','(514) 555-2921')
 SET IDENTITY_INSERT Supplier OFF
 SET IDENTITY_INSERT Product ON
-INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(1,'Chai',1,18.00,'10 boxes x 20 bags',0)
-INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(2,'Chang',1,19.00,'24 - 12 oz bottles',0)
-INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(3,'Aniseed Syrup',1,10.00,'12 - 550 ml bottles',0)
-INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(4,'Chef Anton''s Cajun Seasoning',2,22.00,'48 - 6 oz jars',0)
-INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(5,'Chef Anton''s Gumbo Mix',2,21.35,'36 boxes',1)
+INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[AltSupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(1,'Chai',1,6,18.00,'10 boxes x 20 bags',0)
+INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[AltSupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(2,'Chang',1,6,19.00,'24 - 12 oz bottles',0)
+INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[AltSupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(3,'Aniseed Syrup',1,6,10.00,'12 - 550 ml bottles',0)
+INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[AltSupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(4,'Chef Anton''s Cajun Seasoning',2,3,22.00,'48 - 6 oz jars',0)
+INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[AltSupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(5,'Chef Anton''s Gumbo Mix',2,3,21.35,'36 boxes',1)
 INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(6,'Grandma''s Boysenberry Spread',3,25.00,'12 - 8 oz jars',0)
 INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(7,'Uncle Bob''s Organic Dried Pears',3,30.00,'12 - 1 lb pkgs.',0)
 INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(8,'Northwoods Cranberry Sauce',3,40.00,'12 - 12 oz jars',0)
@@ -203,11 +203,11 @@ INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[Is
 INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(78,'Stroopwafels',22,9.75,'24 pieces',0)
 SET IDENTITY_INSERT Product OFF
 SET IDENTITY_INSERT [Order] ON
-INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber])VALUES(1,'Jul  4 2012 12:00:00:000AM',85,440.00,'542378')
-INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber])VALUES(2,'Jul  5 2012 12:00:00:000AM',79,1863.40,'542379')
-INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber])VALUES(3,'Jul  8 2012 12:00:00:000AM',34,1813.00,'542380')
-INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber])VALUES(4,'Jul  8 2012 12:00:00:000AM',84,670.80,'542381')
-INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber])VALUES(5,'Jul  9 2012 12:00:00:000AM',76,3730.00,'542382')
+INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber],[Status])VALUES(1,'Jul  4 2012 12:00:00:000AM',85,440.00,'542378','SHIPPED')
+INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber],[Status])VALUES(2,'Jul  5 2012 12:00:00:000AM',79,1863.40,'542379','PROCESSING')
+INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber],[Status])VALUES(3,'Jul  8 2012 12:00:00:000AM',34,1813.00,'542380','SHIPPED')
+INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber],[Status])VALUES(4,'Jul  8 2012 12:00:00:000AM',84,670.80,'542381','PROCESSING')
+INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber],[Status])VALUES(5,'Jul  9 2012 12:00:00:000AM',76,3730.00,'542382','SHIPPED')
 INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber])VALUES(6,'Jul 10 2012 12:00:00:000AM',34,1444.80,'542383')
 INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber])VALUES(7,'Jul 11 2012 12:00:00:000AM',14,625.20,'542384')
 INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber])VALUES(8,'Jul 12 2012 12:00:00:000AM',68,2490.50,'542385')

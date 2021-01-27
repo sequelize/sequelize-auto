@@ -231,6 +231,7 @@ create table Product (
    Id                   int                  identity,
    ProductName          nvarchar(50)         not null,
    SupplierId           int                  not null,
+   AltSupplierId        int                  null,
    UnitPrice            decimal(12,2)        null default 0,
    Package              nvarchar(30)         null,
    IsDiscontinued       bit                  not null default 0,
@@ -303,5 +304,9 @@ go
 
 alter table Product
    add constraint FK_PRODUCT_REFERENCE_SUPPLIER foreign key (SupplierId)
+      references Supplier (Id)
+go
+alter table Product
+   add constraint FK_PRODUCT_REFERENCE_ALT_SUPPLIER foreign key (AltSupplierId)
       references Supplier (Id)
 go

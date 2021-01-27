@@ -22,7 +22,7 @@ return db.exec(modelScript, err => {
         console.log(err2);
       } else {
         console.log("dataScript success");
-        db.get('select count(*) as orderCount from "Order"', (err3, row) => {
+        db.get('select count(*) as orderCount from Orders', (err3, row) => {
           if (err3) {
             console.log(err3);
           } else {

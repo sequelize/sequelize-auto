@@ -34,7 +34,7 @@ const mysql = {
 
 // postgres
 const postgres = {
-  dbname: 'northwind',
+  dbname: 'Northwind',
   user: 'postgres',
   pass: 'postgres',
   options: { dialect: 'postgres' },
