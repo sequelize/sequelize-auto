@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Utils } from "sequelize";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseOption, Field, IndexSpec, LangOption, qNameSplit, recase, Relation, TableData, TSField } from "./types";
+import { AutoOptions, CaseOption, Field, IndexSpec, LangOption, qNameJoin, qNameSplit, recase, Relation, TableData, TSField } from "./types";
 
 /** Generates text from each table in TableData */
 export class AutoGenerator {
@@ -155,7 +155,7 @@ export class AutoGenerator {
     str += space[2] + "sequelize,\n";
     str += space[2] + "tableName: '" + tableNameOrig + "',\n";
 
-    if (schemaName) {
+    if (schemaName && this.dialect.hasSchema) {
       str += space[2] + "schema: '" + schemaName + "',\n";
     }
 
@@ -372,7 +372,11 @@ export class AutoGenerator {
     }
 
     if (field !== fieldName) {
-      str += space[3] + "field: '" + field + "',\n";
+      // write the original fieldname, unless it is a key and the column names are case-insensitive
+      // because Sequelize may request the same column twice in a join condition otherwise.
+      if (!fieldObj.primaryKey || this.dialect.canAliasPK || field.toUpperCase() !== fieldName.toUpperCase()) {
+        str += space[3] + "field: '" + field + "',\n";
+      }
     }
 
     // removes the last `,` within the attribute options
@@ -507,17 +511,34 @@ export class AutoGenerator {
     });
   }
 
+  /** Add schema to table so it will match the relation data.  Fixes mysql problem. */
+  private addSchemaForRelations(table: string) {
+    if (!this.relations.some(rel => rel.childTable === table)) {
+      // if no tables match the given table, then assume we need to fix the schema
+      const first = this.relations.find(rel => !!rel.childTable);
+      if (first) {
+        const [schemaName, tableName] = qNameSplit(first.childTable);
+        if (schemaName) {
+          table = qNameJoin(schemaName, table);
+        }
+      }
+    }
+    return table;
+  }
+
   private addTypeScriptAssociationMixins(table: string): Record<string, any> {
     const sp = this.space[1];
     const needed: Record<string, Set<String>> = {};
     let str = '';
+
+    table = this.addSchemaForRelations(table);
 
     this.relations.forEach(rel => {
       if (!rel.isM2M) {
         if (rel.childTable === table) {
           // current table is a child that belongsTo parent
           const pparent = _.upperFirst(rel.parentProp);
-          str += `${sp}// ${rel.childModel} belongsTo ${rel.parentModel}\n`;
+          str += `${sp}// ${rel.childModel} belongsTo ${rel.parentModel} via ${rel.parentId}\n`;
           str += `${sp}${rel.parentProp}!: ${rel.parentModel};\n`;
           str += `${sp}get${pparent}!: Sequelize.BelongsToGetAssociationMixin<${rel.parentModel}>;\n`;
           str += `${sp}set${pparent}!: Sequelize.BelongsToSetAssociationMixin<${rel.parentModel}, ${rel.parentModel}Id>;\n`;
@@ -530,7 +551,7 @@ export class AutoGenerator {
           const pchild = _.upperFirst(rel.childProp);
           if (rel.isOne) {
             // const hasModelSingular = Utils.singularize(hasModel);
-            str += `${sp}// ${rel.parentModel} hasOne ${rel.childModel}\n`;
+            str += `${sp}// ${rel.parentModel} hasOne ${rel.childModel} via ${rel.parentId}\n`;
             str += `${sp}${rel.childProp}!: ${rel.childModel};\n`;
             str += `${sp}get${pchild}!: Sequelize.HasOneGetAssociationMixin<${rel.childModel}>;\n`;
             str += `${sp}set${pchild}!: Sequelize.HasOneSetAssociationMixin<${rel.childModel}, ${rel.childModel}Id>;\n`;
@@ -543,7 +564,7 @@ export class AutoGenerator {
             const sing = _.upperFirst(Utils.singularize(rel.childProp));
             const lur = Utils.pluralize(rel.childProp);
             const plur = _.upperFirst(lur);
-            str += `${sp}// ${rel.parentModel} hasMany ${rel.childModel}\n`;
+            str += `${sp}// ${rel.parentModel} hasMany ${rel.childModel} via ${rel.parentId}\n`;
             str += `${sp}${lur}!: ${rel.childModel}[];\n`;
             str += `${sp}get${plur}!: Sequelize.HasManyGetAssociationsMixin<${hasModel}>;\n`;
             str += `${sp}set${plur}!: Sequelize.HasManySetAssociationsMixin<${hasModel}, ${hasModel}Id>;\n`;
@@ -570,7 +591,7 @@ export class AutoGenerator {
           const lotherModelPlural = Utils.pluralize(isParent ? rel.childProp : rel.parentProp);
           const otherModelPlural = _.upperFirst(lotherModelPlural);
           const otherTable = isParent ? rel.childTable : rel.parentTable;
-          str += `${sp}// ${thisModel} belongsToMany ${otherModel}\n`;
+          str += `${sp}// ${thisModel} belongsToMany ${otherModel} via ${rel.parentId} and ${rel.childId}\n`;
           str += `${sp}${lotherModelPlural}!: ${otherModel}[];\n`;
           str += `${sp}get${otherModelPlural}!: Sequelize.BelongsToManyGetAssociationsMixin<${otherModel}>;\n`;
           str += `${sp}set${otherModelPlural}!: Sequelize.BelongsToManySetAssociationsMixin<${otherModel}, ${otherModel}Id>;\n`;

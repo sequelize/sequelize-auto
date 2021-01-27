@@ -15,8 +15,8 @@ export class AutoRelater {
   private usedChildNames: Set<string>;
 
   constructor(options: AutoOptions) {
-    this.caseModel = options.caseModel || 'p';
-    this.caseProp = options.caseProp || 'c';
+    this.caseModel = options.caseModel || 'o';
+    this.caseProp = options.caseProp || 'o';
     this.singularize = options.singularize;
 
     this.tableData = new TableData();
@@ -47,6 +47,7 @@ export class AutoRelater {
   private addRelation(table: string, fkFieldName: string, spec: FKSpec, fkFields: { [fieldName: string]: FKSpec; }) {
 
     const [schemaName, tableName] = qNameSplit(table);
+    const schema = schemaName as string;
     const modelName = recase(this.caseModel, tableName, this.singularize);
 
     const targetModel = recase(this.caseModel, spec.foreignSources.target_table as string, this.singularize);
@@ -62,10 +63,10 @@ export class AutoRelater {
       parentId: sourceProp,
       parentModel: targetModel,
       parentProp: alias,
-      parentTable: qNameJoin(spec.foreignSources.target_schema, spec.foreignSources.target_table),
+      parentTable: qNameJoin(spec.foreignSources.target_schema || schema, spec.foreignSources.target_table),
       childModel: modelName,
       childProp: isOne ? Utils.singularize(childAlias) : Utils.pluralize(childAlias),
-      childTable: qNameJoin(spec.foreignSources.source_schema, spec.foreignSources.source_table),
+      childTable: qNameJoin(spec.foreignSources.source_schema || schema, spec.foreignSources.source_table),
       isOne: isOne,
       isM2M: false
     });
@@ -82,10 +83,10 @@ export class AutoRelater {
           parentId: sourceProp,
           parentModel: targetModel,
           parentProp: Utils.pluralize(alias),
-          parentTable: qNameJoin(spec.foreignSources.target_schema, spec.foreignSources.target_table),
+          parentTable: qNameJoin(spec.foreignSources.target_schema || schema, spec.foreignSources.target_table),
           childModel: otherModel,
           childProp: Utils.pluralize(otherProp),
-          childTable: qNameJoin(otherKey.foreignSources.target_schema, otherKey.foreignSources.target_table),
+          childTable: qNameJoin(otherKey.foreignSources.target_schema || schema, otherKey.foreignSources.target_table),
           childId: otherId,
           joinModel: modelName,
           isOne: isOne,
@@ -97,7 +98,10 @@ export class AutoRelater {
 
   /** Convert foreign key name into alias name for belongsTo relations */
   private getAlias(fkFieldName: string, modelName: string) {
-    const name = (fkFieldName.toLowerCase().endsWith("id")) ? fkFieldName.substring(0, fkFieldName.length - 2) : fkFieldName + "_" + modelName;
+    let name = this.trimId(fkFieldName);
+    if (name === fkFieldName) {
+      name = fkFieldName + "_" + modelName;
+    }
     return recase(this.caseProp, name, true);
   }
 
@@ -106,11 +110,21 @@ export class AutoRelater {
     let name = modelName;
     // usedChildNames prevents duplicate names in same model
     if (this.usedChildNames.has(targetModel + "." + name)) {
-      name = (fkFieldName.toLowerCase().endsWith("id")) ? fkFieldName.substring(0, fkFieldName.length - 2) : fkFieldName;
+      name = this.trimId(fkFieldName);
       name = name + "_" + modelName;
     }
     this.usedChildNames.add(targetModel + "." + name);
     return recase(this.caseProp, name, true);
+  }
+
+  private trimId(name: string) {
+    if (name.length > 3 && name.toLowerCase().endsWith("id")) {
+      name = name.substring(0, name.length - 2);
+    }
+    if (name.endsWith("_")) {
+      name = name.substring(0, name.length - 1);
+    }
+    return name;
   }
 
 }

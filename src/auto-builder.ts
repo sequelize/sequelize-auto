@@ -87,7 +87,7 @@ export class AutoBuilder {
   private mapForeignKeys(table: Table) {
 
     const tableQname = makeTableQName(table);
-    const sql = this.dialect.getForeignKeysQuery(table.table_name, table.table_schema || this.sequelize.config.database);
+    const sql = this.dialect.getForeignKeysQuery(table.table_name, table.table_schema || this.sequelize.getDatabaseName());
     const dialect = this.dialect;
     const foreignKeys = this.tableData.foreignKeys;
 
@@ -214,5 +214,3 @@ function isTableEqual(a: Table, b: Table) {
 function makeTableQName(table: Table) {
   return [table.table_schema, table.table_name].filter(Boolean).join(".");
 }
-
-
