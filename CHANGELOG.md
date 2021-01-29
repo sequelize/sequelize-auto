@@ -1,5 +1,11 @@
 # sequelize-auto change log
 
+## [0.7.9] - 2021-01-29
+
+* Fix schema handling and case errors in relations
+* Fix generation of relationships for mysql (#488)
+* Fix CRLF line breaks in bin/sequelize-auto (#487, #475, #462)
+
 ## [0.7.8] - 2021-01-23
 
 * Make information_schema queries uppercase for mssql (#486)
