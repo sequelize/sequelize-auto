@@ -296,6 +296,9 @@ export class AutoGenerator {
         if (this.dialect.name === "mssql" && defaultVal && defaultVal.toLowerCase() === '(newid())') {
           defaultVal = null as any; // disable adding "default value" attribute for UUID fields if generating for MS SQL
         }
+        if (this.dialect.name === "mssql" && (["(NULL)", "NULL"].includes(defaultVal) || typeof defaultVal === "undefined")) {
+          defaultVal = null as any; // Override default NULL in MS SQL to javascript null
+        }
 
         if (defaultVal === null || defaultVal === undefined) {
           return true;
