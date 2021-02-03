@@ -660,7 +660,10 @@ export class AutoGenerator {
 
     let jsType: string;
 
-    if (this.isNumber(fieldType)) {
+    if (this.isArray(fieldType)) {
+      const eltype = this.getTypeScriptFieldType(fieldObj, "elementType");
+      jsType = eltype + '[]';
+    } else if (this.isNumber(fieldType)) {
       jsType = 'number';
     } else if (this.isBoolean(fieldType)) {
       jsType = 'boolean';
@@ -668,9 +671,6 @@ export class AutoGenerator {
       jsType = 'Date';
     } else if (this.isString(fieldType)) {
       jsType = 'string';
-    } else if (this.isArray(fieldType)) {
-      const eltype = this.getTypeScriptFieldType(fieldObj, "elementType");
-      jsType = eltype + '[]';
     } else if (this.isEnum(fieldType)) {
       let values = [];
 
@@ -745,7 +745,7 @@ export class AutoGenerator {
   }
 
   private isArray(fieldType: string): boolean {
-    return /^(array)/.test(fieldType);
+    return /(^array)|(range$)/.test(fieldType);
   }
 
   private isEnum(fieldType: string): boolean {
