@@ -175,6 +175,15 @@ export class AutoBuilder {
       this.tableData.indexes[makeTableQName(table)] = await this.queryInterface.showIndex(
         { tableName: table.table_name, schema: table.table_schema }) as IndexSpec[];
 
+      // if there is no primaryKey, and `id` field exists, then make id the primaryKey (#480)
+      if (!_.some(fields, { primaryKey: true })) {
+        const idname = _.keys(fields).find(f => f.toLowerCase() === 'id');
+        const idfield = idname && fields[idname];
+        if (idfield) {
+          idfield.primaryKey = true;
+        }
+      }
+
       const countTriggerSql = this.dialect.countTriggerQuery(table.table_name, table.table_schema || "");
       const triggerResult = await this.executeQuery<TriggerCount>(countTriggerSql);
       const triggerCount = triggerResult && triggerResult[0] && triggerResult[0].trigger_count;
