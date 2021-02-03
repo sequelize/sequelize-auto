@@ -51,7 +51,7 @@ export class AutoRelater {
     const modelName = recase(this.caseModel, tableName, this.singularize);
 
     const targetModel = recase(this.caseModel, spec.foreignSources.target_table as string, this.singularize);
-    const alias = this.getAlias(fkFieldName, spec.foreignSources.target_table as string);
+    const alias = this.getAlias(fkFieldName, spec.foreignSources.target_table as string, spec.foreignSources.source_table as string);
     const childAlias = this.getChildAlias(fkFieldName, spec.foreignSources.source_table as string, spec.foreignSources.target_table as string);
     const sourceProp = recase(this.caseProp, fkFieldName);
 
@@ -76,7 +76,7 @@ export class AutoRelater {
       const otherKey = _.find(fkFields, k => k.isForeignKey && k.isPrimaryKey && k.source_column !== fkFieldName);
       if (otherKey) {
         const otherModel = recase(this.caseModel, otherKey.foreignSources.target_table as string, this.singularize);
-        const otherProp = this.getAlias(otherKey.source_column, otherKey.foreignSources.target_table as string);
+        const otherProp = this.getAlias(otherKey.source_column, otherKey.foreignSources.target_table as string, otherKey.foreignSources.source_table as string);
         const otherId = recase(this.caseProp, otherKey.source_column);
 
         this.relations.push({
@@ -97,11 +97,12 @@ export class AutoRelater {
   }
 
   /** Convert foreign key name into alias name for belongsTo relations */
-  private getAlias(fkFieldName: string, modelName: string) {
+  private getAlias(fkFieldName: string, modelName: string, targetModel: string) {
     let name = this.trimId(fkFieldName);
     if (name === fkFieldName) {
       name = fkFieldName + "_" + modelName;
     }
+    this.usedChildNames.add(targetModel + "." + name);
     return recase(this.caseProp, name, true);
   }
 
