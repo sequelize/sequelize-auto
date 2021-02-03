@@ -1,5 +1,12 @@
 # sequelize-auto change log
 
+## [0.7.10] - 2021-02-03
+
+* Fix explicit NULL default values in mssql (#491) (thanks @md-shah)
+* Fix relation alias uniqueness (#489)
+* Add handling for Postgres range types (#490)
+* Make `id` field primaryKey if no other primaryKey exists (#480)
+
 ## [0.7.9] - 2021-01-29
 
 * Fix schema handling and case errors in relations
