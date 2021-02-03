@@ -446,6 +446,19 @@ export class AutoGenerator {
 
     if (type === "boolean" || type === "bit(1)" || type === "bit") {
       val = 'DataTypes.BOOLEAN';
+
+    // postgres range types
+    } else if (type === "numrange") {
+      val = 'DataTypes.RANGE(DataTypes.DECIMAL)';
+    } else if (type === "int4range") {
+      val = 'DataTypes.RANGE(DataTypes.INTEGER)';
+    } else if (type === "int8range") {
+      val = 'DataTypes.RANGE(DataTypes.BIGINT)';
+    } else if (type === "daterange") {
+      val = 'DataTypes.RANGE(DataTypes.DATEONLY)';
+    } else if (type === "tsrange" || type === "tstzrange") {
+      val = 'DataTypes.RANGE(DataTypes.DATE)';
+
     } else if (typematch = type.match(/^(bigint|smallint|mediumint|tinyint|int)/)) {
       // integer subtypes
       val = 'DataTypes.' + (typematch[0] === 'int' ? 'INTEGER' : typematch[0].toUpperCase());
