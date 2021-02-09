@@ -156,13 +156,16 @@ Example model class, `order.ts`:
 
 ```js
 import Sequelize, { DataTypes, Model, Optional } from 'sequelize';
+import type { Customer, CustomerId } from './customer';
+import type { OrderItem, OrderItemId } from './order_item';
 
 export interface OrderAttributes {
-  id?: number;
-  orderDate?: Date;
+  id: number;
+  orderDate: Date;
   orderNumber?: string;
-  customerId?: number;
+  customerId: number;
   totalAmount?: number;
+  status: 'PROCESSING' | 'SHIPPED' | 'UNKNOWN';
 }
 
 export type OrderPk = "id";
@@ -170,67 +173,76 @@ export type OrderId = Order[OrderPk];
 export type OrderCreationAttributes = Optional<OrderAttributes, OrderPk>;
 
 export class Order extends Model<OrderAttributes, OrderCreationAttributes> implements OrderAttributes {
-  id?: number;
-  orderDate?: Date;
+  id!: number;
+  orderDate!: Date;
   orderNumber?: string;
-  customerId?: number;
+  customerId!: number;
   totalAmount?: number;
+  status!: 'PROCESSING' | 'SHIPPED' | 'UNKNOWN';
 
-  // Order hasMany OrderItem
-  getOrderItems!: Sequelize.HasManyGetAssociationsMixin<OrderItem>;
-  setOrderItems!: Sequelize.HasManySetAssociationsMixin<OrderItem, OrderItemId>;
-  addOrderItem!: Sequelize.HasManyAddAssociationsMixin<OrderItem, OrderItemId>;
-  removeOrderItem!: Sequelize.HasManyRemoveAssociationsMixin<OrderItem, OrderItemId>;
-  hasOrderItem!: Sequelize.HasManyHasAssociationsMixin<OrderItem, OrderItemId>;
-  countOrderItems!: Sequelize.HasManyCountAssociationsMixin;
-  // Order belongsTo Customer
+  // Order belongsTo Customer via customerId
+  customer!: Customer;
   getCustomer!: Sequelize.BelongsToGetAssociationMixin<Customer>;
   setCustomer!: Sequelize.BelongsToSetAssociationMixin<Customer, CustomerId>;
   createCustomer!: Sequelize.BelongsToCreateAssociationMixin<Customer>;
+  // Order hasMany OrderItem via orderId
+  orderItems!: OrderItem[];
+  getOrderItems!: Sequelize.HasManyGetAssociationsMixin<OrderItem>;
+  setOrderItems!: Sequelize.HasManySetAssociationsMixin<OrderItem, OrderItemId>;
+  addOrderItem!: Sequelize.HasManyAddAssociationMixin<OrderItem, OrderItemId>;
+  addOrderItems!: Sequelize.HasManyAddAssociationsMixin<OrderItem, OrderItemId>;
+  createOrderItem!: Sequelize.HasManyCreateAssociationMixin<OrderItem>;
+  removeOrderItem!: Sequelize.HasManyRemoveAssociationMixin<OrderItem, OrderItemId>;
+  removeOrderItems!: Sequelize.HasManyRemoveAssociationsMixin<OrderItem, OrderItemId>;
+  hasOrderItem!: Sequelize.HasManyHasAssociationMixin<OrderItem, OrderItemId>;
+  hasOrderItems!: Sequelize.HasManyHasAssociationsMixin<OrderItem, OrderItemId>;
+  countOrderItems!: Sequelize.HasManyCountAssociationsMixin;
 
-  static initModel(sequelize: Sequelize) {
+  static initModel(sequelize: Sequelize.Sequelize): typeof Order {
     Order.init({
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
-      allowNull: true,
-      primaryKey: true,
-      field: 'Id'
+      allowNull: false,
+      primaryKey: true
     },
     orderDate: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      unique: true,
       field: 'OrderDate'
     },
     orderNumber: {
       type: DataTypes.STRING(10),
       allowNull: true,
-      unique: true,
       field: 'OrderNumber'
     },
     customerId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Customer',
+        model: 'customer',
         key: 'Id'
       },
-      unique: true,
       field: 'CustomerId'
     },
     totalAmount: {
-      type: DataTypes.DECIMAL(19,4),
+      type: DataTypes.DECIMAL(12,2),
       allowNull: true,
-      defaultValue: 0,
+      defaultValue: 0.00,
       field: 'TotalAmount'
+    },
+    status: {
+      type: DataTypes.ENUM('PROCESSING','SHIPPED','UNKNOWN'),
+      allowNull: false,
+      defaultValue: "UNKNOWN",
+      field: 'Status'
     }
   }, {
     sequelize,
-    tableName: 'Order',
-    timestamps: false
-    });
+    tableName: 'order',
+    timestamps: false,
+  });
   return Order;
   }
 }
@@ -261,21 +273,21 @@ export function initModels(sequelize: Sequelize) {
   Product.initModel(sequelize);
   Supplier.initModel(sequelize);
 
-  Order.belongsTo(Customer, { foreignKey: "id"});
-  Customer.hasMany(Order, { foreignKey: "customerId"});
-  OrderItem.belongsTo(Product, { foreignKey: "id"});
-  Product.hasMany(OrderItem, { foreignKey: "productId"});
-  OrderItem.belongsTo(Order, { foreignKey: "id"});
-  Order.hasMany(OrderItem, { foreignKey: "orderId"});
-  Product.belongsTo(Supplier, { foreignKey: "id"});
-  Supplier.hasMany(Product, { foreignKey: "supplierId"});
+  Order.belongsTo(Customer, { as: "customer", foreignKey: "customerId"});
+  Customer.hasMany(Order, { as: "orders", foreignKey: "customerId"});
+  OrderItem.belongsTo(Order, { as: "order", foreignKey: "orderId"});
+  Order.hasMany(OrderItem, { as: "orderItems", foreignKey: "orderId"});
+  OrderItem.belongsTo(Product, { as: "product", foreignKey: "productId"});
+  Product.hasMany(OrderItem, { as: "orderItems", foreignKey: "productId"});
+  Product.belongsTo(Supplier, { as: "supplier", foreignKey: "supplierId"});
+  Supplier.hasMany(Product, { as: "products", foreignKey: "supplierId"});
 
   return {
-    Customer,
-    Order,
-    OrderItem,
-    Product,
-    Supplier,
+    Customer: Customer,
+    OrderItem: OrderItem,
+    Order: Order,
+    Product: Product,
+    Supplier: Supplier,
   };
 }
 ```
@@ -291,7 +303,7 @@ import { initModels, Order, OrderCreationAttributes } from "./models/init-models
 // import models into sequelize instance
 initModels(this.sequelize);
 
-const myOrders = await Order.findAll({ where: { "customerId": cust.id } });
+const myOrders = await Order.findAll({ where: { "customerId": cust.id }, include: ['customer'] });
 
 const attr: OrderCreationAttributes = {
   customerId: cust.id,
@@ -314,9 +326,12 @@ const SequelizeAuto = require('sequelize-auto');
 const auto = new SequelizeAuto('database', 'user', 'pass');
 
 auto.run().then(data => {
-  console.log(data.tables);      // table list
-  console.log(data.foreignKeys); // foreign key list
-  console.log(data.text)         // text of generated files
+  console.log(data.tables);      // table and field list
+  console.log(data.foreignKeys); // table foreign key list
+  console.log(data.indexes);     // table indexes
+  console.log(data.hasTriggerTables); // tables that have triggers
+  console.log(data.relations);   // relationships between models
+  console.log(data.text)         // text of generated models
 });
 ```
 
