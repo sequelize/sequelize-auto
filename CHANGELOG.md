@@ -1,6 +1,6 @@
 # sequelize-auto change log
 
-## [0.7.11]
+## [0.7.11] - 2021-02-09
 
 * Fix precision & scale for mssql DECIMAL types
 * Write mssql NUMERIC as DECIMAL instead of DOUBLE (#496)
