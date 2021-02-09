@@ -71,11 +71,17 @@ export interface Relation {
 }
 
 export class TableData {
+  /** Fields for each table; indexed by schemaName.tableName */
   tables: { [tableName: string]: { [fieldName: string]: ColumnDescription; }; };
+  /** Foreign keys for each table; indexed by schemaName.tableName */
   foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec; }; };
+  /** Flag `true` for each table that has any trigger.  This affects how Sequelize performs updates. */
   hasTriggerTables: { [tableName: string]: boolean; };
+  /** Indexes for each table; indexed by schemaName.tableName */
   indexes: { [tableName: string]: IndexSpec[]; };
+  /** Relations between models, computed from foreign keys */
   relations: Relation[];
+  /** Text to be written to the model files, indexed by schemaName.tableName */
   text?: { [name: string]: string; };
   constructor() {
     this.tables = {};

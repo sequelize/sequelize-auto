@@ -39,7 +39,7 @@ export class AutoRelater {
       });
     });
 
-    td.relations = this.relations;
+    td.relations = _.sortBy(this.relations, ['parentTable', 'childTable']);
     return td;
   }
 

@@ -1,5 +1,13 @@
 # sequelize-auto change log
 
+## [0.7.11]
+
+* Fix precision & scale for mssql DECIMAL types
+* Write mssql NUMERIC as DECIMAL instead of DOUBLE (#496)
+* Fix ENUM datatype for mysql
+* Sort relations by [parent, child] in init-models.ts
+* Update README to show alias in associations
+
 ## [0.7.10] - 2021-02-03
 
 * Fix explicit NULL default values in mssql (#491) (thanks @md-shah)

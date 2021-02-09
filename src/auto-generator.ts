@@ -511,9 +511,9 @@ export class AutoGenerator {
       val = 'DataTypes.BLOB';
     } else if (type.match(/^hstore/)) {
       val = 'DataTypes.HSTORE';
-    } else if (type.match(/^enum$/)) {
-      const eltype = fieldObj.special.map(f => `"${f}"`).join(', ');
-      val = `DataTypes.ENUM(${eltype})`;
+    } else if (type.match(/^enum(\(.*\))?$/)) {
+      const enumValues = this.getEnumValues(fieldObj);
+      val = `DataTypes.ENUM(${enumValues})`;
     }
 
     return val as string;
@@ -672,23 +672,23 @@ export class AutoGenerator {
     } else if (this.isString(fieldType)) {
       jsType = 'string';
     } else if (this.isEnum(fieldType)) {
-      let values = [];
-
-      if (fieldObj.special) {
-        // postgres
-        values = fieldObj.special.map((v) => `"${v}"`);
-      } else {
-        // mysql
-        const enums = fieldObj.type.substring(5, fieldObj.type.length - 1).split(',');
-        values = enums;
-      }
-
+      const values = this.getEnumValues(fieldObj);
       jsType = values.join(' | ');
     } else {
       console.log(`Missing TypeScript type: ${fieldType}`);
       jsType = 'any';
     }
     return jsType;
+  }
+
+  private getEnumValues(fieldObj: TSField): string[] {
+    if (fieldObj.special) {
+      // postgres
+      return fieldObj.special.map((v) => `"${v}"`);
+    } else {
+      // mysql
+      return fieldObj.type.substring(5, fieldObj.type.length - 1).split(',');
+    }
   }
 
   private isTimestampField(field: string) {
