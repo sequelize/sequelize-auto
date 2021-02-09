@@ -18,6 +18,7 @@ export interface DialectOptions {
   showElementTypeQuery?: (tableName: string, schemaName?: string) => string;
   showGeographyTypeQuery?: (tableName: string, schemaName?: string) => string;
   showGeometryTypeQuery?: (tableName: string, schemaName?: string) => string;
+  showPrecisionQuery?: (tableName: string, schemaName?: string) => string;
 }
 
 export interface FKRow {
@@ -66,6 +67,12 @@ export interface ColumnElementType {
   udt_name: string;
   element_type: string;
   enum_values: string;
+}
+
+export interface ColumnPrecision {
+  column_name: string;
+  numeric_precision: number;
+  numeric_scale: number;
 }
 
 export interface TriggerCount {

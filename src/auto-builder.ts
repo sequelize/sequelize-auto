@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { Dialect, QueryInterface, QueryTypes, Sequelize } from "sequelize";
 import { AutoOptions } from ".";
-import { ColumnElementType, DialectOptions, FKRow, FKSpec, TriggerCount } from "./dialects/dialect-options";
+import { ColumnElementType, ColumnPrecision, DialectOptions, FKRow, FKSpec, TriggerCount } from "./dialects/dialect-options";
 import { dialects } from "./dialects/dialects";
 import { Field, IndexSpec, Table, TableData } from "./types";
 
@@ -170,6 +170,18 @@ export class AutoBuilder {
           });
         }
 
+      }
+
+      // for mssql numeric types, get the precision. QueryInterface.describeTable does not return it
+      if (this.dialect.showPrecisionQuery && (_.some(fields, { type: "DECIMAL" }) || _.some(fields, { type: "NUMERIC" }))) {
+        const prequery = this.dialect.showPrecisionQuery(table.table_name, table.table_schema);
+        const columnPrec = await this.executeQuery<ColumnPrecision>(prequery);
+        columnPrec.forEach(cp => {
+          const fld = fields[cp.column_name] as Field;
+          if (cp.numeric_precision && (fld.type === 'DECIMAL' || fld.type === 'NUMERIC')) {
+            fld.type = `${fld.type}(${cp.numeric_precision},${cp.numeric_scale})`;
+          }
+        });
       }
 
       this.tableData.indexes[makeTableQName(table)] = await this.queryInterface.showIndex(

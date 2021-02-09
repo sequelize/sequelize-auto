@@ -484,13 +484,13 @@ export class AutoGenerator {
       val = 'DataTypes.TIME';
     } else if (type.match(/^(float|float4)/)) {
       val = 'DataTypes.FLOAT' + (!_.isNull(precision) ? precision : '');
-    } else if (type.match(/^decimal/)) {
+    } else if (type.match(/^(decimal|numeric)/)) {
       val = 'DataTypes.DECIMAL' + (!_.isNull(precision) ? precision : '');
     } else if (type.match(/^money/)) {
       val = 'DataTypes.DECIMAL(19,4)';
     } else if (type.match(/^smallmoney/)) {
       val = 'DataTypes.DECIMAL(10,4)';
-    } else if (type.match(/^(float8|double|numeric)/)) {
+    } else if (type.match(/^(float8|double)/)) {
       val = 'DataTypes.DOUBLE' + (!_.isNull(precision) ? precision : '');
     } else if (type.match(/^uuid|uniqueidentifier/)) {
       val = 'DataTypes.UUID';

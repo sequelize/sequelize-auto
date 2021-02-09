@@ -122,6 +122,13 @@ export const mssqlOptions: DialectOptions = {
               FROM INFORMATION_SCHEMA.TABLES
              WHERE TABLE_TYPE = 'VIEW'
                   ${makeCondition("TABLE_SCHEMA", schemaName)}`;
-  }
+  },
+
+  /** Sequelize "describeTable" doesn't include precision and scale in mssql */
+  showPrecisionQuery: (tableName: string, schemaName?: string) => {
+    return `SELECT COLUMN_NAME AS column_name, NUMERIC_PRECISION AS numeric_precision, NUMERIC_SCALE AS numeric_scale
+    FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '${tableName}'` + (!schemaName ? '' : ` AND TABLE_SCHEMA = '${schemaName}'`);
+  },
+
 
 };
