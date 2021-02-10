@@ -150,6 +150,8 @@ You can use the `-l es6` option to create the model definition files as ES6 clas
 Add `-l ts` to cli options or `lang: 'ts'` to programmatic options.  This will generate a TypeScript class in each model file, and an `init-model.ts` file
 to import and initialize all the classes.
 
+> Note that you need TypeScript **4.x** to compile the generated files.
+
 The TypeScript model classes are created as described in the [Sequelize manual](https://sequelize.org/master/manual/typescript.html)
 
 Example model class, `order.ts`:
