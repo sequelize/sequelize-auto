@@ -1,5 +1,9 @@
 # sequelize-auto change log
 
+## [0.7.12] 
+
+* Fix `references` to remove `schema`, seems unnecessary (#501)
+
 ## [0.7.11] - 2021-02-09
 
 * Fix precision & scale for mssql DECIMAL types

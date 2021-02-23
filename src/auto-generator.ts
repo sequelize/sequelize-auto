@@ -257,14 +257,7 @@ export class AutoGenerator {
       if (attr === "foreignKey") {
         if (foreignKey && foreignKey.isForeignKey) {
           str += space[3] + "references: {\n";
-          if (this.options.schema) {
-            str += space[4] + "model: {\n";
-            str += space[5] + "tableName: \'" + fieldObj[attr].foreignSources.target_table + "\',\n";
-            str += space[5] + "schema: \'" + fieldObj[attr].foreignSources.target_schema + "\'\n";
-            str += space[4] + "},\n";
-          } else {
-            str += space[4] + "model: \'" + fieldObj[attr].foreignSources.target_table + "\',\n";
-          }
+          str += space[4] + "model: \'" + fieldObj[attr].foreignSources.target_table + "\',\n";
           str += space[4] + "key: \'" + fieldObj[attr].foreignSources.target_column + "\'\n";
           str += space[3] + "}";
         } else {
