@@ -2,6 +2,7 @@
 
 ## [0.7.12] 
 
+* Add alias name to belongsToMany associations (#500)
 * Fix `references` to remove `schema`, seems unnecessary (#501)
 
 ## [0.7.11] - 2021-02-09

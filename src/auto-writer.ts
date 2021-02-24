@@ -1,6 +1,7 @@
 import fs from "fs";
 import _ from "lodash";
 import path from "path";
+import { Utils } from "sequelize";
 import util from "util";
 import { FKSpec, TableData } from ".";
 import { AutoOptions, CaseOption, LangOption, qNameSplit, recase, Relation } from "./types";
@@ -93,7 +94,8 @@ export class AutoWriter {
     const rels = this.relations;
     rels.forEach(rel => {
       if (rel.isM2M) {
-        strBelongsToMany += `  ${rel.parentModel}.belongsToMany(${rel.childModel}, { through: ${rel.joinModel}${asAny}, foreignKey: "${rel.parentId}", otherKey: "${rel.childId}" });\n`;
+        const asprop = Utils.pluralize(rel.childProp);
+        strBelongsToMany += `  ${rel.parentModel}.belongsToMany(${rel.childModel}, { as: '${asprop}', through: ${rel.joinModel}${asAny}, foreignKey: "${rel.parentId}", otherKey: "${rel.childId}" });\n`;
       } else {
         strBelongs += `  ${rel.childModel}.belongsTo(${rel.parentModel}, { as: "${rel.parentProp}", foreignKey: "${rel.parentId}"});\n`;
         const hasRel = rel.isOne ? "hasOne" : "hasMany";

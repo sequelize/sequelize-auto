@@ -668,7 +668,7 @@ export class AutoGenerator {
       const values = this.getEnumValues(fieldObj);
       jsType = values.join(' | ');
     } else {
-      console.log(`Missing TypeScript type: ${fieldType}`);
+      console.log(`Missing TypeScript type: ${fieldType || fieldObj['type']}`);
       jsType = 'any';
     }
     return jsType;
