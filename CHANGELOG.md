@@ -4,6 +4,7 @@
 
 * Add alias name to belongsToMany associations (#500)
 * Fix `references` to remove `schema`, seems unnecessary (#501)
+* Let host, database, username, and password be set via config file (#482) (thanks @twastvedt)
 
 ## [0.7.11] - 2021-02-09
 

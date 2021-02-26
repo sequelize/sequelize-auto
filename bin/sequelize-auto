@@ -6,7 +6,6 @@ const argv = require('yargs')
   .usage(
     'Usage: sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]'
   )
-  .demand(['h', 'd'])
   .alias('h', 'host').string('h')
   .alias('d', 'database').string('d')
   .alias('u', 'user').string('u')
@@ -51,6 +50,7 @@ const argv = require('yargs')
   .describe('v', 'Include database views in generated models')
   .describe('l', 'Language for Model output: es5|es6|esm|ts \n es5 = ES5 CJS modules (default) \n es6 = ES6 CJS modules \n esm = ES6 ESM modules \n ts = TypeScript ')
   .describe('sg', 'Singularize model and file names from plural table names')
+  .check(argv => !!((argv.d && (argv.h || argv.e === 'sqlite')) || argv.c))
   .argv;
 
 const dir = !argv.n && (argv.o || path.resolve(process.cwd() + '/models'));
@@ -82,7 +82,8 @@ configFile.additional = additional;
 configFile.dialect = argv.e || configFile.dialect || 'mysql';
 configFile.port = argv.p || configFile.port || getDefaultPort(configFile.dialect);
 configFile.host = argv.h || configFile.host || 'localhost';
-configFile.storage = argv.d;
+configFile.database = argv.d || configFile.database;
+configFile.storage = configFile.storage || configFile.database;
 configFile.tables = configFile.tables || (argv.t && argv.t.split(',')) || null;
 configFile.skipTables = configFile.skipTables || (argv.T && argv.T.split(',')) || null;
 configFile.schema = argv.s || configFile.schema;
@@ -93,6 +94,8 @@ configFile.caseProp = argv.cp || configFile.caseProp || 'o';
 configFile.noWrite = argv.n || configFile.noWrite || false;
 configFile.views = argv.v || configFile.views || false;
 configFile.singularize = argv.sg || configFile.singularize || false;
+configFile.password = !!argv.x ? '' + argv.x : configFile.password || null;
+configFile.username = argv.u || configFile.username;
 
 console.log(configFile);
 
@@ -107,7 +110,8 @@ function getDefaultPort(dialect) {
   }
 }
 
-const auto = new SequelizeAuto(argv.d, argv.u, !!argv.x ? '' + argv.x : null, configFile);
+/** @type {import('../types').SequelizeAuto}  */
+const auto = new SequelizeAuto(configFile.database, configFile.username, configFile.password, configFile);
 
 auto.run().then(() => {
   console.log("Done!");

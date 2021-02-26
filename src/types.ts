@@ -126,6 +126,8 @@ export interface AutoOptions {
   caseProp?: CaseOption;
   /** Close connection after export (default true) */
   closeConnectionAutomatically?: boolean;
+  /** Database name */
+  database?: string;
   /** Database dialect */
   dialect?: Dialect;
   /** Dialect-specific options */
@@ -140,6 +142,8 @@ export interface AutoOptions {
   lang?: LangOption;
   /** Whether to skip writing the files */
   noWrite?: boolean;
+  /** Database password */
+  password?: string;
   /** Database port */
   port?: number;
   /** Database schema to export */
@@ -154,6 +158,8 @@ export interface AutoOptions {
   storage?: string;
   /** Tables to export (default all) */
   tables?: string[];
+  /** Database username */
+  username?: string;
   /** Whether to export views (default false) */
   views?: boolean;
 }
