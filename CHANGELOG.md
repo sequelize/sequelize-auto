@@ -1,10 +1,11 @@
 # sequelize-auto change log
 
-## [0.7.12] 
+## [0.8.0] - 2021-02-25
 
 * Add alias name to belongsToMany associations (#500)
 * Fix `references` to remove `schema`, seems unnecessary (#501)
 * Let host, database, username, and password be set via config file (#482) (thanks @twastvedt)
+* Update dependencies
 
 ## [0.7.11] - 2021-02-09
 
