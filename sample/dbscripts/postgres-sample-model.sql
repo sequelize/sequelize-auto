@@ -1,6 +1,6 @@
---DROP DATABASE IF EXISTS "Northwind";
---CREATE DATABASE "Northwind";
--- Need to do the above separately, then reconnect to Northwind database
+--DROP DATABASE IF EXISTS "northwind";
+--CREATE DATABASE "northwind";
+-- Need to do the above separately, then reconnect to northwind database
 
 DROP TABLE IF EXISTS "OrderItem";
 DROP TABLE IF EXISTS "Product";
