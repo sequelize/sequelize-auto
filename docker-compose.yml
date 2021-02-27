@@ -13,12 +13,25 @@
 version: "3.5"
 
 services:
+  mssql:
+    build:
+      context: ./
+      dockerfile: mssql.Dockerfile
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      SA_PASSWORD: "Sequelizeauto!"
+    ports:
+      - 1433:1433
+    volumes:
+      - ./sample/dbscripts/mssql-sample-model.sql:/usr/db/mssql-sample-model.sql
+      - ./sample/dbscripts/mssql-sample-data.sql:/usr/db/mssql-sample-data.sql
   mysql:
     environment:
-      MYSQL_DATABASE: northwind
-      MYSQL_USER: sequelizeauto
-      MYSQL_PASSWORD: sequelizeauto
-      MYSQL_ROOT_PASSWORD: sequelizeauto
+      MYSQL_DATABASE: "northwind"
+      MYSQL_USER: "sequelizeauto"
+      MYSQL_PASSWORD: "Sequelizeauto!"
+      MYSQL_ROOT_PASSWORD: "Sequelizeauto!"
     image: mysql:8.0
     ports:
       - 3306:3306
@@ -28,9 +41,9 @@ services:
       - ./sample/dbscripts/mysql-sample-data.sql:/docker-entrypoint-initdb.d/002.mysql-sample-data.sql
   postgres:
     environment:
-      POSTGRES_USER: sequelizeauto
-      POSTGRES_PASSWORD: sequelizeauto
-      POSTGRES_DB: northwind
+      POSTGRES_USER: "sequelizeauto"
+      POSTGRES_PASSWORD: "Sequelizeauto!"
+      POSTGRES_DB: "northwind"
     image: postgres:12
     ports:
       - 5432:5432
