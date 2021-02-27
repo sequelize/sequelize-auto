@@ -2,6 +2,9 @@
 --CREATE DATABASE "northwind";
 -- Need to do the above separately, then reconnect to northwind database
 
+DROP DATABASE IF EXISTS "sequelize_auto_test";
+CREATE DATABASE "sequelize_auto_test";
+
 DROP TABLE IF EXISTS "OrderItem";
 DROP TABLE IF EXISTS "Product";
 DROP TABLE IF EXISTS "Supplier";

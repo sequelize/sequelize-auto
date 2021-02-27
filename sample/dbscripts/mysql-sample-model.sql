@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS "sequelize_auto_test";
+
 CREATE DATABASE  IF NOT EXISTS `northwind` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `northwind`;
 

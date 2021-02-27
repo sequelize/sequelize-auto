@@ -38,3 +38,16 @@ services:
     volumes:
       - ./sample/dbscripts/postgres-sample-model.sql:/docker-entrypoint-initdb.d/001.postgres-sample-model.sql
       - ./sample/dbscripts/postgres-sample-data.sql:/docker-entrypoint-initdb.d/002.postgres-sample-data.sql
+  # Unlike the other databases, sqlite doesn't require leaving a process
+  # running. This container is just responsible for writing out a sqlite3
+  # database file in `sample/northwind.sqlite`. It's normal for this to
+  # exit immediately after generating this file. (As with other databases
+  # this is wiped and recreated from scratch on `docker-compose up`)
+  sqlite:
+    build:
+      context: ./
+      dockerfile: sqlite3.Dockerfile
+    volumes:
+      - ./sample/dbscripts/sqlite-sample-model.sql:/usr/db/sqlite-sample-model.sql
+      - ./sample/dbscripts/sqlite-sample-data.sql:/usr/db/sqlite-sample-data.sql
+      - ./sample/northwind.sqlite:/usr/db/northwind.sqlite
