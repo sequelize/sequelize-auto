@@ -1,0 +1,23 @@
+# Create database containers to simplify running tests
+
+version: "3.5"
+
+services:
+  postgres:
+    environment:
+      POSTGRES_USER: sequelizeauto
+      POSTGRES_PASSWORD: sequelizeauto
+      POSTGRES_DB: sequelizeauto
+    image: postgres:12
+    ports:
+      - 5432:5432
+    restart: always
+    volumes:
+      # NB: Postgres will run init scripts in alphabetic order, hence we need
+      # to ensure `model` (the migration responsible for creating tables) is
+      # executed first.
+      # After making changes to either of these files, you'll have to
+      # `docker-compose down` and `docker-compose up` for these migrations to
+      # be re-executed.
+      - ./sample/dbscripts/postgres-sample-model.sql:/docker-entrypoint-initdb.d/001.postgres-sample-model.sql
+      - ./sample/dbscripts/postgres-sample-data.sql:/docker-entrypoint-initdb.d/002.postgres-sample-data.sql
