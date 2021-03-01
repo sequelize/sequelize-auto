@@ -52,12 +52,14 @@ const argv = require('yargs')
     alias: 'a'
   })
   .option('tables', {
-    description: 'Comma-separated names of tables to import',
+    description: 'Space-separated names of tables to import',
+    array: true,
     type: 'string',
     alias: 't'
   })
   .option('skipTables', {
-    description: 'Comma-separated names of tables to skip',
+    description: 'Space-separated names of tables to skip',
+    array: true,
     type: 'string',
     alias: 'T'
   })
@@ -130,8 +132,8 @@ configFile.port = argv.port || configFile.port || getDefaultPort(configFile.dial
 configFile.host = argv.host || configFile.host || 'localhost';
 configFile.database = argv.database || configFile.database;
 configFile.storage = configFile.storage || configFile.database;
-configFile.tables = configFile.tables || (argv.tables && argv.tables.split(',')) || null;
-configFile.skipTables = configFile.skipTables || (argv.skipTables && argv.skipTables.split(',')) || null;
+configFile.tables = configFile.tables || argv.tables || null;
+configFile.skipTables = configFile.skipTables || argv.skipTables || null;
 configFile.schema = argv.schema || configFile.schema;
 configFile.lang = argv.lang || configFile.lang || 'es5';
 configFile.caseModel = argv.caseModel || configFile.caseModel || 'o';
