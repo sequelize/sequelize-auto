@@ -120,9 +120,7 @@ configFile.directory = configFile.directory || dir;
 let additional = {};
 if (argv.additional) {
   additional = require(path.resolve(argv.additional));
-}
-
-if (configFile.additional) {
+} else if (configFile.additional) {
   additional = configFile.additional;
 }
 
@@ -132,8 +130,8 @@ configFile.port = argv.port || configFile.port || getDefaultPort(configFile.dial
 configFile.host = argv.host || configFile.host || 'localhost';
 configFile.database = argv.database || configFile.database;
 configFile.storage = configFile.storage || configFile.database;
-configFile.tables = configFile.tables || argv.tables || null;
-configFile.skipTables = configFile.skipTables || argv.skipTables || null;
+configFile.tables = argv.tables || configFile.tables || null;
+configFile.skipTables = argv.skipTables || configFile.skipTables || null;
 configFile.schema = argv.schema || configFile.schema;
 configFile.lang = argv.lang || configFile.lang || 'es5';
 configFile.caseModel = argv.caseModel || configFile.caseModel || 'o';
