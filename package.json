@@ -53,7 +53,7 @@
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "engines": {
-    "node": ">= 8"
+    "node": ">= 10"
   },
   "author": "Steve Schmitt (https://github.com/steveschmitt)",
   "contributors": [
@@ -64,7 +64,7 @@
   "dependencies": {
     "lodash": "^4.17.21",
     "mkdirp": "^1.0.4",
-    "yargs": "^15.4.1"
+    "yargs": "^16.2.0"
   },
   "peerDependencies": {
     "sequelize": ">3.30.0"
