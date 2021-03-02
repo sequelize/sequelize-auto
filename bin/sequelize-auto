@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 const SequelizeAuto = require('../');
 const path = require('path');
+const readline = require('readline');
 
 const argv = require('yargs')
+  .parserConfiguration({
+    "parse-numbers": false // disabled because of password field, other option can still be explicitly defined as number type
+  })
   .usage(
     'Usage: sequelize-auto -h <host> -d <database> -u <user> -x [password] -p [port]  --dialect [dialect] -c [/path/to/config] -o [/path/to/models] -t [tableName]'
   )
@@ -22,8 +26,7 @@ const argv = require('yargs')
     alias: 'u'
   })
   .option('pass', {
-    description: 'Password for database.',
-    type: 'string',
+    description: 'Password for database. If specified without providing a password, it will be requested interactively from the terminal.',
     alias: 'x'
   })
   .option('port', {
@@ -103,48 +106,6 @@ const argv = require('yargs')
   .check(argv => Boolean((argv.database && (argv.host || argv.dialect === 'sqlite')) || argv.config))
   .argv;
 
-const dir = !argv.noWrite && (argv.output || path.resolve(process.cwd() + '/models'));
-
-/** @type {import('../types').AutoOptions}  */
-let configFile = {
-  spaces: true,
-  indentation: 2
-};
-
-if (argv.config) {
-  configFile = require(path.resolve(argv.config));
-}
-
-configFile.directory = configFile.directory || dir;
-
-let additional = {};
-if (argv.additional) {
-  additional = require(path.resolve(argv.additional));
-} else if (configFile.additional) {
-  additional = configFile.additional;
-}
-
-configFile.additional = additional;
-configFile.dialect = argv.dialect || configFile.dialect || 'mysql';
-configFile.port = argv.port || configFile.port || getDefaultPort(configFile.dialect);
-configFile.host = argv.host || configFile.host || 'localhost';
-configFile.database = argv.database || configFile.database;
-configFile.storage = configFile.storage || configFile.database;
-configFile.tables = argv.tables || configFile.tables || null;
-configFile.skipTables = argv.skipTables || configFile.skipTables || null;
-configFile.schema = argv.schema || configFile.schema;
-configFile.lang = argv.lang || configFile.lang || 'es5';
-configFile.caseModel = argv.caseModel || configFile.caseModel || 'o';
-configFile.caseFile = argv.caseFile || configFile.caseFile || 'o';
-configFile.caseProp = argv.caseProp || configFile.caseProp || 'o';
-configFile.noWrite = argv.noWrite || configFile.noWrite || false;
-configFile.views = argv.views || configFile.views || false;
-configFile.singularize = argv.singularize || configFile.singularize || false;
-configFile.password = argv.pass || configFile.password || null;
-configFile.username = argv.user || configFile.username;
-
-console.log(configFile);
-
 function getDefaultPort(dialect) {
   switch (dialect.toLowerCase()) {
     case 'mssql':
@@ -156,9 +117,86 @@ function getDefaultPort(dialect) {
   }
 }
 
-/** @type {import('../types').SequelizeAuto}  */
-const auto = new SequelizeAuto(configFile.database, configFile.username, configFile.password, configFile);
+async function readPassword() {
+  let rl = readline.createInterface({
+    input: process.stdin,
+    terminal: true
+  });
 
-auto.run().then(() => {
+  process.stdout.write('Password: ');
+  let pwd = await new Promise(resolve => rl.question('', pwd => resolve(pwd)));
+  rl.close();
+  process.stdout.write('\n');
+
+  return pwd;
+}
+
+/* eslint-disable complexity, max-statements */
+(async function() {
+
+  let password;
+  if (typeof argv.pass === 'boolean' && argv.pass) {
+    password = await readPassword();
+  } else if (typeof argv.pass === 'string') {
+      console.warn('Warning: using a password on the command line interface can be insecure.');
+      password = argv.pass;
+  }
+
+  const dir = !argv.noWrite && (argv.output || path.resolve(process.cwd() + '/models'));
+
+  /** @type {import('../types').AutoOptions}  */
+  let configFile = {
+    spaces: true,
+    indentation: 2
+  };
+
+  if (argv.config) {
+    configFile = require(path.resolve(argv.config));
+  }
+
+  configFile.directory = configFile.directory || dir;
+
+  let additional = {};
+  if (argv.additional) {
+    additional = require(path.resolve(argv.additional));
+  } else if (configFile.additional) {
+    additional = configFile.additional;
+  }
+
+  configFile.additional = additional;
+  configFile.dialect = argv.dialect || configFile.dialect || 'mysql';
+  configFile.port = argv.port || configFile.port || getDefaultPort(configFile.dialect);
+  configFile.host = argv.host || configFile.host || 'localhost';
+  configFile.database = argv.database || configFile.database;
+  configFile.storage = configFile.storage || configFile.database;
+  configFile.tables = argv.tables || configFile.tables || null;
+  configFile.skipTables = argv.skipTables || configFile.skipTables || null;
+  configFile.schema = argv.schema || configFile.schema;
+  configFile.lang = argv.lang || configFile.lang || 'es5';
+  configFile.caseModel = argv.caseModel || configFile.caseModel || 'o';
+  configFile.caseFile = argv.caseFile || configFile.caseFile || 'o';
+  configFile.caseProp = argv.caseProp || configFile.caseProp || 'o';
+  configFile.noWrite = argv.noWrite || configFile.noWrite || false;
+  configFile.views = argv.views || configFile.views || false;
+  configFile.singularize = argv.singularize || configFile.singularize || false;
+  configFile.password = password || configFile.password || null;
+  configFile.username = argv.user || configFile.username;
+
+  console.log(configFile);
+
+  /** @type {import('../types').SequelizeAuto}  */
+  const auto = new SequelizeAuto(configFile.database, configFile.username, configFile.password, configFile);
+
+  await auto.run();
   console.log("Done!");
+
+}()).catch(err => {
+  if (err.stack) {
+    console.error(err.stack);
+  } else if (err.message) {
+    console.error(err.message);
+  } else {
+    console.error(err);
+  }
+  process.exitCode = 1;
 });

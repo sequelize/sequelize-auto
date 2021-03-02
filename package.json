@@ -53,11 +53,12 @@
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "engines": {
-    "node": ">= 6"
+    "node": ">= 8"
   },
   "author": "Steve Schmitt (https://github.com/steveschmitt)",
   "contributors": [
-    "Daniel Durante <me@danieldurante.com>"
+    "Daniel Durante <me@danieldurante.com>",
+    "Yuping Zuo (https://github.com/zypA13510)"
   ],
   "license": "MIT",
   "dependencies": {
