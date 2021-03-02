@@ -2,6 +2,7 @@
 const SequelizeAuto = require('../');
 const path = require('path');
 const readline = require('readline');
+const _ = require('lodash');
 
 const argv = require('yargs')
   .parserConfiguration({
@@ -182,7 +183,7 @@ async function readPassword() {
   configFile.password = password || configFile.password || null;
   configFile.username = argv.user || configFile.username;
 
-  console.log(configFile);
+  console.log(_.omit(configFile, 'password'));
 
   /** @type {import('../types').SequelizeAuto}  */
   const auto = new SequelizeAuto(configFile.database, configFile.username, configFile.password, configFile);
