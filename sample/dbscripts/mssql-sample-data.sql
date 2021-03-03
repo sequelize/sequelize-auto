@@ -1,3 +1,6 @@
+﻿USE Northwind
+GO
+
 SET IDENTITY_INSERT Customer ON
 INSERT INTO [Customer] ([Id],[FirstName],[LastName],[City],[Country],[Phone])VALUES(1,'Maria','Anders','Berlin','Germany','030-0074321')
 INSERT INTO [Customer] ([Id],[FirstName],[LastName],[City],[Country],[Phone])VALUES(2,'Ana','Trujillo','México D.F.','Mexico','(5) 555-4729')
@@ -91,6 +94,8 @@ INSERT INTO [Customer] ([Id],[FirstName],[LastName],[City],[Country],[Phone])VAL
 INSERT INTO [Customer] ([Id],[FirstName],[LastName],[City],[Country],[Phone])VALUES(90,'Matti','Karttunen','Helsinki','Finland','90-224 8858')
 INSERT INTO [Customer] ([Id],[FirstName],[LastName],[City],[Country],[Phone])VALUES(91,'Zbyszek','Piestrzeniewicz','Warszawa','Poland','(26) 642-7012')
 SET IDENTITY_INSERT Customer OFF
+GO
+
 SET IDENTITY_INSERT Supplier ON
 INSERT INTO [Supplier] ([Id],[CompanyName],[ContactName],[City],[Country],[Phone],[Fax])VALUES(1,'Exotic Liquids','Charlotte Cooper','London','UK','(171) 555-2222',NULL)
 INSERT INTO [Supplier] ([Id],[CompanyName],[ContactName],[City],[Country],[Phone],[Fax])VALUES(2,'New Orleans Cajun Delights','Shelley Burke','New Orleans','USA','(100) 555-4822',NULL)
@@ -122,6 +127,8 @@ INSERT INTO [Supplier] ([Id],[CompanyName],[ContactName],[City],[Country],[Phone
 INSERT INTO [Supplier] ([Id],[CompanyName],[ContactName],[City],[Country],[Phone],[Fax])VALUES(28,'Gai pâturage','Eliane Noz','Annecy','France','38.76.98.06','38.76.98.58')
 INSERT INTO [Supplier] ([Id],[CompanyName],[ContactName],[City],[Country],[Phone],[Fax])VALUES(29,'Forêts d''érables','Chantal Goulet','Ste-Hyacinthe','Canada','(514) 555-2955','(514) 555-2921')
 SET IDENTITY_INSERT Supplier OFF
+GO
+
 SET IDENTITY_INSERT Product ON
 INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[AltSupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(1,'Chai',1,6,18.00,'10 boxes x 20 bags',0)
 INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[AltSupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(2,'Chang',1,6,19.00,'24 - 12 oz bottles',0)
@@ -202,6 +209,8 @@ INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[Is
 INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(77,'Original Frankfurter grüne Soße',12,13.00,'12 boxes',0)
 INSERT INTO [Product] ([Id],[ProductName],[SupplierId],[UnitPrice],[Package],[IsDiscontinued])VALUES(78,'Stroopwafels',22,9.75,'24 pieces',0)
 SET IDENTITY_INSERT Product OFF
+GO
+
 SET IDENTITY_INSERT [Order] ON
 INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber],[Status])VALUES(1,'Jul  4 2012 12:00:00:000AM',85,440.00,'542378','SHIPPED')
 INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber],[Status])VALUES(2,'Jul  5 2012 12:00:00:000AM',79,1863.40,'542379','PROCESSING')
@@ -1034,6 +1043,8 @@ INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber])V
 INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber])VALUES(829,'May  6 2014 12:00:00:000AM',9,1057.00,'543206')
 INSERT INTO [Order] ([Id],[OrderDate],[CustomerId],[TotalAmount],[OrderNumber])VALUES(830,'May  6 2014 12:00:00:000AM',65,1374.60,'543207')
 SET IDENTITY_INSERT [Order] OFF
+GO
+
 SET IDENTITY_INSERT [OrderItem] ON
 INSERT INTO [OrderItem] ([Id],[OrderId],[ProductId],[UnitPrice],[Quantity])VALUES(1,1,11,14.00,12)
 INSERT INTO [OrderItem] ([Id],[OrderId],[ProductId],[UnitPrice],[Quantity])VALUES(2,1,42,9.80,10)
@@ -3191,3 +3202,4 @@ INSERT INTO [OrderItem] ([Id],[OrderId],[ProductId],[UnitPrice],[Quantity])VALUE
 INSERT INTO [OrderItem] ([Id],[OrderId],[ProductId],[UnitPrice],[Quantity])VALUES(2154,830,75,7.75,4)
 INSERT INTO [OrderItem] ([Id],[OrderId],[ProductId],[UnitPrice],[Quantity])VALUES(2155,830,77,13.00,2)
 SET IDENTITY_INSERT [OrderItem] OFF
+GO
