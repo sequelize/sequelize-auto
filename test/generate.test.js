@@ -58,7 +58,6 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
   describe('should be able to generate', function() {
     it('the model files.', function(done) {
       try {
-        const db = self.sequelize.config.database;
         var testTables = ['Users', 'HistoryLogs', 'ParanoidUsers'];
         if (helpers.isSnakeTables()) {
           testTables = testTables.map(t => _.snakeCase(t));
@@ -75,7 +74,8 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
           if (stderr) {
             console.log(stderr);
           }
-          expect(stderr).to.be.empty;
+          // Warning: using a password on the command line interface can be insecure.
+          expect(stderr).to.contain("using a password");
 
           // Cleanup whitespace and linebreaks!
           stdout = stdout.replace(/\s+/g, ' ');

@@ -53,17 +53,18 @@
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "engines": {
-    "node": ">= 6"
+    "node": ">= 10"
   },
   "author": "Steve Schmitt (https://github.com/steveschmitt)",
   "contributors": [
-    "Daniel Durante <me@danieldurante.com>"
+    "Daniel Durante <me@danieldurante.com>",
+    "Yuping Zuo (https://github.com/zypA13510)"
   ],
   "license": "MIT",
   "dependencies": {
     "lodash": "^4.17.21",
     "mkdirp": "^1.0.4",
-    "yargs": "^15.4.1"
+    "yargs": "^16.2.0"
   },
   "peerDependencies": {
     "sequelize": ">3.30.0"

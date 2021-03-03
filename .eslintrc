@@ -7,6 +7,7 @@ env:
   amd: true
   browser: true
   es6: true
+  es2017: true
   jquery: true
   node: true
 
