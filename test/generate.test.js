@@ -75,7 +75,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
             console.log(stderr);
           }
           // Warning: using a password on the command line interface can be insecure.
-          expect(stderr).to.contain("using a password");
+          expect(stderr).to.satisfy(s => !s || s.includes("using a password on the command line interface"));
 
           // Cleanup whitespace and linebreaks!
           stdout = stdout.replace(/\s+/g, ' ');
