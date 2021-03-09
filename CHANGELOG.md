@@ -4,6 +4,7 @@
 
 * Allow password to be supplied from terminal (#503) (thanks @zypA13510)
 * Fix autoIncrement for SQLite (#504)
+* TypeScript: make field optional with "?" if it has a defaultValue (#505)
 
 ## [0.8.0] - 2021-02-25
 

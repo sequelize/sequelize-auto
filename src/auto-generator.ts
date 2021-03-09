@@ -631,15 +631,15 @@ export class AutoGenerator {
     let str = '';
     fields.forEach(field => {
       const name = this.quoteName(recase(this.options.caseProp, field));
-      const allowNull = this.getTypeScriptAllowNull(table, field);
-      str += `${sp}${name}${allowNull ? '?' : notNull}: ${this.getTypeScriptType(table, field)};\n`;
+      const isOptional = this.getTypeScriptFieldOptional(table, field);
+      str += `${sp}${name}${isOptional ? '?' : notNull}: ${this.getTypeScriptType(table, field)};\n`;
     });
     return str;
   }
 
-  private getTypeScriptAllowNull(table: string, field: string) {
+  private getTypeScriptFieldOptional(table: string, field: string) {
     const fieldObj = this.tables[table][field];
-    return fieldObj['allowNull'];
+    return fieldObj.allowNull || (fieldObj.defaultValue || fieldObj.defaultValue === "");
   }
 
   private getTypeScriptType(table: string, field: string) {
