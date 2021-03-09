@@ -72,7 +72,7 @@ export const sqliteOptions: DialectOptions = {
    */
   isSerialKey: (record: FKRow) => {
     return (
-      _.isObject(record) && sqliteOptions.isPrimaryKey(record) && (record.type === 'INTEGER')
+      _.isObject(record) && sqliteOptions.isPrimaryKey(record) && (!!record.type && record.type.toUpperCase() === 'INTEGER')
     );
   },
 

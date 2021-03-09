@@ -1,5 +1,10 @@
 # sequelize-auto change log
 
+## [0.8.1]
+
+* Allow password to be supplied from terminal (#503) (thanks @zypA13510)
+* Fix autoIncrement for SQLite (#504)
+
 ## [0.8.0] - 2021-02-25
 
 * Add alias name to belongsToMany associations (#500)
