@@ -1,6 +1,6 @@
 # sequelize-auto change log
 
-## [0.8.1]
+## [0.8.1] - 2021-03-09
 
 * Allow password to be supplied from terminal (#503) (thanks @zypA13510)
 * Fix autoIncrement for SQLite (#504)
