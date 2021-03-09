@@ -36,7 +36,7 @@ const argv = require('yargs')
     alias: 'p'
   })
   .option('config', {
-    description: 'Path to JSON file for Sequelize\'s constructor "options" flag object as defined here: https://sequelize.org/v5/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor',
+    description: 'Path to JSON file for Sequelize-Auto options and Sequelize\'s constructor "options" flag object as defined here: https://sequelize.org/master/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor',
     type: 'string',
     alias: 'c'
   })
@@ -51,7 +51,7 @@ const argv = require('yargs')
     alias: 'e'
   })
   .option('additional', {
-    description: "Path to JSON file containing model definitions (for all tables) which are to be defined within a model's configuration parameter. For more info: https://sequelize.org/v5/manual/models-definition.html#configuration",
+    description: "Path to JSON file containing model options (for all tables). See the options: https://sequelize.org/master/class/lib/model.js~Model.html#static-method-init",
     type: 'string',
     alias: 'a'
   })

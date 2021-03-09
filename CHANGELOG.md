@@ -5,6 +5,9 @@
 * Allow password to be supplied from terminal (#503) (thanks @zypA13510)
 * Fix autoIncrement for SQLite (#504)
 * TypeScript: make field optional with "?" if it has a defaultValue (#505)
+* BREAKING CHANGE: command-line options always take precedence over config file options
+* BREAKING CHANGE: `tables` and `skipTables` options on command line are now space-separated (instead of comma-separated) lists
+* BREAKING CHANGE: drop support of **node** version less than **10**
 
 ## [0.8.0] - 2021-02-25
 
