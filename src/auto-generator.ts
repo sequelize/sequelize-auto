@@ -461,6 +461,8 @@ export class AutoGenerator {
       if (/zerofill/i.test(type)) {
         val += '.ZEROFILL';
       }
+    } else if (type === 'nvarchar(max)' || type === 'varchar(max)') {
+        val = 'DataTypes.TEXT';
     } else if (type.match(/n?varchar|string|varying/)) {
       val = 'DataTypes.STRING' + (!_.isNull(length) ? length : '');
     } else if (type.match(/^n?char/)) {
