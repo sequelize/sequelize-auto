@@ -1,5 +1,15 @@
 # sequelize-auto change log
 
+## [0.8.2] - 2021-03-31
+
+* TypeScript: fix imports when `esModuleInterop` is false (#498)
+* mssql: Make varchar(max) be DataTypes.TEXT (#508)
+* Fix name collision when plural and singular are the same (#509)
+* Fix missing associations (#510 and #512)
+* TypeScript: remove cast "as typeof Model" in belongsToMany, for compatibility with Sequelize 6.6.2 (#511)
+* mysql: Treat `tinyint(1)` as boolean (#514)
+* Update devDependencies
+
 ## [0.8.1] - 2021-03-09
 
 * Allow password to be supplied from terminal (#503) (thanks @zypA13510)
