@@ -437,7 +437,7 @@ export class AutoGenerator {
     let val = null;
     let typematch = null;
 
-    if (type === "boolean" || type === "bit(1)" || type === "bit") {
+    if (type === "boolean" || type === "bit(1)" || type === "bit" || type === "tinyint(1)") {
       val = 'DataTypes.BOOLEAN';
 
     // postgres range types
