@@ -30,13 +30,14 @@ return Customer.findOne({ where: { "firstName": "Hanna", "lastName": "Moos" }, i
     // create a new Order for the customer
     var attr = {
       customerId: cust.id,
-      orderDate: new Date(),
+      // orderDate: new Date(),
       orderNumber: orderNumber,
       totalAmount: 223.45,
       status: 'PROCESSING'
     };
 
     return Order.create(attr).then(order => {
+      console.log(order);
       // display list of orders
       return Order.findAll({ where: { "customerId": cust.id }}).then(rows => {
         rows.forEach(r => console.log(r.orderNumber + " " + r.totalAmount));

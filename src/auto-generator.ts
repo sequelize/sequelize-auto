@@ -50,7 +50,8 @@ export class AutoGenerator {
     const sp = this.space[1];
 
     if (this.options.lang === 'ts') {
-      header += "import Sequelize, { DataTypes, Model, Optional } from 'sequelize';\n";
+      header += "import * as Sequelize from 'sequelize';\n";
+      header += "import { DataTypes, Model, Optional } from 'sequelize';\n";
     } else if (this.options.lang === 'es6') {
       header += "const Sequelize = require('sequelize');\n";
       header += "module.exports = (sequelize, DataTypes) => {\n";
@@ -326,11 +327,11 @@ export class AutoGenerator {
 
           } else if (_.endsWith(defaultVal, '()') || _.endsWith(defaultVal, '())')) {
             // wrap default value function
-            val_text = "Sequelize.fn('" + defaultVal.replace(/[)(]/g, "") + "')";
+            val_text = "Sequelize.Sequelize.fn('" + defaultVal.replace(/[)(]/g, "") + "')";
 
           } else if (field_type.indexOf('date') === 0 || field_type.indexOf('timestamp') === 0) {
             if (_.includes(['current_timestamp', 'current_date', 'current_time', 'localtime', 'localtimestamp'], defaultVal.toLowerCase())) {
-              val_text = "Sequelize.literal('" + defaultVal + "')";
+              val_text = "Sequelize.Sequelize.literal('" + defaultVal + "')";
             } else {
               val_text = quoteWrapper + defaultVal + quoteWrapper;
             }

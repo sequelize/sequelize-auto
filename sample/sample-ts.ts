@@ -28,7 +28,7 @@ class SampleApp {
       const ord = await Order.findOne({ where: { orderNumber: "542639" } });
       console.log(ord);
       console.log(await ord?.getCustomer());
-      console.log(await ord?.getOrderItems().catch(err => console.error(err)));
+      console.log(await ord?.getOrderItems().catch((err: Error) => console.error(err)));
 
       // make pseudo-incremental order number for demo
       const millis = new Date().getTime().toString();
@@ -37,13 +37,14 @@ class SampleApp {
       // create a new Order for the customer
       const attr: OrderCreationAttributes = {
         customerId: cust.id,
-        orderDate: new Date(),
+        // orderDate: new Date(),
         orderNumber: orderNumber,
         totalAmount: 223.45,
         status: 'PROCESSING'
       };
 
-      await Order.create(attr).then(() => {
+      await Order.create(attr).then((order2: Order) => {
+        console.log(order2);
         // display list of orders
         return Order.findAll({ where: { "customerId": cust.id } }).then((rows: OrderAttributes[]) => {
           rows.forEach(r => console.log(r.orderNumber + " " + r.totalAmount));
