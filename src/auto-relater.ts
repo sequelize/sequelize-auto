@@ -1,9 +1,8 @@
 
 import _ from "lodash";
-import { Utils } from "sequelize";
 import { AutoOptions } from ".";
 import { FKSpec } from "./dialects/dialect-options";
-import { CaseOption, qNameJoin, qNameSplit, recase, Relation, TableData } from "./types";
+import { CaseOption, qNameJoin, qNameSplit, recase, Relation, TableData, singularize, pluralize } from "./types";
 
 /** Constructs entity relationships from TableData.foreignKeys and populates TableData.relations */
 export class AutoRelater {
@@ -65,7 +64,7 @@ export class AutoRelater {
       parentProp: alias,
       parentTable: qNameJoin(spec.foreignSources.target_schema || schema, spec.foreignSources.target_table),
       childModel: modelName,
-      childProp: isOne ? Utils.singularize(childAlias) : Utils.pluralize(childAlias),
+      childProp: isOne ? singularize(childAlias) : pluralize(childAlias),
       childTable: qNameJoin(spec.foreignSources.source_schema || schema, spec.foreignSources.source_table),
       isOne: isOne,
       isM2M: false
@@ -82,10 +81,10 @@ export class AutoRelater {
         this.relations.push({
           parentId: sourceProp,
           parentModel: targetModel,
-          parentProp: Utils.pluralize(alias),
+          parentProp: pluralize(alias),
           parentTable: qNameJoin(spec.foreignSources.target_schema || schema, spec.foreignSources.target_table),
           childModel: otherModel,
-          childProp: Utils.pluralize(otherProp),
+          childProp: pluralize(otherProp),
           childTable: qNameJoin(otherKey.foreignSources.target_schema || schema, otherKey.foreignSources.target_table),
           childId: otherId,
           joinModel: modelName,

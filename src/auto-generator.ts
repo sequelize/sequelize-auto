@@ -1,8 +1,7 @@
 import _ from "lodash";
-import { Utils } from "sequelize";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseOption, Field, IndexSpec, LangOption, qNameJoin, qNameSplit, recase, Relation, TableData, TSField } from "./types";
+import { AutoOptions, CaseOption, Field, IndexSpec, LangOption, qNameJoin, qNameSplit, recase, Relation, TableData, TSField, singularize, pluralize } from "./types";
 
 /** Generates text from each table in TableData */
 export class AutoGenerator {
@@ -524,7 +523,7 @@ export class AutoGenerator {
 
   /** Add schema to table so it will match the relation data.  Fixes mysql problem. */
   private addSchemaForRelations(table: string) {
-    if (!this.relations.some(rel => rel.childTable === table)) {
+    if (!table.includes('.') && !this.relations.some(rel => rel.childTable === table)) {
       // if no tables match the given table, then assume we need to fix the schema
       const first = this.relations.find(rel => !!rel.childTable);
       if (first) {
@@ -561,7 +560,7 @@ export class AutoGenerator {
           needed[rel.childTable] ??= new Set();
           const pchild = _.upperFirst(rel.childProp);
           if (rel.isOne) {
-            // const hasModelSingular = Utils.singularize(hasModel);
+            // const hasModelSingular = singularize(hasModel);
             str += `${sp}// ${rel.parentModel} hasOne ${rel.childModel} via ${rel.parentId}\n`;
             str += `${sp}${rel.childProp}!: ${rel.childModel};\n`;
             str += `${sp}get${pchild}!: Sequelize.HasOneGetAssociationMixin<${rel.childModel}>;\n`;
@@ -572,8 +571,8 @@ export class AutoGenerator {
             needed[rel.childTable].add(`${rel.childModel}CreationAttributes`);
           } else {
             const hasModel = rel.childModel;
-            const sing = _.upperFirst(Utils.singularize(rel.childProp));
-            const lur = Utils.pluralize(rel.childProp);
+            const sing = _.upperFirst(singularize(rel.childProp));
+            const lur = pluralize(rel.childProp);
             const plur = _.upperFirst(lur);
             str += `${sp}// ${rel.parentModel} hasMany ${rel.childModel} via ${rel.parentId}\n`;
             str += `${sp}${lur}!: ${rel.childModel}[];\n`;
@@ -598,8 +597,8 @@ export class AutoGenerator {
           const isParent = (rel.parentTable === table);
           const thisModel = isParent ? rel.parentModel : rel.childModel;
           const otherModel = isParent ? rel.childModel : rel.parentModel;
-          const otherModelSingular = _.upperFirst(Utils.singularize(isParent ? rel.childProp : rel.parentProp));
-          const lotherModelPlural = Utils.pluralize(isParent ? rel.childProp : rel.parentProp);
+          const otherModelSingular = _.upperFirst(singularize(isParent ? rel.childProp : rel.parentProp));
+          const lotherModelPlural = pluralize(isParent ? rel.childProp : rel.parentProp);
           const otherModelPlural = _.upperFirst(lotherModelPlural);
           const otherTable = isParent ? rel.childTable : rel.parentTable;
           str += `${sp}// ${thisModel} belongsToMany ${otherModel} via ${rel.parentId} and ${rel.childId}\n`;

@@ -166,10 +166,25 @@ export interface AutoOptions {
 
 export type TSField = { special: string[]; elementType: string; } & ColumnDescription;
 
+/** Uses Inflector via Sequelize, but appends 's' if plural would be the same as singular.
+ * Use `Utils.useInflection({ singularize: fn, pluralize: fn2 })` to configure. */
+export function pluralize(s: string) {
+  let p = Utils.pluralize(s);
+  if (p === Utils.singularize(s)) {
+    p += 's';
+  }
+  return p;
+}
+
+/** Uses Inflector via Sequelize.  Use `Utils.useInflection({ singularize: fn, pluralize: fn2 })` to configure. */
+export function singularize(s: string) {
+  return Utils.singularize(s);
+}
+
 /** Change casing of val string according to opt [c|l|o|p|u]  */
-export function recase(opt: CaseOption | undefined, val: string | null, singularize = false) {
-  if (singularize && val) {
-    val = Utils.singularize(val);
+export function recase(opt: CaseOption | undefined, val: string | null, singular = false) {
+  if (singular && val) {
+    val = singularize(val);
   }
   if (!opt || opt === 'o' || !val) {
     return val || ''; // original
