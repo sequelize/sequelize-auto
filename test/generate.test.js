@@ -260,7 +260,7 @@ describe(helpers.getTestDialectTeaser('sequelize-auto generate'), function() {
             expect(jane.username).to.be.equal('janedoe');
             expect(jane.validateTest).to.be.equal(888888888);
             expect(jane.dateWithDefault).to.be.greaterThan(yesterday);
-            expect(jane.defaultValueBoolean).to.be.equal(dialect == 'mysql' || dialect == 'sqlite' ? 1 : true);
+            expect(jane.defaultValueBoolean).to.be.equal(true);
             done();
           });
         }).catch(function(err) {
