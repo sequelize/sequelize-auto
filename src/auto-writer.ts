@@ -87,14 +87,12 @@ export class AutoWriter {
   private createAssociations(typeScript: boolean) {
     let strBelongs = "";
     let strBelongsToMany = "";
-    // declare through model "as Model" because typings don't match
-    const asAny = typeScript ? " as typeof Model" : "";
 
     const rels = this.relations;
     rels.forEach(rel => {
       if (rel.isM2M) {
         const asprop = pluralize(rel.childProp);
-        strBelongsToMany += `  ${rel.parentModel}.belongsToMany(${rel.childModel}, { as: '${asprop}', through: ${rel.joinModel}${asAny}, foreignKey: "${rel.parentId}", otherKey: "${rel.childId}" });\n`;
+        strBelongsToMany += `  ${rel.parentModel}.belongsToMany(${rel.childModel}, { as: '${asprop}', through: ${rel.joinModel}, foreignKey: "${rel.parentId}", otherKey: "${rel.childId}" });\n`;
       } else {
         strBelongs += `  ${rel.childModel}.belongsTo(${rel.parentModel}, { as: "${rel.parentProp}", foreignKey: "${rel.parentId}"});\n`;
         const hasRel = rel.isOne ? "hasOne" : "hasMany";
