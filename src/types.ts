@@ -140,6 +140,8 @@ export interface AutoOptions {
   indentation?: number;
   /** Model language */
   lang?: LangOption;
+  /** Whether to skip writing the init-models file */
+  noInitModels?: boolean;
   /** Whether to skip writing the files */
   noWrite?: boolean;
   /** Database password */

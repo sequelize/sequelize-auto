@@ -17,6 +17,7 @@ export class AutoWriter {
     caseProp?: CaseOption;
     directory: string;
     lang?: LangOption;
+    noInitModels?: boolean;
     noWrite?: boolean;
     singularize?: boolean;
   };
@@ -53,11 +54,13 @@ export class AutoWriter {
     }).sort();
 
     // write the init-models file
-    const initString = this.createInitString(tableNames, assoc, this.options.lang);
-    const initFilePath = path.join(this.options.directory, "init-models" + (ists ? '.ts' : '.js'));
-    const writeFile = util.promisify(fs.writeFile);
-    const initPromise = writeFile(path.resolve(initFilePath), initString);
-    promises.push(initPromise);
+    if (!this.options.noInitModels) {
+      const initString = this.createInitString(tableNames, assoc, this.options.lang);
+      const initFilePath = path.join(this.options.directory, "init-models" + (ists ? '.ts' : '.js'));
+      const writeFile = util.promisify(fs.writeFile);
+      const initPromise = writeFile(path.resolve(initFilePath), initString);
+      promises.push(initPromise);
+    }
 
     return Promise.all(promises);
   }
