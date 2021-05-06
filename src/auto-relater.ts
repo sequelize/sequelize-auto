@@ -6,7 +6,6 @@ import { CaseOption, qNameJoin, qNameSplit, recase, Relation, TableData, singula
 
 /** Constructs entity relationships from TableData.foreignKeys and populates TableData.relations */
 export class AutoRelater {
-  tableData: TableData;
   caseModel: CaseOption;
   caseProp: CaseOption;
   singularize: boolean;
@@ -18,7 +17,6 @@ export class AutoRelater {
     this.caseProp = options.caseProp || 'o';
     this.singularize = options.singularize;
 
-    this.tableData = new TableData();
     this.relations = [];
     this.usedChildNames = new Set();
   }

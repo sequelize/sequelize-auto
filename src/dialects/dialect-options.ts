@@ -59,6 +59,8 @@ export interface FKSpec extends FKRelation {
     target_schema?: string;
     target_column?: string;
   };
+  extra?: string;
+  column_key?: string;
 }
 
 export interface ColumnElementType {
