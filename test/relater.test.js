@@ -1,13 +1,12 @@
 const { describe, before, after, it } = require('mocha');
 const { expect } = require('chai');
-const { AutoRelater } = require('../lib/auto-relater');
-const northwindTableData = require('./tabledata').tableData;
+const _ = require('lodash');
+const buildTableData = require('./tabledata').buildRelatedTableData;
 
 describe("sequelize-auto relater", function() {
-  this.timeout(10000);
   let td;
   before(function() {
-    buildTableData();
+    td = buildTableData();
   });
 
   after(function() {
@@ -88,23 +87,23 @@ describe("sequelize-auto relater", function() {
       expect(pt2.childModel).to.equal("Product");
       expect(pt2.childProp).to.equal("productIdProducts");
       expect(pt2.isM2M).to.equal(true);
+    });
 
+    it("has unique prop names", function() {
+      const parentModels = td.relations.map(r => r.parentModel);
+      parentModels.forEach(function(pm) {
+        const rels = td.relations.filter(r => r.parentModel == pm);
+        const childProps = rels.map(r => r.childProp);
+        const dupProps = dups(childProps);
+        expect(dupProps.length, dupProps).to.equal(0);
+      })
     });
 
   });
 
-  function buildTableData() {
-    td = JSON.parse(JSON.stringify(northwindTableData));
-
-    const relater = new AutoRelater({
-      caseModel: 'p',
-      caseProp: 'c',
-      singularize: true
-    });
-    td = relater.buildRelations(td);
-    console.log(td);
-
-  };
-
 });
 
+/** return values that are duplicated in the array */
+function dups(arr) {
+  return _(arr).groupBy().pickBy(x => x.length > 1).keys().value();
+}

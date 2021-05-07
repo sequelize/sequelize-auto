@@ -1,3 +1,4 @@
+const { AutoRelater } = require('../lib/auto-relater');
 
 const northwindTableData = { 
   tables: {
@@ -686,6 +687,19 @@ const northwindTableData = {
   relations: []
 };
 
+function buildRelatedTableData() {
+  let td = JSON.parse(JSON.stringify(northwindTableData));
+
+  const relater = new AutoRelater({
+    caseModel: 'p',
+    caseProp: 'c',
+    singularize: true
+  });
+  td = relater.buildRelations(td);
+  return td;
+};
+
 module.exports = {
-  tableData: northwindTableData
+  tableData: northwindTableData,
+  buildRelatedTableData: buildRelatedTableData
 };
