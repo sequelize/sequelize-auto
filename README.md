@@ -61,7 +61,10 @@ Options:
                           u = UPPER_CASE
     --caseFile, --cf     Set case of file names: c|l|o|p|u
     --caseProp, --cp     Set case of property names: c|l|o|p|u
--n, --noWrite            Prevent writing the models to disk.         [boolean]
+--noAlias                Avoid creating alias `as` property in relations        
+                                                                     [boolean]
+--noInitModels           Prevent writing the init-models file        [boolean]
+-n, --noWrite            Prevent writing the models to disk          [boolean]
 -s, --schema             Database schema from which to retrieve tables[string]
 -v, --views              Include database views in generated models  [boolean]
 -l, --lang               Language for Model output: es5|es6|esm|ts

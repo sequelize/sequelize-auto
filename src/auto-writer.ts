@@ -2,6 +2,7 @@ import fs from "fs";
 import _ from "lodash";
 import path from "path";
 import util from "util";
+import { Utils } from "sequelize";
 import { FKSpec, TableData } from ".";
 import { AutoOptions, CaseOption, LangOption, qNameSplit, recase, Relation, pluralize } from "./types";
 const mkdirp = require('mkdirp');
@@ -17,6 +18,7 @@ export class AutoWriter {
     caseProp?: CaseOption;
     directory: string;
     lang?: LangOption;
+    noAlias?: boolean;
     noInitModels?: boolean;
     noWrite?: boolean;
     singularize?: boolean;
@@ -43,8 +45,8 @@ export class AutoWriter {
       return this.createFile(t);
     });
 
-    const ists = this.options.lang === 'ts';
-    const assoc = this.createAssociations(ists);
+    const isTypeScript = this.options.lang === 'ts';
+    const assoc = this.createAssociations(isTypeScript);
 
     // get table names without schema
     // TODO: add schema to model and file names when schema is non-default for the dialect
@@ -56,7 +58,7 @@ export class AutoWriter {
     // write the init-models file
     if (!this.options.noInitModels) {
       const initString = this.createInitString(tableNames, assoc, this.options.lang);
-      const initFilePath = path.join(this.options.directory, "init-models" + (ists ? '.ts' : '.js'));
+      const initFilePath = path.join(this.options.directory, "init-models" + (isTypeScript ? '.ts' : '.js'));
       const writeFile = util.promisify(fs.writeFile);
       const initPromise = writeFile(path.resolve(initFilePath), initString);
       promises.push(initPromise);
@@ -97,9 +99,12 @@ export class AutoWriter {
         const asprop = pluralize(rel.childProp);
         strBelongsToMany += `  ${rel.parentModel}.belongsToMany(${rel.childModel}, { as: '${asprop}', through: ${rel.joinModel}, foreignKey: "${rel.parentId}", otherKey: "${rel.childId}" });\n`;
       } else {
-        strBelongs += `  ${rel.childModel}.belongsTo(${rel.parentModel}, { as: "${rel.parentProp}", foreignKey: "${rel.parentId}"});\n`;
+        const bAlias = (this.options.noAlias && rel.parentModel.toLowerCase() === rel.parentProp.toLowerCase()) ? '' : `as: "${rel.parentProp}", `;
+        strBelongs += `  ${rel.childModel}.belongsTo(${rel.parentModel}, { ${bAlias}foreignKey: "${rel.parentId}"});\n`;
+
         const hasRel = rel.isOne ? "hasOne" : "hasMany";
-        strBelongs += `  ${rel.parentModel}.${hasRel}(${rel.childModel}, { as: "${rel.childProp}", foreignKey: "${rel.parentId}"});\n`;
+        const hAlias = (this.options.noAlias && Utils.pluralize(rel.childModel.toLowerCase()) === rel.childProp.toLowerCase()) ? '' : `as: "${rel.childProp}", `;
+        strBelongs += `  ${rel.parentModel}.${hasRel}(${rel.childModel}, { ${hAlias}foreignKey: "${rel.parentId}"});\n`;
       }
     });
 
