@@ -76,7 +76,7 @@ describe("sequelize-auto relater", function() {
       expect(pt1.parentProp).to.equal("tags");
       expect(pt1.childId).to.equal("productId");
       expect(pt1.childModel).to.equal("Product");
-      expect(pt1.childProp).to.equal("productIdProducts");
+      expect(pt1.childProp).to.equal("productIdProductProductTags");
       expect(pt1.isM2M).to.equal(true);
 
       let pt2 = prodtag.find(r => r.joinModel == "OtherTag");
