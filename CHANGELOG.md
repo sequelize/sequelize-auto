@@ -1,5 +1,14 @@
 # sequelize-auto change log
 
+## [0.8.3] - 2021-05-15
+
+* Fix generation of alias in many-to-many (#521)
+* Add `--noInitModels` flag (#519)
+* Fix duplicate alias in many-to-many relationships (#520)
+* Fix erroneous many-to-many relationship with composite foreign keys (#525)
+* Add `--noAlias` option to avoid making alias for relationships (#515)
+* Add tests
+
 ## [0.8.2] - 2021-03-31
 
 * TypeScript: fix imports when `esModuleInterop` is false (#498)
