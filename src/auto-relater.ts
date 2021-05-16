@@ -99,7 +99,14 @@ export class AutoRelater {
     if (name === fkFieldName || isM2M) {
       name = fkFieldName + "_" + modelName;
     }
-    this.usedChildNames.add(targetModel + "." + name);
+    if (isM2M) {
+      if (this.usedChildNames.has(modelName + "." + name)) {
+        name = name + "_" + targetModel;
+      }
+      this.usedChildNames.add(modelName + "." + name);
+    } else {
+      this.usedChildNames.add(targetModel + "." + name);
+    }
     return recase(this.caseProp, name, true);
   }
 

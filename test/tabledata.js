@@ -1,5 +1,6 @@
 const { AutoRelater } = require('../lib/auto-relater');
 
+// Data from mysql version of Northwind sample, with some additional relationships.
 const northwindTableData = { 
   tables: {
     order: {
