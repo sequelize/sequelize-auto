@@ -66,6 +66,12 @@ export class AutoGenerator {
       header += "export default class #TABLE# extends Model {\n";
       header += sp + "static init(sequelize, DataTypes) {\n";
       header += sp + "super.init({\n";
+    } else if (this.options.lang === 'esmd') {
+      // new: use define (as with es5), but with es6 modules:
+      header += "import _sequelize from 'sequelize';\n";
+      header += "const { Model, Sequelize } = _sequelize;\n\n"; // are those first two lines even needed?
+      header += "export default function(sequelize, DataTypes) {\n";
+      header += sp + "return sequelize.define('#TABLE#', {\n";
     } else {
       header += "const Sequelize = require('sequelize');\n";
       header += "module.exports = function(sequelize, DataTypes) {\n";

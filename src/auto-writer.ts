@@ -72,6 +72,8 @@ export class AutoWriter {
         return this.createTsInitString(tableNames, assoc);
       case 'esm':
         return this.createESMInitString(tableNames, assoc);
+      case 'esmd':
+          return this.createESMDInitString(tableNames, assoc);
       default:
         return this.createES5InitString(tableNames, assoc);
     }
@@ -191,7 +193,34 @@ export class AutoWriter {
     str += 'module.exports.default = initModels;\n';
     return str;
   }
-
+  // create the ES6 init-models file to load all the models (with define-syntax instead of classes) into Sequelize
+  createESMDInitString(tables: string[], assoc: string) {
+    let str = 'import _sequelize from "sequelize";\n';
+    str += 'const DataTypes = _sequelize.DataTypes;\n';
+    const modelNames: string[] = [];
+    // import statements
+    tables.forEach(t => {
+      const fileName = recase(this.options.caseFile, t, this.options.singularize);
+      const modelName = recase(this.options.caseModel, t, this.options.singularize);
+      modelNames.push(modelName);
+      str += `import _${modelName} from  "./${fileName}.js";\n`;
+    });
+    // create the initialization function
+    str += '\nexport default function initModels(sequelize) {\n';
+    modelNames.forEach(m => {
+        str += `  var ${m} = _${m}(sequelize, DataTypes);\n`;
+    });
+    // add the asociations
+    str += "\n" + assoc;
+    // return the models
+    str += "\n  return {\n";
+    modelNames.forEach(m => {
+        str += `    ${m},\n`;
+    });
+    str += '  };\n';
+    str += '}\n';
+    return str;
+  }
   // create the ESM init-models file to load all the models into Sequelize
   private createESMInitString(tables: string[], assoc: string) {
     let str = 'import _sequelize from "sequelize";\n';
