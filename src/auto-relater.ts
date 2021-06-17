@@ -100,13 +100,20 @@ export class AutoRelater {
     if (name === fkFieldName || isM2M) {
       name = fkFieldName + "_" + modelName;
     }
+    
+    // singularize in case one column name is the singularized form of another column in the same model
+    let singleName = singularize(name);
     if (isM2M) {
-      if (this.usedChildNames.has(modelName + "." + name)) {
+      if (this.usedChildNames.has(modelName + "." + singleName)) {
         name = name + "_" + targetModel;
       }
-      this.usedChildNames.add(modelName + "." + name);
-    } else {
-      this.usedChildNames.add(targetModel + "." + name);
+      this.usedChildNames.add(modelName + "." + singularize(name));
+    }
+    else {
+      if (this.usedChildNames.has(targetModel + "." + singleName)){
+        name = name + "_" + modelName;
+      }
+      this.usedChildNames.add(targetModel + "." + singularize(name));
     }
     return recase(this.caseProp, name, true);
   }
@@ -115,10 +122,12 @@ export class AutoRelater {
   private getChildAlias(fkFieldName: string, modelName: string, targetModel: string) {
     let name = modelName;
     // usedChildNames prevents duplicate names in same model
-    if (this.usedChildNames.has(targetModel + "." + name)) {
+    if (this.usedChildNames.has(targetModel + "." + singularize(name))) {
       name = this.trimId(fkFieldName);
       name = name + "_" + modelName;
     }
+    // singularize in case one column name is the singularized form of another column in the same model
+    name = singularize(name);
     this.usedChildNames.add(targetModel + "." + name);
     return recase(this.caseProp, name, true);
   }
