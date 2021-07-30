@@ -675,6 +675,8 @@ export class AutoGenerator {
     } else if (this.isEnum(fieldType)) {
       const values = this.getEnumValues(fieldObj);
       jsType = values.join(' | ');
+    } else if (this.isJSON(fieldType)) {
+      jsType = 'object'
     } else {
       console.log(`Missing TypeScript type: ${fieldType || fieldObj['type']}`);
       jsType = 'any';
@@ -751,5 +753,9 @@ export class AutoGenerator {
 
   private isEnum(fieldType: string): boolean {
     return /^(enum)/.test(fieldType);
+  }
+
+  private isJSON(fieldType: string): boolean {
+    return /^(json|jsonb)/.test(fieldType);
   }
 }
