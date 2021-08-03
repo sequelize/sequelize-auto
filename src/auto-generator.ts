@@ -73,7 +73,6 @@ export class AutoGenerator {
       header += "export default function(sequelize, DataTypes) {\n";
       header += sp + "return sequelize.define('#TABLE#', {\n";
     } else {
-      header += "const Sequelize = require('sequelize');\n";
       header += "module.exports = function(sequelize, DataTypes) {\n";
       header += sp + "return sequelize.define('#TABLE#', {\n";
     }
