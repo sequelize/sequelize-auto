@@ -111,7 +111,13 @@ export class AutoGenerator {
         if (primaryKeys.length) {
           str += `export type #TABLE#Pk = ${primaryKeys.map((k) => `"${recase(this.options.caseProp, k)}"`).join(' | ')};\n`;
           str += `export type #TABLE#Id = #TABLE#[#TABLE#Pk];\n`;
-          str += "export type #TABLE#CreationAttributes = Optional<#TABLE#Attributes, #TABLE#Pk>;\n\n";
+        }
+
+        const creationOptionalFields = this.getTypeScriptCreationOptionalFields(table);
+
+        if (creationOptionalFields.length) {
+          str += `export type #TABLE#OptionalAttributes = ${creationOptionalFields.map((k) => `"${recase(this.options.caseProp, k)}"`).join(' | ')};\n`;
+          str += "export type #TABLE#CreationAttributes = Optional<#TABLE#Attributes, #TABLE#OptionalAttributes>;\n\n";
         } else {
           str += "export type #TABLE#CreationAttributes = #TABLE#Attributes;\n\n";
         }
@@ -528,6 +534,14 @@ export class AutoGenerator {
     });
   }
 
+  private getTypeScriptCreationOptionalFields(table: string): Array<string> {
+    const fields = _.keys(this.tables[table]);
+    return fields.filter((field): boolean => {
+      const fieldObj = this.tables[table][field];
+      return fieldObj.allowNull || (!!fieldObj.defaultValue || fieldObj.defaultValue === "") || fieldObj.primaryKey;
+    });
+  }
+
   /** Add schema to table so it will match the relation data.  Fixes mysql problem. */
   private addSchemaForRelations(table: string) {
     if (!table.includes('.') && !this.relations.some(rel => rel.childTable === table)) {
@@ -647,7 +661,7 @@ export class AutoGenerator {
 
   private getTypeScriptFieldOptional(table: string, field: string) {
     const fieldObj = this.tables[table][field];
-    return fieldObj.allowNull || (fieldObj.defaultValue || fieldObj.defaultValue === "");
+    return fieldObj.allowNull;
   }
 
   private getTypeScriptType(table: string, field: string) {
