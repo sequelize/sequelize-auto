@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseOption, Field, IndexSpec, LangOption, qNameJoin, qNameSplit, recase, Relation, TableData, TSField, singularize, pluralize, TypeOverrides, ColumnTypeOverride, TableTypeOverride } from "./types";
+import { AutoOptions, CaseOption, Field, IndexSpec, LangOption, qNameJoin, qNameSplit, recase, Relation, TableData, TSField, singularize, pluralize, TypeOverrides, ColumnTypeOverride, TableTypeOverride, TableTypeOverrides } from "./types";
 
 /** Generates text from each table in TableData */
 export class AutoGenerator {
@@ -107,60 +107,10 @@ export class AutoGenerator {
         const typeOverrides = this.options.typeOverrides;
         let tableTypeOverride: TableTypeOverride | undefined;
         if (typeOverrides) {
-          if (typeOverrides.tables) {
-            tableTypeOverride = typeOverrides.tables[tableNameOrig!];
-            const columnTypeOverridesByType: { [type: string]: ColumnTypeOverride } = {}
-            // type should only be imported once for each file
-            _.keys(tableTypeOverride).forEach((columnName) => {
-              const columnTypeOverride = tableTypeOverride![columnName]!;
-              columnTypeOverridesByType[columnTypeOverride.type] = columnTypeOverride;
-            });
-
-            // import per source
-            const imports: { [source: string]: { default?: string, types: string[] } } = {};
-            _.keys(columnTypeOverridesByType).forEach((type) => {
-              const columnTypeOverride = columnTypeOverridesByType[type];
-              const importData = imports[columnTypeOverride.source];
-              if (importData) {
-                if (columnTypeOverride.isDefault) {
-                  importData.default = columnTypeOverride.type;
-                } else {
-                  importData.types.push(columnTypeOverride.type);
-                }
-              } else {
-                let newImportData: { default?: string, types: string[] };
-                if (columnTypeOverride.isDefault) {
-                  newImportData = {
-                    default: columnTypeOverride.type,
-                    types: [],
-                  }
-                } else {
-                  newImportData = {
-                    types: [columnTypeOverride.type],
-                  }
-                }
-                imports[columnTypeOverride.source] = newImportData;
-              }
-            });
-
-            const importStrArr: string[] = [];
-            _.keys(imports).forEach((source) => {
-              const importData = imports[source];
-              let importStr = "import";
-              if (importData.default) {
-                importStr += ` ${importData.default}`;
-              }
-
-              if (importData.types.length !== 0) {
-                importStr += (importData.default ? ", " : " ") + `{ ${importData.types.join(", ")} }`;
-              }
-
-              importStr += ` from '${source}';`;
-              importStrArr.push(importStr);
-            });
-
-            if (importStrArr.length !== 0) {
-              str += importStrArr.join("\n") + "\n";
+          if (typeOverrides.tables && tableNameOrig) {
+            tableTypeOverride = typeOverrides.tables[tableNameOrig];
+            if (tableTypeOverride) {
+              str += this.getTypeScriptTableOverrideImports(tableTypeOverride);
             }
           }
         }
@@ -708,18 +658,78 @@ export class AutoGenerator {
     return { needed, str };
   }
 
+  private getTypeScriptTableOverrideImports(tableTypeOverride: TableTypeOverride) {
+    const columnTypeOverridesByType: { [type: string]: ColumnTypeOverride } = {}
+    // type should only be imported once for each file
+    _.keys(tableTypeOverride).forEach((columnName) => {
+      const columnTypeOverride = tableTypeOverride![columnName]!;
+      columnTypeOverridesByType[columnTypeOverride.type] = columnTypeOverride;
+    });
+
+    // import per source
+    const imports: { [source: string]: { default?: string, types: string[] } } = {};
+    _.keys(columnTypeOverridesByType).forEach((type) => {
+      const columnTypeOverride = columnTypeOverridesByType[type];
+      if (columnTypeOverride.source) {
+        const importData = imports[columnTypeOverride.source];
+        if (importData) {
+          if (columnTypeOverride.isDefault) {
+            importData.default = columnTypeOverride.type;
+          } else {
+            importData.types.push(columnTypeOverride.type);
+          }
+        } else {
+          let newImportData: { default?: string, types: string[] };
+          if (columnTypeOverride.isDefault) {
+            newImportData = {
+              default: columnTypeOverride.type,
+              types: [],
+            }
+          } else {
+            newImportData = {
+              types: [columnTypeOverride.type],
+            }
+          }
+          imports[columnTypeOverride.source] = newImportData;
+        }
+      }
+    });
+
+    const importStrArr: string[] = [];
+    _.keys(imports).forEach((source) => {
+      const importData = imports[source];
+      let importStr = "import";
+      if (importData.default) {
+        importStr += ` ${importData.default}`;
+      }
+
+      if (importData.types.length !== 0) {
+        importStr += (importData.default ? ", " : " ") + `{ ${importData.types.join(", ")} }`;
+      }
+
+      importStr += ` from '${source}';`;
+      importStrArr.push(importStr);
+    });
+
+    if (importStrArr.length !== 0) {
+      return importStrArr.join("\n") + "\n";
+    }
+
+    return "";
+  }
+
   private addTypeScriptFields(table: string, isInterface: boolean, tableTypeOverride: TableTypeOverride | undefined) {
     const sp = this.space[1];
     const fields = _.keys(this.tables[table]);
     const notNull = isInterface ? '' : '!';
     let str = '';
     fields.forEach(field => {
-      const name = this.quoteName(recase(this.options.caseProp, field));
-      const isOptional = this.getTypeScriptFieldOptional(table, field);
       let columnTypeOverride: ColumnTypeOverride | undefined;
       if (tableTypeOverride) {
         columnTypeOverride = tableTypeOverride[field];
       }
+      const name = this.quoteName(recase(this.options.caseProp, field));
+      const isOptional = columnTypeOverride?.isOptional || this.getTypeScriptFieldOptional(table, field);
       str += `${sp}${name}${isOptional ? '?' : notNull}: ${columnTypeOverride ? columnTypeOverride.type : this.getTypeScriptType(table, field)};\n`;
     });
     return str;

@@ -162,12 +162,12 @@ export interface AutoOptions {
   storage?: string;
   /** Tables to export (default all) */
   tables?: string[];
+  /** Override the types of generated typescript file */
+  typeOverrides?: TypeOverrides;
   /** Database username */
   username?: string;
   /** Whether to export views (default false) */
   views?: boolean;
-  /** Override the types of generated typescript file */
-  typeOverrides?: TypeOverrides;
 }
 
 export type TSField = { special: string[]; elementType: string; } & ColumnDescription;
@@ -210,13 +210,31 @@ export function recase(opt: CaseOption | undefined, val: string | null, singular
   return val;
 }
 
+/**
+ * @type Required. Name of the type
+ * @source Optional. File path of the type relative to file in the directory.
+ *         Leave undefined if overriding with primitive types
+ * @isDefault Optional. Whether the type is an export default
+ * @isOptional Optional. Whether to add ?
+ */
 export interface ColumnTypeOverride {
   type: string;
-  source: string;
-  isDefault: boolean;
+  source?: string;
+  isDefault?: boolean;
+  isOptional?: boolean;
 }
 export type TableTypeOverride = { [columnName: string]: ColumnTypeOverride | undefined };
 export type TableTypeOverrides = { [tableName: string]: TableTypeOverride | undefined }
+/**
+ * @tables {
+ *  roles: {
+ *   name: {
+ *     type: "RoleTypes",
+ *     source: "../RoleTypes"
+ *   }
+ *  }
+ * }
+ */
 export interface TypeOverrides {
   tables?: TableTypeOverrides;
 }
