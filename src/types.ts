@@ -166,6 +166,8 @@ export interface AutoOptions {
   username?: string;
   /** Whether to export views (default false) */
   views?: boolean;
+  /** Override the types of generated typescript file */
+  typeOverrides?: TypeOverrides;
 }
 
 export type TSField = { special: string[]; elementType: string; } & ColumnDescription;
@@ -208,3 +210,13 @@ export function recase(opt: CaseOption | undefined, val: string | null, singular
   return val;
 }
 
+export interface ColumnTypeOverride {
+  type: string;
+  source: string;
+  isDefault: boolean;
+}
+export type TableTypeOverride = { [columnName: string]: ColumnTypeOverride | undefined };
+export type TableTypeOverrides = { [tableName: string]: TableTypeOverride | undefined }
+export interface TypeOverrides {
+  tables?: TableTypeOverrides;
+}
