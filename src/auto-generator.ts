@@ -147,7 +147,7 @@ export class AutoGenerator {
     const tableName = recase(this.options.caseModel, tableNameOrig, this.options.singularize);
     const space = this.space;
     let timestamps = (this.options.additional && this.options.additional.timestamps === true) || false;
-    let paranoid = false;
+    let paranoid = (this.options.additional && this.options.additional.paranoid === true) || false;;
 
     // add all the fields
     let str = '';
@@ -690,7 +690,7 @@ export class AutoGenerator {
       const values = this.getEnumValues(fieldObj);
       jsType = values.join(' | ');
     } else if (this.isJSON(fieldType)) {
-      jsType = 'object'
+      jsType = 'object';
     } else {
       console.log(`Missing TypeScript type: ${fieldType || fieldObj['type']}`);
       jsType = 'any';
