@@ -649,19 +649,13 @@ export class AutoGenerator {
   private addTypeScriptFields(table: string, isInterface: boolean) {
     const sp = this.space[1];
     const fields = _.keys(this.tables[table]);
-    const notNull = isInterface ? '' : '!';
     let str = '';
     fields.forEach(field => {
       const name = this.quoteName(recase(this.options.caseProp, field));
-      const isOptional = this.getTypeScriptFieldOptional(table, field);
-      str += `${sp}${name}${isOptional ? '?' : notNull}: ${this.getTypeScriptType(table, field)};\n`;
+      const fieldObj = this.tables[table][field];
+      str += `${sp}${name}${isInterface ? '' : '!'}: ${this.getTypeScriptType(table, field) + (fieldObj.allowNull ? " | null" : "")};\n`;
     });
     return str;
-  }
-
-  private getTypeScriptFieldOptional(table: string, field: string) {
-    const fieldObj = this.tables[table][field];
-    return fieldObj.allowNull;
   }
 
   private getTypeScriptType(table: string, field: string) {
