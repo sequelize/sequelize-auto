@@ -332,7 +332,7 @@ export class AutoGenerator {
 
           } else if (this.isNumber(field_type) || field_type.match(/^(json)/)) {
               // preserve as literal if this field is a function to extract a value from a timestamp
-              if (defaultVal.toLowerCase().indexOf('extract') === 0 || defaultVal.toLowerCase().indexOf('(extract') === 0) {
+              if (defaultVal.toLowerCase().includes('extract')) {
                 val_text = "Sequelize.Sequelize.literal('" + defaultVal + "')";
               } else {
                   // remove () around mssql numeric values; don't quote numbers or json
