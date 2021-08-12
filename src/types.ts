@@ -107,7 +107,7 @@ export function qNameJoin(schema: string | undefined, table: string | undefined)
 }
 
 /** Language of output model files */
-export declare type LangOption = "es5" | "es6" | "esm" | "ts";
+export declare type LangOption = "es5" | "es6" | "esm" | "ts" | "esmd";
 
 /** "c" camelCase |
  * "l" lower_case |
