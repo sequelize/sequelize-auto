@@ -721,23 +721,18 @@ export class AutoGenerator {
   private addTypeScriptFields(table: string, isInterface: boolean, tableTypeOverride: TableTypeOverride | undefined) {
     const sp = this.space[1];
     const fields = _.keys(this.tables[table]);
-    const notNull = isInterface ? '' : '!';
     let str = '';
+    const notOptional = isInterface ? '' : '!';
     fields.forEach(field => {
       let columnTypeOverride: ColumnTypeOverride | undefined;
       if (tableTypeOverride) {
         columnTypeOverride = tableTypeOverride[field];
       }
       const name = this.quoteName(recase(this.options.caseProp, field));
-      const isOptional = columnTypeOverride?.isOptional || this.getTypeScriptFieldOptional(table, field);
-      str += `${sp}${name}${isOptional ? '?' : notNull}: ${columnTypeOverride ? columnTypeOverride.type : this.getTypeScriptType(table, field)};\n`;
+      const fieldObj = this.tables[table][field];
+      str += `${sp}${name}${columnTypeOverride?.isOptional ? '?' : notOptional}: ${columnTypeOverride ? columnTypeOverride.type : (this.getTypeScriptType(table, field) + (fieldObj.allowNull ? " | null" : ""))};\n`;
     });
     return str;
-  }
-
-  private getTypeScriptFieldOptional(table: string, field: string) {
-    const fieldObj = this.tables[table][field];
-    return fieldObj.allowNull;
   }
 
   private getTypeScriptType(table: string, field: string) {
