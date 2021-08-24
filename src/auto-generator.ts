@@ -116,7 +116,7 @@ export class AutoGenerator {
         }
 
         str += "\nexport interface #TABLE#Attributes {\n";
-        str += this.addTypeScriptFields(table, true, tableTypeOverride) + "}\n\n";
+        str += this.addTypeScriptFields(table, true, tableTypeOverride, typeOverrides?.useOptionalForNullColumns) + "}\n\n";
 
         const primaryKeys = this.getTypeScriptPrimaryKeys(table);
 
@@ -135,7 +135,7 @@ export class AutoGenerator {
         }
 
         str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
-        str += this.addTypeScriptFields(table, false, tableTypeOverride);
+        str += this.addTypeScriptFields(table, false, tableTypeOverride, typeOverrides?.useOptionalForNullColumns);
         str += "\n" + associations.str;
         str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize.Sequelize): typeof " + tableName + " {\n";
         str += this.space[2] + tableName + ".init({\n";
@@ -663,7 +663,9 @@ export class AutoGenerator {
     // type should only be imported once for each file
     _.keys(tableTypeOverride).forEach((columnName) => {
       const columnTypeOverride = tableTypeOverride![columnName]!;
-      columnTypeOverridesByType[columnTypeOverride.type] = columnTypeOverride;
+      if (columnTypeOverride.type) {
+        columnTypeOverridesByType[columnTypeOverride.type] = columnTypeOverride;
+      }
     });
 
     // import per source
@@ -674,20 +676,20 @@ export class AutoGenerator {
         const importData = imports[columnTypeOverride.source];
         if (importData) {
           if (columnTypeOverride.isDefault) {
-            importData.default = columnTypeOverride.type;
+            importData.default = type;
           } else {
-            importData.types.push(columnTypeOverride.type);
+            importData.types.push(type);
           }
         } else {
           let newImportData: { default?: string, types: string[] };
           if (columnTypeOverride.isDefault) {
             newImportData = {
-              default: columnTypeOverride.type,
+              default: type,
               types: [],
             }
           } else {
             newImportData = {
-              types: [columnTypeOverride.type],
+              types: [type],
             }
           }
           imports[columnTypeOverride.source] = newImportData;
@@ -718,7 +720,7 @@ export class AutoGenerator {
     return "";
   }
 
-  private addTypeScriptFields(table: string, isInterface: boolean, tableTypeOverride: TableTypeOverride | undefined) {
+  private addTypeScriptFields(table: string, isInterface: boolean, tableTypeOverride: TableTypeOverride | undefined, useOptionalForNullColumns: boolean | undefined) {
     const sp = this.space[1];
     const fields = _.keys(this.tables[table]);
     let str = '';
@@ -730,7 +732,15 @@ export class AutoGenerator {
       }
       const name = this.quoteName(recase(this.options.caseProp, field));
       const fieldObj = this.tables[table][field];
-      str += `${sp}${name}${columnTypeOverride?.isOptional ? '?' : notOptional}: ${columnTypeOverride ? columnTypeOverride.type : (this.getTypeScriptType(table, field) + (fieldObj.allowNull ? " | null" : ""))};\n`;
+      let isOptional: boolean;
+      if (columnTypeOverride && columnTypeOverride.isOptional !== undefined) {
+        // override
+        isOptional = columnTypeOverride.isOptional;
+      } else {
+        isOptional = fieldObj.allowNull && !!useOptionalForNullColumns;
+      }
+      str += `${sp}${name}${isOptional ? '?' : notOptional}: ` +
+        `${columnTypeOverride && columnTypeOverride.type !== undefined ? columnTypeOverride.type : (this.getTypeScriptType(table, field) + (fieldObj.allowNull && !useOptionalForNullColumns ? " | null" : ""))};\n`;
     });
     return str;
   }

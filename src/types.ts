@@ -211,14 +211,14 @@ export function recase(opt: CaseOption | undefined, val: string | null, singular
 }
 
 /**
- * @type Required. Name of the type
+ * @type Optional. Name of the type
  * @source Optional. File path of the type relative to file in the directory.
  *         Leave undefined if overriding with primitive types
- * @isDefault Optional. Whether the type is an export default
- * @isOptional Optional. Whether to add ?
+ * @isDefault Optional. Whether the type is an export default. Default false
+ * @isOptional Optional. Override optionality
  */
 export interface ColumnTypeOverride {
-  type: string;
+  type?: string;
   source?: string;
   isDefault?: boolean;
   isOptional?: boolean;
@@ -234,7 +234,9 @@ export type TableTypeOverrides = { [tableName: string]: TableTypeOverride | unde
  *   }
  *  }
  * }
+ * @useOptionalForNullColumns use optional(?) otherwise use null, for nullable columns. Default false
  */
 export interface TypeOverrides {
   tables?: TableTypeOverrides;
+  useOptionalForNullColumns?: boolean;
 }
