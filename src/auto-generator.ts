@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseOption, Field, IndexSpec, LangOption, qNameJoin, qNameSplit, recase, Relation, TableData, TSField, singularize, pluralize } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, Field, IndexSpec, LangOption, qNameJoin, qNameSplit, recase, Relation, TableData, TSField, singularize, pluralize } from "./types";
 
 /** Generates text from each table in TableData */
 export class AutoGenerator {
@@ -18,7 +18,7 @@ export class AutoGenerator {
     lang?: LangOption;
     caseModel?: CaseOption;
     caseProp?: CaseOption;
-    caseFile?: CaseOption;
+    caseFile?: CaseFileOption;
     additional?: any;
     schema?: string;
     singularize: boolean;
