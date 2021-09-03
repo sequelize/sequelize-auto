@@ -4,7 +4,7 @@ import path from "path";
 import util from "util";
 import { Utils } from "sequelize";
 import { FKSpec, TableData } from ".";
-import { AutoOptions, CaseOption, LangOption, qNameSplit, recase, Relation, pluralize } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, LangOption, qNameSplit, recase, Relation, pluralize } from "./types";
 const mkdirp = require('mkdirp');
 
 /** Writes text into files from TableData.text, and writes init-models */
@@ -13,7 +13,7 @@ export class AutoWriter {
   foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec } };
   relations: Relation[];
   options: {
-    caseFile?: CaseOption;
+    caseFile?: CaseFileOption;
     caseModel?: CaseOption;
     caseProp?: CaseOption;
     directory: string;

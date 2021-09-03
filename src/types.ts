@@ -116,10 +116,20 @@ export declare type LangOption = "es5" | "es6" | "esm" | "ts" | "esmd";
  * "u" UPPER_CASE */
 export declare type CaseOption = "c" | "l" | "o" | "p" | "u";
 
+/**
+ * "c" camelCase |
+ * "k" kebab-case |
+ * "l" lower_case |
+ * "o" original (db) |
+ * "p" PascalCase |
+ * "u" UPPER_CASE
+ */
+export declare type CaseFileOption = "k" | CaseOption;
+
 export interface AutoOptions {
   additional?: any;
   /** Case of file names */
-  caseFile?: CaseOption;
+  caseFile?: CaseFileOption;
   /** Case of model names */
   caseModel?: CaseOption;
   /** Case of property names */
@@ -188,7 +198,7 @@ export function singularize(s: string) {
 }
 
 /** Change casing of val string according to opt [c|l|o|p|u]  */
-export function recase(opt: CaseOption | undefined, val: string | null, singular = false) {
+export function recase(opt: CaseOption | CaseFileOption | undefined, val: string | null, singular = false) {
   if (singular && val) {
     val = singularize(val);
   }
@@ -197,6 +207,9 @@ export function recase(opt: CaseOption | undefined, val: string | null, singular
   }
   if (opt === 'c') {
     return _.camelCase(val);
+  }
+  if (opt === 'k') {
+    return _.kebabCase(val);
   }
   if (opt === 'l') {
     return _.snakeCase(val);
@@ -211,14 +224,14 @@ export function recase(opt: CaseOption | undefined, val: string | null, singular
 }
 
 /**
- * @type Required. Name of the type
+ * @type Optional. Name of the type
  * @source Optional. File path of the type relative to file in the directory.
  *         Leave undefined if overriding with primitive types
- * @isDefault Optional. Whether the type is an export default
- * @isOptional Optional. Whether to add ?
+ * @isDefault Optional. Whether the type is an export default. Default false
+ * @isOptional Optional. Override optionality
  */
 export interface ColumnTypeOverride {
-  type: string;
+  type?: string;
   source?: string;
   isDefault?: boolean;
   isOptional?: boolean;
@@ -234,7 +247,9 @@ export type TableTypeOverrides = { [tableName: string]: TableTypeOverride | unde
  *   }
  *  }
  * }
+ * @useOptionalForNullColumns use optional(?) otherwise use null, for nullable columns. Default false
  */
 export interface TypeOverrides {
   tables?: TableTypeOverrides;
+  useOptionalForNullColumns?: boolean;
 }
