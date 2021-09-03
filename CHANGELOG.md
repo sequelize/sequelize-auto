@@ -1,5 +1,15 @@
 # sequelize-auto change log
 
+## [0.8.4] - 2021-08-06
+
+* Fix `--noAlias` option to never write aliases except for many-to-many relations (#515)
+* Add `-l esmd` for  ES modules with "define" syntax instead of classes (#527) (thanks @retfah)
+* Fix problem with `paranoid` not in output when additional.paranoid specified (#529)
+* Fix alias generation for column names that differ only by singular/plural (#533) (thanks @edwardmcarl)
+* Add Postgres types inet, cidr, macaddr and oid (#534)
+* Add TypeScript type for jsonb | json (#541) (thanks @HussainMehdi)
+* Fix TypeScript optional fields and CreationAttributes (#543 #546) (thanks @kurochin143)
+
 ## [0.8.3] - 2021-05-15
 
 * Fix generation of alias in many-to-many (#521)

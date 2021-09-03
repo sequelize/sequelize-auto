@@ -4,7 +4,7 @@ import path from "path";
 import util from "util";
 import { Utils } from "sequelize";
 import { FKSpec, TableData } from ".";
-import { AutoOptions, CaseOption, LangOption, qNameSplit, recase, Relation, pluralize } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, LangOption, qNameSplit, recase, Relation, pluralize } from "./types";
 const mkdirp = require('mkdirp');
 
 /** Writes text into files from TableData.text, and writes init-models */
@@ -13,7 +13,7 @@ export class AutoWriter {
   foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec } };
   relations: Relation[];
   options: {
-    caseFile?: CaseOption;
+    caseFile?: CaseFileOption;
     caseModel?: CaseOption;
     caseProp?: CaseOption;
     directory: string;
@@ -101,11 +101,13 @@ export class AutoWriter {
         const asprop = pluralize(rel.childProp);
         strBelongsToMany += `  ${rel.parentModel}.belongsToMany(${rel.childModel}, { as: '${asprop}', through: ${rel.joinModel}, foreignKey: "${rel.parentId}", otherKey: "${rel.childId}" });\n`;
       } else {
-        const bAlias = (this.options.noAlias && rel.parentModel.toLowerCase() === rel.parentProp.toLowerCase()) ? '' : `as: "${rel.parentProp}", `;
+        // const bAlias = (this.options.noAlias && rel.parentModel.toLowerCase() === rel.parentProp.toLowerCase()) ? '' : `as: "${rel.parentProp}", `;
+        const bAlias = this.options.noAlias ? '' : `as: "${rel.parentProp}", `;
         strBelongs += `  ${rel.childModel}.belongsTo(${rel.parentModel}, { ${bAlias}foreignKey: "${rel.parentId}"});\n`;
 
         const hasRel = rel.isOne ? "hasOne" : "hasMany";
-        const hAlias = (this.options.noAlias && Utils.pluralize(rel.childModel.toLowerCase()) === rel.childProp.toLowerCase()) ? '' : `as: "${rel.childProp}", `;
+        // const hAlias = (this.options.noAlias && Utils.pluralize(rel.childModel.toLowerCase()) === rel.childProp.toLowerCase()) ? '' : `as: "${rel.childProp}", `;
+        const hAlias = this.options.noAlias ? '' : `as: "${rel.childProp}", `;
         strBelongs += `  ${rel.parentModel}.${hasRel}(${rel.childModel}, { ${hAlias}foreignKey: "${rel.parentId}"});\n`;
       }
     });
