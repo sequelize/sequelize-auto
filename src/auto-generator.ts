@@ -159,7 +159,7 @@ export class AutoGenerator {
     const tableName = recase(this.options.caseModel, tableNameOrig, this.options.singularize);
     const space = this.space;
     let timestamps = (this.options.additional && this.options.additional.timestamps === true) || false;
-    let paranoid = false;
+    let paranoid = (this.options.additional && this.options.additional.paranoid === true) || false;;
 
     // add all the fields
     let str = '';
@@ -526,10 +526,18 @@ export class AutoGenerator {
     } else if (type.match(/^array/)) {
       const eltype = this.getSqType(fieldObj, "elementType");
       val = `DataTypes.ARRAY(${eltype})`;
-    } else if (type.match(/(binary|image|blob)/)) {
+    } else if (type.match(/(binary|image|blob|bytea)/)) {
       val = 'DataTypes.BLOB';
     } else if (type.match(/^hstore/)) {
       val = 'DataTypes.HSTORE';
+    } else if (type.match(/^inet/)) {
+      val = 'DataTypes.INET';
+    } else if (type.match(/^cidr/)) {
+      val = 'DataTypes.CIDR';
+    } else if (type.match(/^oid/)) {
+      val = 'DataTypes.INTEGER';
+    } else if (type.match(/^macaddr/)) {
+      val = 'DataTypes.MACADDR';
     } else if (type.match(/^enum(\(.*\))?$/)) {
       const enumValues = this.getEnumValues(fieldObj);
       val = `DataTypes.ENUM(${enumValues})`;
@@ -761,7 +769,7 @@ export class AutoGenerator {
       const values = this.getEnumValues(fieldObj);
       jsType = values.join(' | ');
     } else if (this.isJSON(fieldType)) {
-      jsType = 'object'
+      jsType = 'object';
     } else {
       console.log(`Missing TypeScript type: ${fieldType || fieldObj['type']}`);
       jsType = 'any';
@@ -817,7 +825,7 @@ export class AutoGenerator {
   }
 
   private isNumber(fieldType: string): boolean {
-    return /^(smallint|mediumint|tinyint|int|bigint|float|money|smallmoney|double|decimal|numeric|real)/.test(fieldType);
+    return /^(smallint|mediumint|tinyint|int|bigint|float|money|smallmoney|double|decimal|numeric|real|oid)/.test(fieldType);
   }
 
   private isBoolean(fieldType: string): boolean {
@@ -829,7 +837,7 @@ export class AutoGenerator {
   }
 
   private isString(fieldType: string): boolean {
-    return /^(char|nchar|string|varying|varchar|nvarchar|text|longtext|mediumtext|tinytext|ntext|uuid|uniqueidentifier|date|time)/.test(fieldType);
+    return /^(char|nchar|string|varying|varchar|nvarchar|text|longtext|mediumtext|tinytext|ntext|uuid|uniqueidentifier|date|time|inet|cidr|macaddr)/.test(fieldType);
   }
 
   private isArray(fieldType: string): boolean {
