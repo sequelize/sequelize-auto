@@ -238,6 +238,13 @@ export interface ColumnTypeOverride {
 }
 export type TableTypeOverride = { [columnName: string]: ColumnTypeOverride | undefined };
 export type TableTypeOverrides = { [tableName: string]: TableTypeOverride | undefined }
+
+export enum NullableFieldTypes {
+  Null = "NULL",
+  Optional = "OPTIONAL",
+  NullAndOptional = "NULL_AND_OPTIONAL"
+}
+
 /**
  * @tables {
  *  roles: {
@@ -247,9 +254,9 @@ export type TableTypeOverrides = { [tableName: string]: TableTypeOverride | unde
  *   }
  *  }
  * }
- * @useOptionalForNullColumns use optional(?) otherwise use null, for nullable columns. Default false
+ * @nullableFieldType use "NULL", "OPTIONAL", OR "NULL_AND_OPTIONAL" for nullable table columns. Default "NULL_AND_OPTIONAL"
  */
 export interface TypeOverrides {
   tables?: TableTypeOverrides;
-  useOptionalForNullColumns?: boolean;
+  nullableFieldType?: NullableFieldTypes;
 }
