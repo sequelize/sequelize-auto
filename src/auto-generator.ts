@@ -147,7 +147,7 @@ export class AutoGenerator {
     const tableName = recase(this.options.caseModel, tableNameOrig, this.options.singularize);
     const space = this.space;
     let timestamps = (this.options.additional && this.options.additional.timestamps === true) || false;
-    let paranoid = (this.options.additional && this.options.additional.paranoid === true) || false;;
+    let paranoid = (this.options.additional && this.options.additional.paranoid === true) || false;
 
     // add all the fields
     let str = '';

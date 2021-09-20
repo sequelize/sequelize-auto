@@ -176,6 +176,8 @@ export interface AutoOptions {
   username?: string;
   /** Whether to export views (default false) */
   views?: boolean;
+  /** Primary Key Suffixes to trim (default "id") */
+  pkSuffixes?: string[];
 }
 
 export type TSField = { special: string[]; elementType: string; } & ColumnDescription;
