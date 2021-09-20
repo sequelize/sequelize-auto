@@ -67,6 +67,12 @@ const argv = require('yargs')
     type: 'string',
     alias: 'T'
   })
+  .option('skipFields', {
+    description: 'Space-separated names of fields to skip',
+    array: true,
+    type: 'string',
+    alias: 'F'
+  })
   .option('caseModel', {
     description: 'Set case of model names: c|l|o|p|u \n c = camelCase \n l = lower_case \n o = original (default) \n p = PascalCase \n u = UPPER_CASE',
     alias: 'cm'
@@ -180,6 +186,7 @@ async function readPassword() {
   configFile.storage = configFile.storage || configFile.database;
   configFile.tables = argv.tables || configFile.tables || null;
   configFile.skipTables = argv.skipTables || configFile.skipTables || null;
+  configFile.skipFields = argv.skipFields || configFile.skipFields || null;
   configFile.schema = argv.schema || configFile.schema;
   configFile.lang = argv.lang || configFile.lang || 'es5';
   configFile.caseModel = argv.caseModel || configFile.caseModel || 'o';
