@@ -141,7 +141,7 @@ export class AutoRelater {
 
   private trimId(name: string) {
     this.pkSuffixes.forEach(suffix => {
-      if (name.length > (suffix.length + 1) && name.toLowerCase().endsWith(suffix.toLocaleLowerCase())) {
+      if (name.length > (suffix.length + 1) && name.toLowerCase().endsWith(suffix.toLowerCase())) {
         name = name.substring(0, name.length - suffix.length);
       }
     });
