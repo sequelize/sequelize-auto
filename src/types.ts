@@ -172,6 +172,8 @@ export interface AutoOptions {
   storage?: string;
   /** Tables to export (default all) */
   tables?: string[];
+  /** Override the types of generated typescript file */
+  typeOverrides?: TypeOverrides;
   /** Database username */
   username?: string;
   /** Whether to export views (default false) */
@@ -221,3 +223,40 @@ export function recase(opt: CaseOption | CaseFileOption | undefined, val: string
   return val;
 }
 
+/**
+ * @type Optional. Name of the type
+ * @source Optional. File path of the type relative to file in the directory.
+ *         Leave undefined if overriding with primitive types
+ * @isDefault Optional. Whether the type is an export default. Default false
+ * @isOptional Optional. Override optionality
+ */
+export interface ColumnTypeOverride {
+  type?: string;
+  source?: string;
+  isDefault?: boolean;
+  isOptional?: boolean;
+}
+export type TableTypeOverride = { [columnName: string]: ColumnTypeOverride | undefined };
+export type TableTypeOverrides = { [tableName: string]: TableTypeOverride | undefined }
+
+export enum NullableFieldTypes {
+  Null = "NULL",
+  Optional = "OPTIONAL",
+  NullAndOptional = "NULL_AND_OPTIONAL"
+}
+
+/**
+ * @tables {
+ *  roles: {
+ *   name: {
+ *     type: "RoleTypes",
+ *     source: "../RoleTypes"
+ *   }
+ *  }
+ * }
+ * @nullableFieldType use "NULL", "OPTIONAL", OR "NULL_AND_OPTIONAL" for nullable table columns. Default "NULL_AND_OPTIONAL"
+ */
+export interface TypeOverrides {
+  tables?: TableTypeOverrides;
+  nullableFieldType?: NullableFieldTypes;
+}

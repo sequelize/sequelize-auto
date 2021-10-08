@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseFileOption, CaseOption, Field, IndexSpec, LangOption, qNameJoin, qNameSplit, recase, Relation, TableData, TSField, singularize, pluralize } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, Field, IndexSpec, LangOption, qNameJoin, qNameSplit, recase, Relation, TableData, TSField, singularize, pluralize, TypeOverrides, TableTypeOverride, ColumnTypeOverride, NullableFieldTypes } from "./types";
 
 /** Generates text from each table in TableData */
 export class AutoGenerator {
@@ -22,6 +22,7 @@ export class AutoGenerator {
     additional?: any;
     schema?: string;
     singularize: boolean;
+    typeOverrides?: TypeOverrides;
   };
 
   constructor(tableData: TableData, dialect: DialectOptions, options: AutoOptions) {
@@ -103,8 +104,19 @@ export class AutoGenerator {
           str += ` } from './${filename}';\n`;
         });
 
+        const typeOverrides = this.options.typeOverrides;
+        let tableTypeOverride: TableTypeOverride | undefined;
+        if (typeOverrides) {
+          if (typeOverrides.tables && tableNameOrig) {
+            tableTypeOverride = typeOverrides.tables[tableNameOrig];
+            if (tableTypeOverride) {
+              str += this.getTypeScriptTableOverrideImports(tableTypeOverride);
+            }
+          }
+        }
+
         str += "\nexport interface #TABLE#Attributes {\n";
-        str += this.addTypeScriptFields(table, true) + "}\n\n";
+        str += this.addTypeScriptFields(table, true, tableTypeOverride, typeOverrides?.nullableFieldType) + "}\n\n";
 
         const primaryKeys = this.getTypeScriptPrimaryKeys(table);
 
@@ -123,7 +135,7 @@ export class AutoGenerator {
         }
 
         str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
-        str += this.addTypeScriptFields(table, false);
+        str += this.addTypeScriptFields(table, false, tableTypeOverride, typeOverrides?.nullableFieldType);
         str += "\n" + associations.str;
         str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize.Sequelize): typeof " + tableName + " {\n";
         str += this.space[2] + tableName + ".init({\n";
@@ -546,7 +558,7 @@ export class AutoGenerator {
     const fields = _.keys(this.tables[table]);
     return fields.filter((field): boolean => {
       const fieldObj = this.tables[table][field];
-      return fieldObj.allowNull || (!!fieldObj.defaultValue || fieldObj.defaultValue === "") || fieldObj.primaryKey;
+      return fieldObj.allowNull || (!!fieldObj.defaultValue || fieldObj.defaultValue === "") || fieldObj.autoIncrement;
     });
   }
 
@@ -654,22 +666,91 @@ export class AutoGenerator {
     return { needed, str };
   }
 
-  private addTypeScriptFields(table: string, isInterface: boolean) {
-    const sp = this.space[1];
-    const fields = _.keys(this.tables[table]);
-    const notNull = isInterface ? '' : '!';
-    let str = '';
-    fields.forEach(field => {
-      const name = this.quoteName(recase(this.options.caseProp, field));
-      const isOptional = this.getTypeScriptFieldOptional(table, field);
-      str += `${sp}${name}${isOptional ? '?' : notNull}: ${this.getTypeScriptType(table, field)};\n`;
+  private getTypeScriptTableOverrideImports(tableTypeOverride: TableTypeOverride) {
+    const columnTypeOverridesByType: { [type: string]: ColumnTypeOverride } = {}
+    // type should only be imported once for each file
+    _.keys(tableTypeOverride).forEach((columnName) => {
+      const columnTypeOverride = tableTypeOverride![columnName]!;
+      if (columnTypeOverride.type) {
+        columnTypeOverridesByType[columnTypeOverride.type] = columnTypeOverride;
+      }
     });
-    return str;
+
+    // import per source
+    const imports: { [source: string]: { default?: string, types: string[] } } = {};
+    _.keys(columnTypeOverridesByType).forEach((type) => {
+      const columnTypeOverride = columnTypeOverridesByType[type];
+      if (columnTypeOverride.source) {
+        const importData = imports[columnTypeOverride.source];
+        if (importData) {
+          if (columnTypeOverride.isDefault) {
+            importData.default = type;
+          } else {
+            importData.types.push(type);
+          }
+        } else {
+          let newImportData: { default?: string, types: string[] };
+          if (columnTypeOverride.isDefault) {
+            newImportData = {
+              default: type,
+              types: [],
+            }
+          } else {
+            newImportData = {
+              types: [type],
+            }
+          }
+          imports[columnTypeOverride.source] = newImportData;
+        }
+      }
+    });
+
+    const importStrArr: string[] = [];
+    _.keys(imports).forEach((source) => {
+      const importData = imports[source];
+      let importStr = "import";
+      if (importData.default) {
+        importStr += ` ${importData.default}`;
+      }
+
+      if (importData.types.length !== 0) {
+        importStr += (importData.default ? ", " : " ") + `{ ${importData.types.join(", ")} }`;
+      }
+
+      importStr += ` from '${source}';`;
+      importStrArr.push(importStr);
+    });
+
+    if (importStrArr.length !== 0) {
+      return importStrArr.join("\n") + "\n";
+    }
+
+    return "";
   }
 
-  private getTypeScriptFieldOptional(table: string, field: string) {
-    const fieldObj = this.tables[table][field];
-    return fieldObj.allowNull;
+  private addTypeScriptFields(table: string, isInterface: boolean, tableTypeOverride: TableTypeOverride | undefined, nullableFieldType: NullableFieldTypes | undefined) {
+    const sp = this.space[1];
+    const fields = _.keys(this.tables[table]);
+    let str = '';
+    const notOptional = isInterface ? '' : '!';
+    fields.forEach(field => {
+      let columnTypeOverride: ColumnTypeOverride | undefined;
+      if (tableTypeOverride) {
+        columnTypeOverride = tableTypeOverride[field];
+      }
+      const name = this.quoteName(recase(this.options.caseProp, field));
+      const fieldObj = this.tables[table][field];
+      let isOptional: boolean;
+      if (columnTypeOverride && columnTypeOverride.isOptional !== undefined) {
+        // override
+        isOptional = columnTypeOverride.isOptional;
+      } else {
+        isOptional = fieldObj.allowNull && nullableFieldType !== NullableFieldTypes.Null;
+      }
+      str += `${sp}${name}${isOptional ? '?' : notOptional}: ` +
+        `${columnTypeOverride && columnTypeOverride.type !== undefined ? columnTypeOverride.type : (this.getTypeScriptType(table, field) + (fieldObj.allowNull && nullableFieldType !== NullableFieldTypes.Optional ? " | null" : ""))};\n`;
+    });
+    return str;
   }
 
   private getTypeScriptType(table: string, field: string) {
