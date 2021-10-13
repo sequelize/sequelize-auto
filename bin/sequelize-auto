@@ -67,6 +67,12 @@ const argv = require('yargs')
     type: 'string',
     alias: 'T'
   })
+  .option('skipFields', {
+    description: 'Space-separated names of fields to skip',
+    array: true,
+    type: 'string',
+    alias: 'F'
+  })
   .option('pkSuffixes', {
     description: 'Space-separated names of primary key suffixes to trim (default is "id")',
     array: true,
@@ -185,6 +191,7 @@ async function readPassword() {
   configFile.storage = configFile.storage || configFile.database;
   configFile.tables = argv.tables || configFile.tables || null;
   configFile.skipTables = argv.skipTables || configFile.skipTables || null;
+  configFile.skipFields = argv.skipFields || configFile.skipFields || null;
   configFile.pkSuffixes = argv.pkSuffixes || configFile.pkSuffixes || null;
   configFile.schema = argv.schema || configFile.schema;
   configFile.lang = argv.lang || configFile.lang || 'es5';

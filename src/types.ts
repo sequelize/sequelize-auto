@@ -166,6 +166,8 @@ export interface AutoOptions {
   singularize: boolean;
   /** Tables to skip exporting */
   skipTables?: string[];
+  /** Fields to skip exporting */
+  skipFields?: string[];
   /** Whether to indent with spaces instead of tabs (default true) */
   spaces?: boolean;
   /** File where database is stored (sqlite only) */

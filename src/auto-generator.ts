@@ -19,6 +19,7 @@ export class AutoGenerator {
     caseModel?: CaseOption;
     caseProp?: CaseOption;
     caseFile?: CaseFileOption;
+    skipFields?: string[];
     additional?: any;
     schema?: string;
     singularize: boolean;
@@ -223,6 +224,10 @@ export class AutoGenerator {
     // ignore Sequelize standard fields
     const additional = this.options.additional;
     if (additional && (additional.timestamps !== false) && (this.isTimestampField(field) || this.isParanoidField(field))) {
+      return '';
+    }
+
+    if (this.isIgnoredField(field)) {
       return '';
     }
 
@@ -660,9 +665,11 @@ export class AutoGenerator {
     const notNull = isInterface ? '' : '!';
     let str = '';
     fields.forEach(field => {
-      const name = this.quoteName(recase(this.options.caseProp, field));
-      const isOptional = this.getTypeScriptFieldOptional(table, field);
-      str += `${sp}${name}${isOptional ? '?' : notNull}: ${this.getTypeScriptType(table, field)};\n`;
+      if (!this.options.skipFields || !this.options.skipFields.includes(field)){
+        const name = this.quoteName(recase(this.options.caseProp, field));
+        const isOptional = this.getTypeScriptFieldOptional(table, field);
+        str += `${sp}${name}${isOptional ? '?' : notNull}: ${this.getTypeScriptType(table, field)};\n`;
+      }
     });
     return str;
   }
@@ -731,6 +738,10 @@ export class AutoGenerator {
       return false;
     }
     return ((!additional.deletedAt && field.toLowerCase() === 'deletedat') || additional.deletedAt === field);
+  }
+
+  private isIgnoredField(field: string) {
+    return (this.options.skipFields && this.options.skipFields.includes(field));
   }
 
   private escapeSpecial(val: string) {
