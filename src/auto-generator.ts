@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseOption, Field, IndexSpec, LangOption, qNameJoin, qNameSplit, recase, Relation, TableData, TSField, singularize, pluralize } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, Field, IndexSpec, LangOption, qNameJoin, qNameSplit, recase, Relation, TableData, TSField, singularize, pluralize } from "./types";
 
 /** Generates text from each table in TableData */
 export class AutoGenerator {
@@ -18,7 +18,8 @@ export class AutoGenerator {
     lang?: LangOption;
     caseModel?: CaseOption;
     caseProp?: CaseOption;
-    caseFile?: CaseOption;
+    caseFile?: CaseFileOption;
+    skipFields?: string[];
     additional?: any;
     schema?: string;
     singularize: boolean;
@@ -111,7 +112,13 @@ export class AutoGenerator {
         if (primaryKeys.length) {
           str += `export type #TABLE#Pk = ${primaryKeys.map((k) => `"${recase(this.options.caseProp, k)}"`).join(' | ')};\n`;
           str += `export type #TABLE#Id = #TABLE#[#TABLE#Pk];\n`;
-          str += "export type #TABLE#CreationAttributes = Optional<#TABLE#Attributes, #TABLE#Pk>;\n\n";
+        }
+
+        const creationOptionalFields = this.getTypeScriptCreationOptionalFields(table);
+
+        if (creationOptionalFields.length) {
+          str += `export type #TABLE#OptionalAttributes = ${creationOptionalFields.map((k) => `"${recase(this.options.caseProp, k)}"`).join(' | ')};\n`;
+          str += "export type #TABLE#CreationAttributes = Optional<#TABLE#Attributes, #TABLE#OptionalAttributes>;\n\n";
         } else {
           str += "export type #TABLE#CreationAttributes = #TABLE#Attributes;\n\n";
         }
@@ -141,7 +148,7 @@ export class AutoGenerator {
     const tableName = recase(this.options.caseModel, tableNameOrig, this.options.singularize);
     const space = this.space;
     let timestamps = (this.options.additional && this.options.additional.timestamps === true) || false;
-    let paranoid = false;
+    let paranoid = (this.options.additional && this.options.additional.paranoid === true) || false;
 
     // add all the fields
     let str = '';
@@ -217,6 +224,10 @@ export class AutoGenerator {
     // ignore Sequelize standard fields
     const additional = this.options.additional;
     if (additional && (additional.timestamps !== false) && (this.isTimestampField(field) || this.isParanoidField(field))) {
+      return '';
+    }
+
+    if (this.isIgnoredField(field)) {
       return '';
     }
 
@@ -508,10 +519,18 @@ export class AutoGenerator {
     } else if (type.match(/^array/)) {
       const eltype = this.getSqType(fieldObj, "elementType");
       val = `DataTypes.ARRAY(${eltype})`;
-    } else if (type.match(/(binary|image|blob)/)) {
+    } else if (type.match(/(binary|image|blob|bytea)/)) {
       val = 'DataTypes.BLOB';
     } else if (type.match(/^hstore/)) {
       val = 'DataTypes.HSTORE';
+    } else if (type.match(/^inet/)) {
+      val = 'DataTypes.INET';
+    } else if (type.match(/^cidr/)) {
+      val = 'DataTypes.CIDR';
+    } else if (type.match(/^oid/)) {
+      val = 'DataTypes.INTEGER';
+    } else if (type.match(/^macaddr/)) {
+      val = 'DataTypes.MACADDR';
     } else if (type.match(/^enum(\(.*\))?$/)) {
       const enumValues = this.getEnumValues(fieldObj);
       val = `DataTypes.ENUM(${enumValues})`;
@@ -525,6 +544,14 @@ export class AutoGenerator {
     return fields.filter((field): boolean => {
       const fieldObj = this.tables[table][field];
       return fieldObj['primaryKey'];
+    });
+  }
+
+  private getTypeScriptCreationOptionalFields(table: string): Array<string> {
+    const fields = _.keys(this.tables[table]);
+    return fields.filter((field): boolean => {
+      const fieldObj = this.tables[table][field];
+      return fieldObj.allowNull || (!!fieldObj.defaultValue || fieldObj.defaultValue === "") || fieldObj.primaryKey;
     });
   }
 
@@ -638,16 +665,18 @@ export class AutoGenerator {
     const notNull = isInterface ? '' : '!';
     let str = '';
     fields.forEach(field => {
-      const name = this.quoteName(recase(this.options.caseProp, field));
-      const isOptional = this.getTypeScriptFieldOptional(table, field);
-      str += `${sp}${name}${isOptional ? '?' : notNull}: ${this.getTypeScriptType(table, field)};\n`;
+      if (!this.options.skipFields || !this.options.skipFields.includes(field)){
+        const name = this.quoteName(recase(this.options.caseProp, field));
+        const isOptional = this.getTypeScriptFieldOptional(table, field);
+        str += `${sp}${name}${isOptional ? '?' : notNull}: ${this.getTypeScriptType(table, field)};\n`;
+      }
     });
     return str;
   }
 
   private getTypeScriptFieldOptional(table: string, field: string) {
     const fieldObj = this.tables[table][field];
-    return fieldObj.allowNull || (fieldObj.defaultValue || fieldObj.defaultValue === "");
+    return fieldObj.allowNull;
   }
 
   private getTypeScriptType(table: string, field: string) {
@@ -675,6 +704,8 @@ export class AutoGenerator {
     } else if (this.isEnum(fieldType)) {
       const values = this.getEnumValues(fieldObj);
       jsType = values.join(' | ');
+    } else if (this.isJSON(fieldType)) {
+      jsType = 'object';
     } else {
       console.log(`Missing TypeScript type: ${fieldType || fieldObj['type']}`);
       jsType = 'any';
@@ -709,6 +740,10 @@ export class AutoGenerator {
     return ((!additional.deletedAt && field.toLowerCase() === 'deletedat') || additional.deletedAt === field);
   }
 
+  private isIgnoredField(field: string) {
+    return (this.options.skipFields && this.options.skipFields.includes(field));
+  }
+
   private escapeSpecial(val: string) {
     if (typeof (val) !== "string") {
       return val;
@@ -730,7 +765,7 @@ export class AutoGenerator {
   }
 
   private isNumber(fieldType: string): boolean {
-    return /^(smallint|mediumint|tinyint|int|bigint|float|money|smallmoney|double|decimal|numeric|real)/.test(fieldType);
+    return /^(smallint|mediumint|tinyint|int|bigint|float|money|smallmoney|double|decimal|numeric|real|oid)/.test(fieldType);
   }
 
   private isBoolean(fieldType: string): boolean {
@@ -742,7 +777,7 @@ export class AutoGenerator {
   }
 
   private isString(fieldType: string): boolean {
-    return /^(char|nchar|string|varying|varchar|nvarchar|text|longtext|mediumtext|tinytext|ntext|uuid|uniqueidentifier|date|time)/.test(fieldType);
+    return /^(char|nchar|string|varying|varchar|nvarchar|text|longtext|mediumtext|tinytext|ntext|uuid|uniqueidentifier|date|time|inet|cidr|macaddr)/.test(fieldType);
   }
 
   private isArray(fieldType: string): boolean {
@@ -751,5 +786,9 @@ export class AutoGenerator {
 
   private isEnum(fieldType: string): boolean {
     return /^(enum)/.test(fieldType);
+  }
+
+  private isJSON(fieldType: string): boolean {
+    return /^(json|jsonb)/.test(fieldType);
   }
 }
