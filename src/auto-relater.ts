@@ -9,6 +9,8 @@ export class AutoRelater {
   caseModel: CaseOption;
   caseProp: CaseOption;
   singularize: boolean;
+  pkSuffixes: string[];
+
   relations: Relation[];
   private usedChildNames: Set<string>;
 
@@ -16,6 +18,11 @@ export class AutoRelater {
     this.caseModel = options.caseModel || 'o';
     this.caseProp = options.caseProp || 'o';
     this.singularize = options.singularize;
+    this.pkSuffixes = options.pkSuffixes || [];
+
+    if (!this.pkSuffixes || this.pkSuffixes.length == 0){
+      this.pkSuffixes = ["id"];
+    }
 
     this.relations = [];
     this.usedChildNames = new Set();
@@ -133,9 +140,12 @@ export class AutoRelater {
   }
 
   private trimId(name: string) {
-    if (name.length > 3 && name.toLowerCase().endsWith("id")) {
-      name = name.substring(0, name.length - 2);
-    }
+    this.pkSuffixes.forEach(suffix => {
+      if (name.length > (suffix.length + 1) && name.toLowerCase().endsWith(suffix.toLowerCase())) {
+        name = name.substring(0, name.length - suffix.length);
+      }
+    });
+
     if (name.endsWith("_")) {
       name = name.substring(0, name.length - 1);
     }
