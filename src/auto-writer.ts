@@ -2,9 +2,8 @@ import fs from "fs";
 import _ from "lodash";
 import path from "path";
 import util from "util";
-import { Utils } from "sequelize";
 import { FKSpec, TableData } from ".";
-import { AutoOptions, CaseFileOption, CaseOption, LangOption, qNameSplit, recase, Relation, pluralize } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, LangOption, pluralize, qNameSplit, recase, Relation } from "./types";
 const mkdirp = require('mkdirp');
 
 /** Writes text into files from TableData.text, and writes init-models */
@@ -74,8 +73,10 @@ export class AutoWriter {
         return this.createESMInitString(tableNames, assoc);
       case 'esmd':
           return this.createESMDInitString(tableNames, assoc);
+      case 'es6':
+          return this.createES5InitString(tableNames, assoc, "const");
       default:
-        return this.createES5InitString(tableNames, assoc);
+        return this.createES5InitString(tableNames, assoc, "var");
     }
   }
   private createFile(table: string) {
@@ -165,21 +166,21 @@ export class AutoWriter {
   }
 
   // create the ES5 init-models file to load all the models into Sequelize
-  private createES5InitString(tables: string[], assoc: string) {
-    let str = 'var DataTypes = require("sequelize").DataTypes;\n';
+  private createES5InitString(tables: string[], assoc: string, vardef: string) {
+    let str = `${vardef} DataTypes = require("sequelize").DataTypes;\n`;
     const modelNames: string[] = [];
     // import statements
     tables.forEach(t => {
       const fileName = recase(this.options.caseFile, t, this.options.singularize);
       const modelName = recase(this.options.caseModel, t, this.options.singularize);
       modelNames.push(modelName);
-      str += `var _${modelName} = require("./${fileName}");\n`;
+      str += `${vardef} _${modelName} = require("./${fileName}");\n`;
     });
 
     // create the initialization function
     str += '\nfunction initModels(sequelize) {\n';
     modelNames.forEach(m => {
-      str += `  var ${m} = _${m}(sequelize, DataTypes);\n`;
+      str += `  ${vardef} ${m} = _${m}(sequelize, DataTypes);\n`;
     });
 
     // add the asociations
@@ -212,7 +213,7 @@ export class AutoWriter {
     // create the initialization function
     str += '\nexport default function initModels(sequelize) {\n';
     modelNames.forEach(m => {
-        str += `  var ${m} = _${m}(sequelize, DataTypes);\n`;
+        str += `  const ${m} = _${m}(sequelize, DataTypes);\n`;
     });
     // add the asociations
     str += "\n" + assoc;
@@ -241,7 +242,7 @@ export class AutoWriter {
     // create the initialization function
     str += '\nexport default function initModels(sequelize) {\n';
     modelNames.forEach(m => {
-      str += `  var ${m} = _${m}.init(sequelize, DataTypes);\n`;
+      str += `  const ${m} = _${m}.init(sequelize, DataTypes);\n`;
     });
 
     // add the asociations

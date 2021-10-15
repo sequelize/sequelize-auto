@@ -114,7 +114,7 @@ const argv = require('yargs')
     alias: 'v'
   })
   .option('lang', {
-    description: 'Language for Model output: es5|es6|esm|ts \n es5 = ES5 CJS modules (default) \n es6 = ES6 CJS modules \n esm = ES6 ESM modules \n ts = TypeScript ',
+    description: 'Language for Model output: es5|es6|esm|ts \n es5 = ES5 CJS modules (default) \n es6 = ES6 CJS modules \n esm = ES6 ESM modules \n esmd = ES6 modules with sequelize.define \n ts = TypeScript ',
     type: 'string',
     alias: 'l'
   })

@@ -72,6 +72,7 @@ Options:
                           es5 = ES5 CJS modules (default)
                           es6 = ES6 CJS modules
                           esm = ES6 ESM modules
+                          esmd = ES6 modules with sequelize.define
                           ts = TypeScript                              [string]
     --singularize, --sg  Singularize model and file names from plural table
                           names                                       [boolean]
