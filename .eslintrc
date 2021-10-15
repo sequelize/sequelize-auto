@@ -43,7 +43,7 @@ rules:
 
   # Best Practices
   block-scoped-var: 0
-  complexity: [2, 6]
+  complexity: [2, 20]
   consistent-return: 0
   default-case: 0
   dot-location: 0

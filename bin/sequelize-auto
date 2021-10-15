@@ -82,13 +82,13 @@ const argv = require('yargs')
     description: 'Set case of model names: c|l|o|p|u \n c = camelCase \n l = lower_case \n o = original (default) \n p = PascalCase \n u = UPPER_CASE',
     alias: 'cm'
   })
-  .option('caseFile', {
-    description: 'Set case of file names: c|l|o|p|u',
-    alias: 'cf'
-  })
   .option('caseProp', {
     description: 'Set case of property names: c|l|o|p|u',
     alias: 'cp'
+  })
+  .option('caseFile', {
+    description: 'Set case of file names: c|l|o|p|u|k \n k = kebab-case',
+    alias: 'cf'
   })
   .option('noAlias', {
     description: 'Avoid creating alias `as` property in relations',

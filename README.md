@@ -59,9 +59,10 @@ Options:
                           o = original (default)
                           p = PascalCase
                           u = UPPER_CASE
-    --caseFile, --cf     Set case of file names: c|l|o|p|u
     --caseProp, --cp     Set case of property names: c|l|o|p|u
---noAlias                Avoid creating alias `as` property in relations        
+    --caseFile, --cf     Set case of file names: c|l|o|p|u|k
+                          k = kebab-case
+--noAlias                Avoid creating alias `as` property in relations
                                                                      [boolean]
 --noInitModels           Prevent writing the init-models file        [boolean]
 -n, --noWrite            Prevent writing the models to disk          [boolean]

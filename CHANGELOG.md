@@ -1,5 +1,13 @@
 # sequelize-auto change log
 
+## [0.8.5]
+
+* Add kebab-case for caseFile (#552) (thanks @Ray0427)
+* Add logic to skip fields while generating (#557) (thanks @dpomerantz-jci)
+* Make case of "alias" properties match other properties (#539) (thanks @Genaker)
+* Remove Model type import (#554) (thanks @leonardo)
+* Allow Primary Key suffixes to be passed in, to be trimmed when creating property names (#558) (thanks @dpomerantz-jci)
+
 ## [0.8.4] - 2021-08-06
 
 * Fix `--noAlias` option to never write aliases except for many-to-many relations (#515)
@@ -94,7 +102,7 @@
 * Add `--singularize` option, to singularize model and file names from plural table names
 * TypeScript - add association `get/set/add/remove/has/count/create` mixing methods to TypeScript models (#453) (thanks @mat813)
 * TypeScript - Add TableId and TablePk to model definitions (#453) (thanks @mat813)
-* Fix autoIncrement for generated keys in Postgres (#459 and #460) (thanks @divinebovine) 
+* Fix autoIncrement for generated keys in Postgres (#459 and #460) (thanks @divinebovine)
 * Cast through class to `Model` instead of `any` (#454) (thanks @mat813)
 * Fix postgres enum types broken in 0.7.2 (#455)
 
@@ -126,7 +134,7 @@
 
 * Add `belongsTo/hasOne/hasMany` to initModels (#34) (#61) (#65) (#82) (#215) (#369)
 * Add precision to DECIMAL, DOUBLE, and FLOAT types
-* Add element type to Postgres ARRAY data types and TypeScript definitions (#151) 
+* Add element type to Postgres ARRAY data types and TypeScript definitions (#151)
 
 ## [0.6.7] - 2020-11-01
 
@@ -186,7 +194,7 @@
 
 * Fix handling case sensitive collation in MSSQL, issue #416 (thanks @karpikpl)
 * Fix missing autoIncrement attribute due to schema clash, issue #419 (thanks @marcelopc)
-* **BREAKING CHANGE** Separate options for controlling case of output objects: `caseModel`, `caseFile`, `caseProp`, issue #413 
+* **BREAKING CHANGE** Separate options for controlling case of output objects: `caseModel`, `caseFile`, `caseProp`, issue #413
 * Remove eslint from model generation, move into generate test, issue #425
 * Remove test files from npm package, using "files" option instead of .npmignore, issue #418
 
@@ -212,7 +220,7 @@
 * Add `hasTrigger` support #217 (thanks @joaoe)
 * Fix check constraints when gathering foreign key info for mssql (thanks @joaoe)
 * Fix mysql views generation #354 (thanks @joaoe)
-* Fix schema support, #348 #350 (thanks @joaoe and @dlredden) 
+* Fix schema support, #348 #350 (thanks @joaoe and @dlredden)
 * Add tests for cross-schema foreign keys (thanks @dlredden)
 * Add tests for snake_case table names -> UpperCamelCase model names
 
@@ -225,7 +233,7 @@
 * Fix "c.extra" in mysql foreign keys query (thanks @bkolla-ft and @jeongjuwon)
 * Fix support for `double` type (thanks @wen911119)
 * Add support for `closeConnectionAutomatically` (thanks @allnulled)
-* Fix schema name join in mysql foreign keys query (thanks @yujunlong2000) 
+* Fix schema name join in mysql foreign keys query (thanks @yujunlong2000)
 * Add schema to generated files (thanks @THAlpha)
 * Add arg "l", output language, values es5|es6|esm|ts  (thanks @threem0126)
 * Add HSTORE data type (thanks @roytz)
