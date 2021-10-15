@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseFileOption, CaseOption, Field, IndexSpec, LangOption, qNameJoin, qNameSplit, recase, Relation, TableData, TSField, singularize, pluralize } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, Field, IndexSpec, LangOption, pluralize, qNameJoin, qNameSplit, recase, Relation, singularize, TableData, TSField } from "./types";
 
 /** Generates text from each table in TableData */
 export class AutoGenerator {
@@ -322,6 +322,11 @@ export class AutoGenerator {
           const field_type = fieldObj.type.toLowerCase();
           defaultVal = this.escapeSpecial(defaultVal);
 
+          while (defaultVal.startsWith('(') && defaultVal.endsWith(')')) {
+            // remove extra parens around mssql defaults
+            defaultVal = defaultVal.replace(/^[(]/, '').replace(/[)]$/, '');
+          }
+
           if (field_type === 'bit(1)' || field_type === 'bit' || field_type === 'boolean') {
             // convert string to boolean
             val_text = /1|true/i.test(defaultVal) ? "true" : "false";
@@ -335,16 +340,29 @@ export class AutoGenerator {
             }
             val_text = `[${val_text}]`;
 
-          } else if (this.isNumber(field_type) || field_type.match(/^(json)/)) {
-            // remove () around mssql numeric values; don't quote numbers or json
-            val_text = defaultVal.replace(/[)(]/g, '');
+          } else if (field_type.match(/^(json)/)) {
+            // don't quote json
+            val_text = defaultVal;
 
           } else if (field_type === 'uuid' && (defaultVal === 'gen_random_uuid()' || defaultVal === 'uuid_generate_v4()')) {
             val_text = "DataTypes.UUIDV4";
 
-          } else if (_.endsWith(defaultVal, '()') || _.endsWith(defaultVal, '())')) {
-            // wrap default value function
-            val_text = "Sequelize.Sequelize.fn('" + defaultVal.replace(/[)(]/g, "") + "')";
+          } else if (defaultVal.match(/\w+\(\)$/)) {
+            // replace db function with sequelize function
+            val_text = "Sequelize.Sequelize.fn('" + defaultVal.replace(/\(\)$/g, "") + "')";
+
+          } else if (this.isNumber(field_type)) {
+            if (defaultVal.match(/\(\)/g)) {
+              // assume it's a server function if it contains parens
+              val_text = "Sequelize.Sequelize.literal('" + defaultVal + "')";
+            } else {
+              // don't quote numbers
+              val_text = defaultVal;
+            }
+
+          } else if (defaultVal.match(/\(\)/g)) {
+            // embedded function, pass as literal
+            val_text = "Sequelize.Sequelize.literal('" + defaultVal + "')";
 
           } else if (field_type.indexOf('date') === 0 || field_type.indexOf('timestamp') === 0) {
             if (_.includes(['current_timestamp', 'current_date', 'current_time', 'localtime', 'localtimestamp'], defaultVal.toLowerCase())) {
@@ -352,6 +370,7 @@ export class AutoGenerator {
             } else {
               val_text = quoteWrapper + defaultVal + quoteWrapper;
             }
+
           } else {
             val_text = quoteWrapper + defaultVal + quoteWrapper;
           }

@@ -7,6 +7,7 @@
 * Make case of "alias" properties match other properties (#539) (thanks @Genaker)
 * Remove Model type import (#554) (thanks @leonardo)
 * Allow Primary Key suffixes to be passed in, to be trimmed when creating property names (#558) (thanks @dpomerantz-jci)
+* Fix handling of default value functions (#493, #548)
 
 ## [0.8.4] - 2021-08-06
 
