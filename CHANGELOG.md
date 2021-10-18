@@ -1,6 +1,6 @@
 # sequelize-auto change log
 
-## [0.8.5]
+## [0.8.5] - 2021-10-18
 
 * Add kebab-case for caseFile (#552) (thanks @Ray0427)
 * Add logic to skip fields while generating (#557) (thanks @dpomerantz-jci)
@@ -8,6 +8,7 @@
 * Remove Model type import (#554) (thanks @leonardo)
 * Allow Primary Key suffixes to be passed in, to be trimmed when creating property names (#558) (thanks @dpomerantz-jci)
 * Fix handling of default value functions (#493, #548)
+* Use const instead of var in init-models for ES6 (#555)
 
 ## [0.8.4] - 2021-08-06
 
