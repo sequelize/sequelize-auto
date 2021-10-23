@@ -114,9 +114,13 @@ const argv = require('yargs')
     alias: 'v'
   })
   .option('lang', {
-    description: 'Language for Model output: es5|es6|esm|ts \n es5 = ES5 CJS modules (default) \n es6 = ES6 CJS modules \n esm = ES6 ESM modules \n esmd = ES6 modules with sequelize.define \n ts = TypeScript ',
+    description: 'Language for Model output: es5|es6|esm|ts \n es5 = ES5 CJS modules (default) \n es6 = ES6 CJS modules \n esm = ES6 ESM modules \n ts = TypeScript ',
     type: 'string',
     alias: 'l'
+  })
+  .option('useDefine', {
+    description: 'Use `sequelize.define` instead of `init` for es6|esm|ts',
+    type: 'boolean'
   })
   .option('singularize', {
     description: 'Singularize model and file names from plural table names',
@@ -205,6 +209,7 @@ async function readPassword() {
   configFile.singularize = argv.singularize || configFile.singularize || false;
   configFile.password = password || configFile.password || null;
   configFile.username = argv.user || configFile.username;
+  configFile.useDefine = argv.useDefine || configFile.useDefine || false;
 
   console.log(_.omit(configFile, 'password'));
 

@@ -1,6 +1,6 @@
-import { Model, Sequelize } from "sequelize";
-import { initModels, Customer, Order, OrderAttributes, OrderCreationAttributes } from "./models/init-models";
+import { Sequelize } from "sequelize";
 import config from "./config";
+import { initModels, Order, OrderAttributes, OrderCreationAttributes } from "./models/init-models";
 
 class SampleApp {
   sequelize: Sequelize;
@@ -12,7 +12,7 @@ class SampleApp {
   async run() {
     try {
       // load the model definitions into sequelize
-      initModels(this.sequelize);
+      const { Customer, Order } = initModels(this.sequelize);
 
       // Customer.findAll({ where: { "country": "Germany" }}).then(rows => {
       //   console.log(rows);
@@ -20,15 +20,15 @@ class SampleApp {
 
       // get a customer using known values in the sample data
       const cust = await Customer.findOne({ where: { "firstName": "Hanna", "lastName": "Moos" }, include: ['orders'] });
-      console.log(cust);
+      // console.log(cust);
       if (cust == null) {
         return;
       }
 
       const ord = await Order.findOne({ where: { orderNumber: "542639" } });
-      console.log(ord);
-      console.log(await ord?.getCustomer());
-      console.log(await ord?.getOrderItems().catch((err: Error) => console.error(err)));
+      // console.log(ord);
+      // console.log(await ord?.getCustomer());
+      // console.log(await ord?.getOrderItems().catch((err: Error) => console.error(err)));
 
       // make pseudo-incremental order number for demo
       const millis = new Date().getTime().toString();

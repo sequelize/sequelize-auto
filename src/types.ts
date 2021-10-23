@@ -180,6 +180,8 @@ export interface AutoOptions {
   views?: boolean;
   /** Primary Key Suffixes to trim (default "id") */
   pkSuffixes?: string[];
+  /** Use `sequelize.define` instead of `init` for model initialization */
+  useDefine: boolean;
 }
 
 export type TSField = { special: string[]; elementType: string; } & ColumnDescription;

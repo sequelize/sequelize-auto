@@ -23,6 +23,7 @@ export class AutoGenerator {
     additional?: any;
     schema?: string;
     singularize: boolean;
+    useDefine: boolean;
   };
 
   constructor(tableData: TableData, dialect: DialectOptions, options: AutoOptions) {
@@ -60,19 +61,22 @@ export class AutoGenerator {
       header += "}\n\n";
       header += "class #TABLE# extends Sequelize.Model {\n";
       header += sp + "static init(sequelize, DataTypes) {\n";
-      header += sp + "super.init({\n";
+      if (this.options.useDefine) {
+        header += sp + "return sequelize.define('#TABLE#', {\n";
+      } else {
+        header += sp + "return super.init({\n";
+      }
     } else if (this.options.lang === 'esm') {
       header += "import _sequelize from 'sequelize';\n";
       header += "const { Model, Sequelize } = _sequelize;\n\n";
-      header += "export default class #TABLE# extends Model {\n";
-      header += sp + "static init(sequelize, DataTypes) {\n";
-      header += sp + "super.init({\n";
-    } else if (this.options.lang === 'esmd') {
-      // new: use define (as with es5), but with es6 modules:
-      header += "import _sequelize from 'sequelize';\n";
-      header += "const { Model, Sequelize } = _sequelize;\n\n"; // are those first two lines even needed?
-      header += "export default function(sequelize, DataTypes) {\n";
-      header += sp + "return sequelize.define('#TABLE#', {\n";
+      if (this.options.useDefine) {
+        header += "export default function(sequelize, DataTypes) {\n";
+        header += sp + "return sequelize.define('#TABLE#', {\n";
+      } else {
+        header += "export default class #TABLE# extends Model {\n";
+        header += sp + "static init(sequelize, DataTypes) {\n";
+        header += sp + "return super.init({\n";
+      }
     } else {
       header += "const Sequelize = require('sequelize');\n";
       header += "module.exports = function(sequelize, DataTypes) {\n";
@@ -126,11 +130,35 @@ export class AutoGenerator {
         str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table, false);
         str += "\n" + associations.str;
-        str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize.Sequelize): typeof " + tableName + " {\n";
-        str += this.space[2] + tableName + ".init({\n";
+        str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize.Sequelize): typeof #TABLE# {\n";
+
+        if (this.options.useDefine) {
+          str += this.space[2] + "return sequelize.define('#TABLE#',{\n";
+
+        } else {
+          str += this.space[2] + "return #TABLE#.init({\n";
+        }
       }
 
       str += this.addTable(table);
+
+      const lang = this.options.lang;
+      if (lang === 'ts' && this.options.useDefine) {
+        str += ") as typeof #TABLE#;\n";
+      } else {
+        str += ");\n";
+      }
+
+      if (lang === 'es6' || lang === 'esm' || lang === 'ts') {
+        if (this.options.useDefine) {
+          str += this.space[1] + "}\n}\n";
+        } else {
+          // str += this.space[1] + "return #TABLE#;\n";
+          str += this.space[1] + "}\n}\n";
+        }
+      } else {
+        str += "};\n";
+      }
 
       const re = new RegExp('#TABLE#', 'g');
       str = str.replace(re, tableName);
@@ -165,7 +193,9 @@ export class AutoGenerator {
 
     // add the table options
     str += space[1] + "}, {\n";
-    str += space[2] + "sequelize,\n";
+    if (!this.options.useDefine) {
+      str += space[2] + "sequelize,\n";
+    }
     str += space[2] + "tableName: '" + tableNameOrig + "',\n";
 
     if (schemaName && this.dialect.hasSchema) {
@@ -207,14 +237,6 @@ export class AutoGenerator {
     str = str.substring(0, str.length - 1);
     str += "\n" + space[1] + "}";
 
-    str += ");\n";
-    const lang = this.options.lang;
-    if (lang === 'es6' || lang === 'esm' || lang === 'ts') {
-      str += space[1] + "return " + tableName + ";\n";
-      str += space[1] + "}\n}\n";
-    } else {
-      str += "};\n";
-    }
     return str;
   }
 

@@ -53,14 +53,14 @@ Options:
                                                                       [string]
 -t, --tables             Space-separated names of tables to import     [array]
 -T, --skipTables         Space-separated names of tables to skip       [array]
-    --caseModel, --cm    Set case of model names: c|l|o|p|u
+--caseModel, --cm        Set case of model names: c|l|o|p|u
                           c = camelCase
                           l = lower_case
                           o = original (default)
                           p = PascalCase
                           u = UPPER_CASE
-    --caseProp, --cp     Set case of property names: c|l|o|p|u
-    --caseFile, --cf     Set case of file names: c|l|o|p|u|k
+--caseProp, --cp         Set case of property names: c|l|o|p|u
+--caseFile, --cf         Set case of file names: c|l|o|p|u|k
                           k = kebab-case
 --noAlias                Avoid creating alias `as` property in relations
                                                                      [boolean]
@@ -72,10 +72,10 @@ Options:
                           es5 = ES5 CJS modules (default)
                           es6 = ES6 CJS modules
                           esm = ES6 ESM modules
-                          esmd = ES6 modules with sequelize.define
-                          ts = TypeScript                              [string]
-    --singularize, --sg  Singularize model and file names from plural table
-                          names                                       [boolean]
+                          ts = TypeScript                             [string]
+--useDefine              Use `sequelize.define` instead of `init` for es6|esm|ts
+--singularize, --sg      Singularize model and file names from plural table
+                          names                                      [boolean]
 ```
 
 > On Windows, provide the path to sequelize-auto: `node_modules\.bin\sequelize-auto [args]`

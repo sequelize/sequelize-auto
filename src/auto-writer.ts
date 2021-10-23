@@ -21,6 +21,7 @@ export class AutoWriter {
     noInitModels?: boolean;
     noWrite?: boolean;
     singularize?: boolean;
+    useDefine?: boolean;
   };
   constructor(tableData: TableData, options: AutoOptions) {
     this.tableText = tableData.text as { [name: string]: string };
@@ -128,15 +129,16 @@ export class AutoWriter {
       const fileName = recase(this.options.caseFile, t, this.options.singularize);
       const modelName = recase(this.options.caseModel, t, this.options.singularize);
       modelNames.push(modelName);
-      str += `import { ${modelName} } from "./${fileName}";\n`;
+      str += `import { ${modelName} as _${modelName} } from "./${fileName}";\n`;
       str += `import type { ${modelName}Attributes, ${modelName}CreationAttributes } from "./${fileName}";\n`;
     });
     // re-export the model classes
     str += '\nexport {\n';
     modelNames.forEach(m => {
-      str += `  ${m},\n`;
+      str += ` _${m} as ${m},\n`;
     });
     str += '};\n';
+
     // re-export the model attirbutes
     str += '\nexport type {\n';
     modelNames.forEach(m => {
@@ -148,7 +150,7 @@ export class AutoWriter {
     // create the initialization function
     str += 'export function initModels(sequelize: Sequelize) {\n';
     modelNames.forEach(m => {
-      str += `  ${m}.initModel(sequelize);\n`;
+      str += `  const ${m} = _${m}.initModel(sequelize);\n`;
     });
 
     // add the asociations
