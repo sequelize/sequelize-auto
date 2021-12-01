@@ -1,5 +1,9 @@
 # sequelize-auto change log
 
+## [0.8.6] - 2021-12-01
+
+ * Add `useDefine` option to use `sequelize.define` instead of `init` (#559, #573)
+
 ## [0.8.5] - 2021-10-18
 
 * Add kebab-case for caseFile (#552) (thanks @Ray0427)
