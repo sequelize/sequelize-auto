@@ -531,7 +531,7 @@ export class AutoGenerator {
       val = 'DataTypes.TEXT' + (!_.isNull(length) ? length : '');
     } else if (type === "date") {
       val = 'DataTypes.DATEONLY';
-    } else if (type.match(/^(date|timestamp)/)) {
+    } else if (type.match(/^(date|timestamp|year)/)) {
       val = 'DataTypes.DATE' + (!_.isNull(length) ? length : '');
     } else if (type.match(/^(time)/)) {
       val = 'DataTypes.TIME';
