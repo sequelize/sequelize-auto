@@ -769,8 +769,8 @@ export class AutoGenerator {
     if (additional.timestamps === false) {
       return false;
     }
-    return ((!additional.createdAt && field.toLowerCase() === 'createdat') || additional.createdAt === field)
-      || ((!additional.updatedAt && field.toLowerCase() === 'updatedat') || additional.updatedAt === field);
+    return ((!additional.createdAt && recase('c', field) === 'createdAt') || additional.createdAt === field)
+      || ((!additional.updatedAt && recase('c', field) === 'updatedAt') || additional.updatedAt === field);
   }
 
   private isParanoidField(field: string) {
@@ -778,7 +778,7 @@ export class AutoGenerator {
     if (additional.timestamps === false || additional.paranoid === false) {
       return false;
     }
-    return ((!additional.deletedAt && field.toLowerCase() === 'deletedat') || additional.deletedAt === field);
+    return ((!additional.deletedAt && recase('c', field) === 'deletedAt') || additional.deletedAt === field);
   }
 
   private isIgnoredField(field: string) {
