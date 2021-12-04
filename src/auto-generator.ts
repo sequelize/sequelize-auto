@@ -592,7 +592,7 @@ export class AutoGenerator {
     const fields = _.keys(this.tables[table]);
     return fields.filter((field): boolean => {
       const fieldObj = this.tables[table][field];
-      return fieldObj.allowNull || (!!fieldObj.defaultValue || fieldObj.defaultValue === "") || fieldObj.primaryKey
+      return fieldObj.allowNull || (!!fieldObj.defaultValue || fieldObj.defaultValue === "") || fieldObj.autoIncrement
         || this.isTimestampField(field);
     });
   }
