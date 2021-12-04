@@ -93,7 +93,7 @@ export const mysqlOptions: DialectOptions = {
   },
 
   showViewsQuery: (dbName?: string) => {
-    return `select table_name from information_schema.tables where table_type = 'VIEW' and table_schema = '${dbName}'`;
+    return `select TABLE_NAME as table_name from information_schema.tables where table_type = 'VIEW' and table_schema = '${dbName}'`;
   }
 
 };
