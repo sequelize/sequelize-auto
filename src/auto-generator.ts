@@ -641,7 +641,7 @@ export class AutoGenerator {
             str += `${sp}${rel.childProp}!: ${rel.childModel};\n`;
             str += `${sp}get${pchild}!: Sequelize.HasOneGetAssociationMixin<${rel.childModel}>;\n`;
             str += `${sp}set${pchild}!: Sequelize.HasOneSetAssociationMixin<${rel.childModel}, ${rel.childModel}Id>;\n`;
-            str += `${sp}create${pchild}!: Sequelize.HasOneCreateAssociationMixin<${rel.childModel}CreationAttributes>;\n`;
+            str += `${sp}create${pchild}!: Sequelize.HasOneCreateAssociationMixin<${rel.childModel}>;\n`;
             needed[rel.childTable].add(rel.childModel);
             needed[rel.childTable].add(`${rel.childModel}Id`);
             needed[rel.childTable].add(`${rel.childModel}CreationAttributes`);
