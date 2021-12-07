@@ -4,7 +4,6 @@ import { addTicks, DialectOptions, FKRow } from "./dialect-options";
 export const sqliteOptions: DialectOptions = {
   name: 'sqlite',
   hasSchema: false,
-  canAliasPK: true,
   /**
    * Generates an SQL query that returns all foreign keys of a table.
    *

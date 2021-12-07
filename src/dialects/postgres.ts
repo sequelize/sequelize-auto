@@ -4,7 +4,6 @@ import { addTicks, DialectOptions, FKRow, makeCondition } from "./dialect-option
 export const postgresOptions: DialectOptions = {
   name: 'postgres',
   hasSchema: true,
-  canAliasPK: true,
   /**
    * Generates an SQL query that returns all foreign keys of a table.
    *

@@ -4,7 +4,6 @@ import { addTicks, DialectOptions, FKRow, makeCondition } from "./dialect-option
 export const mssqlOptions: DialectOptions = {
   name: 'mssql',
   hasSchema: true,
-  canAliasPK: false,
   /**
    * Generates an SQL query that returns all foreign keys of a table.
    *

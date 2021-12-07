@@ -4,7 +4,6 @@ import { addTicks, DialectOptions, FKRow, makeCondition } from "./dialect-option
 export const mysqlOptions: DialectOptions = {
   name: 'mysql',
   hasSchema: false,
-  canAliasPK: false,
   /**
    * Generates an SQL query that returns all foreign keys of a table.
    *

@@ -426,11 +426,7 @@ export class AutoGenerator {
     }
 
     if (field !== fieldName) {
-      // write the original fieldname, unless it is a key and the column names are case-insensitive
-      // because Sequelize may request the same column twice in a join condition otherwise.
-      if (!fieldObj.primaryKey || this.dialect.canAliasPK || field.toUpperCase() !== fieldName.toUpperCase()) {
-        str += space[3] + "field: '" + field + "',\n";
-      }
+      str += space[3] + "field: '" + field + "',\n";
     }
 
     // removes the last `,` within the attribute options
