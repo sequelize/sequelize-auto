@@ -1,5 +1,20 @@
 # sequelize-auto change log
 
+## [0.8.7] - 2021-12-08
+
+* Don't write field comments for mssql, because it throws error in sequelize.sync() (#567)
+* Add `--noIndexes` option (#563)
+* Add `--indentation` command line option to control indent size (#561)
+* Append an underscore if model name is a reserved word (#562, #570)
+* Remove 'esmd' lang option and standardize 'useDefine' behavior
+* Remove dialect `canAliasPK` check for generating fieldnames. (#571) _This was a workaround to a sequelize bug that has been fixed._
+* TypeScript: fix syntax for HasOneCreateAssociationMixin
+* TypeScript: make field optional if `autoIncrement` instead of `primaryKey` (#572)
+* Fix case-senstive column name when querying views in mysql (#579)
+* Fix field comparison casing (#576)
+* TypeScript: Make timestamp fields not required for creation (#577)
+* Support mysql 'year' type (#575)
+
 ## [0.8.6] - 2021-12-01
 
  * Add `useDefine` option to use `sequelize.define` instead of `init` (#559, #573)
@@ -17,7 +32,7 @@
 ## [0.8.4] - 2021-08-06
 
 * Fix `--noAlias` option to never write aliases except for many-to-many relations (#515)
-* Add `-l esmd` for  ES modules with "define" syntax instead of classes (#527) (thanks @retfah)
+* Add `-l esmd` for  ES modules with "define" syntax instead of classes (#527) (thanks @retfah) (removed in 0.8.6 in favor of `--useDefine`)
 * Fix problem with `paranoid` not in output when additional.paranoid specified (#529)
 * Fix alias generation for column names that differ only by singular/plural (#533) (thanks @edwardmcarl)
 * Add Postgres types inet, cidr, macaddr and oid (#534)
