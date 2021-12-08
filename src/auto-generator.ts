@@ -24,6 +24,7 @@ export class AutoGenerator {
     schema?: string;
     singularize: boolean;
     useDefine: boolean;
+    noIndexes?: boolean;
   };
 
   constructor(tableData: TableData, dialect: DialectOptions, options: AutoOptions) {
@@ -220,7 +221,9 @@ export class AutoGenerator {
     }
 
     // add indexes
-    str += this.addIndexes(table);
+    if (!this.options.noIndexes) {
+      str += this.addIndexes(table);
+    }
 
     str = space[2] + str.trim();
     str = str.substring(0, str.length - 1);

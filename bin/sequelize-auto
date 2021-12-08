@@ -98,6 +98,10 @@ const argv = require('yargs')
     description: 'Avoid creating alias `as` property in relations',
     type: 'boolean'
   })
+  .option('noIndexes', {
+    description: 'Prevent writing index information in the models',
+    type: 'boolean'
+  })
   .option('noInitModels', {
     description: 'Prevent writing the init-models file',
     type: 'boolean'
@@ -215,6 +219,7 @@ async function readPassword() {
   configFile.username = argv.user || configFile.username;
   configFile.useDefine = argv.useDefine || configFile.useDefine || false;
   configFile.indentation = argv.indentation || configFile.indentation || 2;
+  configFile.noIndexes = argv.noIndexes || configFile.noIndexes || false;
 
   console.log(_.omit(configFile, 'password'));
 
