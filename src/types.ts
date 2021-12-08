@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { check as isReserved } from "reserved-words";
 import { Utils } from "sequelize";
 import { ColumnDescription, Dialect } from "sequelize/types";
 import { FKSpec } from "./dialects/dialect-options";
@@ -107,7 +108,7 @@ export function qNameJoin(schema: string | undefined, table: string | undefined)
 }
 
 /** Language of output model files */
-export declare type LangOption = "es5" | "es6" | "esm" | "ts" | "esmd";
+export declare type LangOption = "es5" | "es6" | "esm" | "ts";
 
 /** "c" camelCase |
  * "l" lower_case |
@@ -180,7 +181,7 @@ export interface AutoOptions {
   views?: boolean;
   /** Primary Key Suffixes to trim (default "id") */
   pkSuffixes?: string[];
-  /** Use `sequelize.define` instead of `init` for model initialization */
+  /** Use `sequelize.define` instead of `init` for model initialization.  See issues #527, #559, #573 */
   useDefine: boolean;
 }
 
@@ -225,5 +226,14 @@ export function recase(opt: CaseOption | CaseFileOption | undefined, val: string
     return _.snakeCase(val).toUpperCase();
   }
   return val;
+}
+
+const tsNames = ["DataTypes", "Model", "Optional", "Sequelize"];
+export function makeTableName(opt: CaseOption | undefined, tableNameOrig: string | null, singular = false, lang = "es5") {
+  let name = recase(opt, tableNameOrig, singular);
+  if (isReserved(name) || (lang == "ts" && tsNames.includes(name))) {
+    name += "_";
+  }
+  return name;
 }
 

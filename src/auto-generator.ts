@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseFileOption, CaseOption, Field, IndexSpec, LangOption, pluralize, qNameJoin, qNameSplit, recase, Relation, singularize, TableData, TSField } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, Field, IndexSpec, LangOption, makeTableName, pluralize, qNameJoin, qNameSplit, recase, Relation, singularize, TableData, TSField } from "./types";
 
 /** Generates text from each table in TableData */
 export class AutoGenerator {
@@ -69,12 +69,11 @@ export class AutoGenerator {
     } else if (this.options.lang === 'esm') {
       header += "import _sequelize from 'sequelize';\n";
       header += "const { Model, Sequelize } = _sequelize;\n\n";
+      header += "export default class #TABLE# extends Model {\n";
+      header += sp + "static init(sequelize, DataTypes) {\n";
       if (this.options.useDefine) {
-        header += "export default function(sequelize, DataTypes) {\n";
         header += sp + "return sequelize.define('#TABLE#', {\n";
       } else {
-        header += "export default class #TABLE# extends Model {\n";
-        header += sp + "static init(sequelize, DataTypes) {\n";
         header += sp + "return super.init({\n";
       }
     } else {
@@ -94,7 +93,7 @@ export class AutoGenerator {
     tableNames.forEach(table => {
       let str = header;
       const [schemaName, tableNameOrig] = qNameSplit(table);
-      const tableName = recase(this.options.caseModel, tableNameOrig, this.options.singularize);
+      const tableName = makeTableName(this.options.caseModel, tableNameOrig, this.options.singularize, this.options.lang);
 
       if (this.options.lang === 'ts') {
         const associations = this.addTypeScriptAssociationMixins(table);
@@ -173,7 +172,6 @@ export class AutoGenerator {
   private addTable(table: string) {
 
     const [schemaName, tableNameOrig] = qNameSplit(table);
-    const tableName = recase(this.options.caseModel, tableNameOrig, this.options.singularize);
     const space = this.space;
     let timestamps = (this.options.additional && this.options.additional.timestamps === true) || false;
     let paranoid = (this.options.additional && this.options.additional.paranoid === true) || false;

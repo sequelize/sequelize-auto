@@ -3,7 +3,7 @@ import _ from "lodash";
 import path from "path";
 import util from "util";
 import { FKSpec, TableData } from ".";
-import { AutoOptions, CaseFileOption, CaseOption, LangOption, pluralize, qNameSplit, recase, Relation } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, LangOption, makeTableName, pluralize, qNameSplit, recase, Relation } from "./types";
 const mkdirp = require('mkdirp');
 
 /** Writes text into files from TableData.text, and writes init-models */
@@ -72,8 +72,6 @@ export class AutoWriter {
         return this.createTsInitString(tableNames, assoc);
       case 'esm':
         return this.createESMInitString(tableNames, assoc);
-      case 'esmd':
-          return this.createESMDInitString(tableNames, assoc);
       case 'es6':
           return this.createES5InitString(tableNames, assoc, "const");
       default:
@@ -127,7 +125,7 @@ export class AutoWriter {
     // import statements
     tables.forEach(t => {
       const fileName = recase(this.options.caseFile, t, this.options.singularize);
-      const modelName = recase(this.options.caseModel, t, this.options.singularize);
+      const modelName = makeTableName(this.options.caseModel, t, this.options.singularize, this.options.lang);
       modelNames.push(modelName);
       str += `import { ${modelName} as _${modelName} } from "./${fileName}";\n`;
       str += `import type { ${modelName}Attributes, ${modelName}CreationAttributes } from "./${fileName}";\n`;
@@ -174,7 +172,7 @@ export class AutoWriter {
     // import statements
     tables.forEach(t => {
       const fileName = recase(this.options.caseFile, t, this.options.singularize);
-      const modelName = recase(this.options.caseModel, t, this.options.singularize);
+      const modelName = makeTableName(this.options.caseModel, t, this.options.singularize, this.options.lang);
       modelNames.push(modelName);
       str += `${vardef} _${modelName} = require("./${fileName}");\n`;
     });
@@ -200,34 +198,7 @@ export class AutoWriter {
     str += 'module.exports.default = initModels;\n';
     return str;
   }
-  // create the ES6 init-models file to load all the models (with define-syntax instead of classes) into Sequelize
-  createESMDInitString(tables: string[], assoc: string) {
-    let str = 'import _sequelize from "sequelize";\n';
-    str += 'const DataTypes = _sequelize.DataTypes;\n';
-    const modelNames: string[] = [];
-    // import statements
-    tables.forEach(t => {
-      const fileName = recase(this.options.caseFile, t, this.options.singularize);
-      const modelName = recase(this.options.caseModel, t, this.options.singularize);
-      modelNames.push(modelName);
-      str += `import _${modelName} from  "./${fileName}.js";\n`;
-    });
-    // create the initialization function
-    str += '\nexport default function initModels(sequelize) {\n';
-    modelNames.forEach(m => {
-        str += `  const ${m} = _${m}(sequelize, DataTypes);\n`;
-    });
-    // add the asociations
-    str += "\n" + assoc;
-    // return the models
-    str += "\n  return {\n";
-    modelNames.forEach(m => {
-        str += `    ${m},\n`;
-    });
-    str += '  };\n';
-    str += '}\n';
-    return str;
-  }
+
   // create the ESM init-models file to load all the models into Sequelize
   private createESMInitString(tables: string[], assoc: string) {
     let str = 'import _sequelize from "sequelize";\n';
@@ -236,18 +207,17 @@ export class AutoWriter {
     // import statements
     tables.forEach(t => {
       const fileName = recase(this.options.caseFile, t, this.options.singularize);
-      const modelName = recase(this.options.caseModel, t, this.options.singularize);
+      const modelName = makeTableName(this.options.caseModel, t, this.options.singularize, this.options.lang);
       modelNames.push(modelName);
       str += `import _${modelName} from  "./${fileName}.js";\n`;
     });
-
     // create the initialization function
     str += '\nexport default function initModels(sequelize) {\n';
     modelNames.forEach(m => {
       str += `  const ${m} = _${m}.init(sequelize, DataTypes);\n`;
     });
 
-    // add the asociations
+    // add the associations
     str += "\n" + assoc;
 
     // return the models
