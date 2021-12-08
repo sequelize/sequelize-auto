@@ -398,7 +398,7 @@ export class AutoGenerator {
 
         str += space[3] + attr + ": " + val_text;
 
-      } else if (attr === "comment" && !fieldObj[attr]) {
+      } else if (attr === "comment" && (!fieldObj[attr] || this.dialect.name === "mssql")) {
         return true;
       } else {
         let val = (attr !== "type") ? null : this.getSqType(fieldObj, attr);
