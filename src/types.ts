@@ -237,3 +237,15 @@ export function makeTableName(opt: CaseOption | undefined, tableNameOrig: string
   return name;
 }
 
+/** build the array of indentation strings */
+export function makeIndent(spaces: boolean | undefined, indent: number | undefined): string[] {
+  let sp = '';
+  for (let x = 0; x < (indent || 2); ++x) {
+    sp += (spaces === true ? ' ' : "\t");
+  }
+  let space = [];
+  for (let i = 0; i < 6; i++) {
+    space[i] = sp.repeat(i);
+  }
+  return space;
+}

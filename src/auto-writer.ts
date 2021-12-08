@@ -3,7 +3,7 @@ import _ from "lodash";
 import path from "path";
 import util from "util";
 import { FKSpec, TableData } from ".";
-import { AutoOptions, CaseFileOption, CaseOption, LangOption, makeTableName, pluralize, qNameSplit, recase, Relation } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, LangOption, makeIndent, makeTableName, pluralize, qNameSplit, recase, Relation } from "./types";
 const mkdirp = require('mkdirp');
 
 /** Writes text into files from TableData.text, and writes init-models */
@@ -11,6 +11,7 @@ export class AutoWriter {
   tableText: { [name: string]: string };
   foreignKeys: { [tableName: string]: { [fieldName: string]: FKSpec } };
   relations: Relation[];
+  space: string[];
   options: {
     caseFile?: CaseFileOption;
     caseModel?: CaseOption;
@@ -22,12 +23,15 @@ export class AutoWriter {
     noWrite?: boolean;
     singularize?: boolean;
     useDefine?: boolean;
+    spaces?: boolean;
+    indentation?: number;
   };
   constructor(tableData: TableData, options: AutoOptions) {
     this.tableText = tableData.text as { [name: string]: string };
     this.foreignKeys = tableData.foreignKeys;
     this.relations = tableData.relations;
     this.options = options;
+    this.space = makeIndent(this.options.spaces, this.options.indentation);
   }
 
   write() {
@@ -94,23 +98,24 @@ export class AutoWriter {
   private createAssociations(typeScript: boolean) {
     let strBelongs = "";
     let strBelongsToMany = "";
+    const sp = this.space[1];
 
     const rels = this.relations;
     rels.forEach(rel => {
       if (rel.isM2M) {
         const asprop = recase(this.options.caseProp, pluralize(rel.childProp));
-        strBelongsToMany += `  ${rel.parentModel}.belongsToMany(${rel.childModel}, { as: '${asprop}', through: ${rel.joinModel}, foreignKey: "${rel.parentId}", otherKey: "${rel.childId}" });\n`;
+        strBelongsToMany += `${sp}${rel.parentModel}.belongsToMany(${rel.childModel}, { as: '${asprop}', through: ${rel.joinModel}, foreignKey: "${rel.parentId}", otherKey: "${rel.childId}" });\n`;
       } else {
         // const bAlias = (this.options.noAlias && rel.parentModel.toLowerCase() === rel.parentProp.toLowerCase()) ? '' : `as: "${rel.parentProp}", `;
         const asParentProp = recase(this.options.caseProp, rel.parentProp);
         const bAlias = this.options.noAlias ? '' : `as: "${asParentProp}", `;
-        strBelongs += `  ${rel.childModel}.belongsTo(${rel.parentModel}, { ${bAlias}foreignKey: "${rel.parentId}"});\n`;
+        strBelongs += `${sp}${rel.childModel}.belongsTo(${rel.parentModel}, { ${bAlias}foreignKey: "${rel.parentId}"});\n`;
 
         const hasRel = rel.isOne ? "hasOne" : "hasMany";
         // const hAlias = (this.options.noAlias && Utils.pluralize(rel.childModel.toLowerCase()) === rel.childProp.toLowerCase()) ? '' : `as: "${rel.childProp}", `;
         const asChildProp = recase(this.options.caseProp, rel.childProp);
         const hAlias = this.options.noAlias ? '' : `as: "${asChildProp}", `;
-        strBelongs += `  ${rel.parentModel}.${hasRel}(${rel.childModel}, { ${hAlias}foreignKey: "${rel.parentId}"});\n`;
+        strBelongs += `${sp}${rel.parentModel}.${hasRel}(${rel.childModel}, { ${hAlias}foreignKey: "${rel.parentId}"});\n`;
       }
     });
 
@@ -121,6 +126,7 @@ export class AutoWriter {
   // create the TypeScript init-models file to load all the models into Sequelize
   private createTsInitString(tables: string[], assoc: string) {
     let str = 'import type { Sequelize } from "sequelize";\n';
+    const sp = this.space[1];
     const modelNames: string[] = [];
     // import statements
     tables.forEach(t => {
@@ -133,33 +139,33 @@ export class AutoWriter {
     // re-export the model classes
     str += '\nexport {\n';
     modelNames.forEach(m => {
-      str += ` _${m} as ${m},\n`;
+      str += `${sp}_${m} as ${m},\n`;
     });
     str += '};\n';
 
     // re-export the model attirbutes
     str += '\nexport type {\n';
     modelNames.forEach(m => {
-      str += `  ${m}Attributes,\n`;
-      str += `  ${m}CreationAttributes,\n`;
+      str += `${sp}${m}Attributes,\n`;
+      str += `${sp}${m}CreationAttributes,\n`;
     });
     str += '};\n\n';
 
     // create the initialization function
     str += 'export function initModels(sequelize: Sequelize) {\n';
     modelNames.forEach(m => {
-      str += `  const ${m} = _${m}.initModel(sequelize);\n`;
+      str += `${sp}const ${m} = _${m}.initModel(sequelize);\n`;
     });
 
     // add the asociations
     str += "\n" + assoc;
 
     // return the models
-    str += "\n  return {\n";
+    str += `\n${sp}return {\n`;
     modelNames.forEach(m => {
-      str += `    ${m}: ${m},\n`;
+      str += `${this.space[2]}${m}: ${m},\n`;
     });
-    str += '  };\n';
+    str += `${sp}};\n`;
     str += '}\n';
 
     return str;
@@ -168,6 +174,7 @@ export class AutoWriter {
   // create the ES5 init-models file to load all the models into Sequelize
   private createES5InitString(tables: string[], assoc: string, vardef: string) {
     let str = `${vardef} DataTypes = require("sequelize").DataTypes;\n`;
+    const sp = this.space[1];
     const modelNames: string[] = [];
     // import statements
     tables.forEach(t => {
@@ -180,18 +187,18 @@ export class AutoWriter {
     // create the initialization function
     str += '\nfunction initModels(sequelize) {\n';
     modelNames.forEach(m => {
-      str += `  ${vardef} ${m} = _${m}(sequelize, DataTypes);\n`;
+      str += `${sp}${vardef} ${m} = _${m}(sequelize, DataTypes);\n`;
     });
 
     // add the asociations
     str += "\n" + assoc;
 
     // return the models
-    str += "\n  return {\n";
+    str += `\n${sp}return {\n`;
     modelNames.forEach(m => {
-      str += `    ${m},\n`;
+      str += `${this.space[2]}${m},\n`;
     });
-    str += '  };\n';
+    str += `${sp}};\n`;
     str += '}\n';
     str += 'module.exports = initModels;\n';
     str += 'module.exports.initModels = initModels;\n';
@@ -203,6 +210,7 @@ export class AutoWriter {
   private createESMInitString(tables: string[], assoc: string) {
     let str = 'import _sequelize from "sequelize";\n';
     str += 'const DataTypes = _sequelize.DataTypes;\n';
+    const sp = this.space[1];
     const modelNames: string[] = [];
     // import statements
     tables.forEach(t => {
@@ -214,18 +222,18 @@ export class AutoWriter {
     // create the initialization function
     str += '\nexport default function initModels(sequelize) {\n';
     modelNames.forEach(m => {
-      str += `  const ${m} = _${m}.init(sequelize, DataTypes);\n`;
+      str += `${sp}const ${m} = _${m}.init(sequelize, DataTypes);\n`;
     });
 
     // add the associations
     str += "\n" + assoc;
 
     // return the models
-    str += "\n  return {\n";
+    str += `\n${sp}return {\n`;
     modelNames.forEach(m => {
-      str += `    ${m},\n`;
+      str += `${this.space[2]}${m},\n`;
     });
-    str += '  };\n';
+    str += `${sp}};\n`;
     str += '}\n';
     return str;
   }

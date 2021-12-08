@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseFileOption, CaseOption, Field, IndexSpec, LangOption, makeTableName, pluralize, qNameJoin, qNameSplit, recase, Relation, singularize, TableData, TSField } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, Field, IndexSpec, LangOption, makeIndent, makeTableName, pluralize, qNameJoin, qNameSplit, recase, Relation, singularize, TableData, TSField } from "./types";
 
 /** Generates text from each table in TableData */
 export class AutoGenerator {
@@ -35,16 +35,7 @@ export class AutoGenerator {
     this.dialect = dialect;
     this.options = options;
     this.options.lang = this.options.lang || 'es5';
-
-    // build the space array of indentation strings
-    let sp = '';
-    for (let x = 0; x < (this.options.indentation || 2); ++x) {
-      sp += (this.options.spaces === true ? ' ' : "\t");
-    }
-    this.space = [];
-    for (let i = 0; i < 6; i++) {
-      this.space[i] = sp.repeat(i);
-    }
+    this.space = makeIndent(this.options.spaces, this.options.indentation);
   }
 
   makeHeaderTemplate() {
@@ -132,7 +123,7 @@ export class AutoGenerator {
         str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize.Sequelize): typeof #TABLE# {\n";
 
         if (this.options.useDefine) {
-          str += this.space[2] + "return sequelize.define('#TABLE#',{\n";
+          str += this.space[2] + "return sequelize.define('#TABLE#', {\n";
 
         } else {
           str += this.space[2] + "return #TABLE#.init({\n";

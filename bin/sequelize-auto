@@ -55,6 +55,10 @@ const argv = require('yargs')
     type: 'string',
     alias: 'a'
   })
+  .option('indentation', {
+    description: 'Number of spaces to indent',
+    type: 'number'
+  })
   .option('tables', {
     description: 'Space-separated names of tables to import',
     array: true,
@@ -210,6 +214,7 @@ async function readPassword() {
   configFile.password = password || configFile.password || null;
   configFile.username = argv.user || configFile.username;
   configFile.useDefine = argv.useDefine || configFile.useDefine || false;
+  configFile.indentation = argv.indentation || configFile.indentation || 2;
 
   console.log(_.omit(configFile, 'password'));
 

@@ -51,6 +51,7 @@ Options:
 -a, --additional         Path to JSON file containing model options (for all
                           tables). See the options: https://sequelize.org/master/class/lib/model.js~Model.html#static-method-init
                                                                       [string]
+    --indentation        Number of spaces to indent                   [number]
 -t, --tables             Space-separated names of tables to import     [array]
 -T, --skipTables         Space-separated names of tables to skip       [array]
 --caseModel, --cm        Set case of model names: c|l|o|p|u
