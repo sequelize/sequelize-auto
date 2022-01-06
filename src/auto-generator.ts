@@ -366,7 +366,7 @@ export class AutoGenerator {
             val_text = "Sequelize.Sequelize.fn('" + defaultVal.replace(/\(\)$/g, "") + "')";
 
           } else if (this.isNumber(field_type)) {
-            if (defaultVal.match(/\(\)/g)) {
+            if (defaultVal.match(/\([\w ]*\)/g)) {
               // assume it's a server function if it contains parens
               val_text = "Sequelize.Sequelize.literal('" + defaultVal + "')";
             } else {
@@ -374,7 +374,7 @@ export class AutoGenerator {
               val_text = defaultVal;
             }
 
-          } else if (defaultVal.match(/\(\)/g)) {
+          } else if (defaultVal.match(/\([\w ]*\)/g)) {
             // embedded function, pass as literal
             val_text = "Sequelize.Sequelize.literal('" + defaultVal + "')";
 
