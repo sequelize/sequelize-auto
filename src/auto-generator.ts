@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { ColumnDescription } from "sequelize/types";
+import { ColumnDescription, DataTypes } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
 import { AutoOptions, CaseFileOption, CaseOption, Field, IndexSpec, LangOption, makeIndent, makeTableName, pluralize, qNameJoin, qNameSplit, recase, Relation, singularize, TableData, TSField } from "./types";
 
@@ -361,7 +361,10 @@ export class AutoGenerator {
           } else if (field_type === 'uuid' && (defaultVal === 'gen_random_uuid()' || defaultVal === 'uuid_generate_v4()')) {
             val_text = "DataTypes.UUIDV4";
 
-          } else if (defaultVal.match(/\w+\(\)$/)) {
+          } else if(defaultVal === 'uuidv4') {
+            val_text = "DataTypes.UUIDV4"
+          }
+          else if (defaultVal.match(/\w+\(\)$/)) {
             // replace db function with sequelize function
             val_text = "Sequelize.Sequelize.fn('" + defaultVal.replace(/\(\)$/g, "") + "')";
 
