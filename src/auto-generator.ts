@@ -361,9 +361,9 @@ export class AutoGenerator {
           } else if (field_type === 'uuid' && (defaultVal === 'gen_random_uuid()' || defaultVal === 'uuid_generate_v4()')) {
             val_text = "DataTypes.UUIDV4";
 
-          } else if(attr === "primaryKey") {
-            val_text = "DataTypes.UUIDV4";
-            field_type = "DataTypes.UUID";
+          } else if(fieldName === "ID") {
+            val_text = "DataTypes.UUID";
+            defaultVal = "DataTypes.UUIDV4";
           }
           else if (defaultVal.match(/\w+\(\)$/)) {
             // replace db function with sequelize function
