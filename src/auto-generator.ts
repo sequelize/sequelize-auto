@@ -113,12 +113,12 @@ export class AutoGenerator {
 
         if (creationOptionalFields.length) {
           str += `export type #TABLE#OptionalAttributes = ${creationOptionalFields.map((k) => `"${recase(this.options.caseProp, k)}"`).join(' | ')};\n`;
-          str += "export type #TABLE#CreationAttributes = Optional<#TABLE#Attributes, #TABLE#OptionalAttributes>;\n\n";
+          str += "export type #TABLE#CreationAttributes = Omit<#TABLE#Attributes, #TABLE#OptionalAttributes>;\n\n";
         } else {
           str += "export type #TABLE#CreationAttributes = #TABLE#Attributes;\n\n";
         }
 
-        str += "export class #TABLE# extends Model<#TABLE#Attributes, #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
+        str += "export class #TABLE# extends Model<#TABLE#Attributes | #TABLE#CreationAttributes> implements #TABLE#Attributes {\n";
         str += this.addTypeScriptFields(table, false);
         str += "\n" + associations.str;
         str += "\n" + this.space[1] + "static initModel(sequelize: Sequelize.Sequelize): typeof #TABLE# {\n";
