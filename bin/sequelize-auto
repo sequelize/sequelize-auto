@@ -222,6 +222,7 @@ async function readPassword() {
   configFile.caseModel = argv.caseModel || configFile.caseModel || 'o';
   configFile.caseModelPrefix = argv.caseModelPrefix || configFile.caseModelPrefix || '';
   configFile.caseModelSuffix = argv.caseModelSuffix || configFile.caseModelSuffix || '';
+  configFile.retainStandardFields = argv.retainStandardFields || configFile.retainStandardFields || '';
   configFile.caseFile = argv.caseFile || configFile.caseFile || 'o';
   configFile.caseProp = argv.caseProp || configFile.caseProp || 'o';
   configFile.noAlias = argv.noAlias || configFile.noAlias || false;
