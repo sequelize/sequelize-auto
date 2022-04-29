@@ -19,6 +19,8 @@ export class AutoGenerator {
     caseModel?: CaseOption;
     caseModelPrefix?: string;
     caseModelSuffix?: string;
+    // retain Sequelize standard fields
+    retainStandardFields?: boolean;
     caseProp?: CaseOption;
     caseFile?: CaseFileOption;
     skipFields?: string[];
@@ -239,7 +241,7 @@ export class AutoGenerator {
 
     // ignore Sequelize standard fields
     const additional = this.options.additional;
-    if (additional && (additional.timestamps !== false) && (this.isTimestampField(field) || this.isParanoidField(field))) {
+    if (this.options.retainStandardFields && additional && (additional.timestamps !== false) && (this.isTimestampField(field) || this.isParanoidField(field))) {
       return '';
     }
 
