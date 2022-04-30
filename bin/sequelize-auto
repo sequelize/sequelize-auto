@@ -96,7 +96,8 @@ const argv = require('yargs')
   })
   .option('retainStandardFields', {
     description: 'Set Retain Sequelize standard fields',
-    alias: 'rsf'
+    alias: 'rsf',
+    type: 'boolean'
   })
   .option('caseProp', {
     description: 'Set case of property names: c|l|o|p|u',
