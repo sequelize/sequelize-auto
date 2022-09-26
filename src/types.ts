@@ -111,23 +111,23 @@ export function qNameJoin(schema: string | undefined, table: string | undefined)
 export declare type LangOption = "es5" | "es6" | "esm" | "ts";
 
 /** "c" camelCase |
- * "l" lower_case (Snake Case) |
- * "bl" lower_case (Basic) |
+ * "l" lower_case |
+ * "bl" lowercase |
  * "o" original (db) |
  * "p" PascalCase |
- * "u" UPPER_CASE (Snake Case) |
- * "bu" UPPER_CASE (Basic) */
+ * "u" UPPER_CASE |
+ * "bu" UPPERCASE*/
 export declare type CaseOption = "c" | "l" | "o" | "p" | "u" | "bu" | "bl";
 
 /**
  * "c" camelCase |
  * "k" kebab-case |
- * "l" lower_case (Snake Case) |
- * "bl" lower_case (Basic) |
+ * "l" lower_case |
+ * "bl" lowercase |
  * "o" original (db) |
  * "p" PascalCase |
- * "u" UPPER_CASE (Snake Case) |
- * "bu" UPPER_CASE (Basic)
+ * "u" UPPER_CASE |
+ * "bu" UPPERCASE
  */
 export declare type CaseFileOption = "k" | CaseOption;
 
