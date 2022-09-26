@@ -111,19 +111,23 @@ export function qNameJoin(schema: string | undefined, table: string | undefined)
 export declare type LangOption = "es5" | "es6" | "esm" | "ts";
 
 /** "c" camelCase |
- * "l" lower_case |
+ * "l" lower_case (Snake Case) |
+ * "bl" lower_case (Basic) |
  * "o" original (db) |
  * "p" PascalCase |
- * "u" UPPER_CASE */
-export declare type CaseOption = "c" | "l" | "o" | "p" | "u";
+ * "u" UPPER_CASE (Snake Case) |
+ * "bu" UPPER_CASE (Basic) */
+export declare type CaseOption = "c" | "l" | "o" | "p" | "u" | "bu" | "bl";
 
 /**
  * "c" camelCase |
  * "k" kebab-case |
- * "l" lower_case |
+ * "l" lower_case (Snake Case) |
+ * "bl" lower_case (Basic) |
  * "o" original (db) |
  * "p" PascalCase |
- * "u" UPPER_CASE
+ * "u" UPPER_CASE (Snake Case) |
+ * "bu" UPPER_CASE (Basic)
  */
 export declare type CaseFileOption = "k" | CaseOption;
 
@@ -221,11 +225,17 @@ export function recase(opt: CaseOption | CaseFileOption | undefined, val: string
   if (opt === 'l') {
     return _.snakeCase(val);
   }
+  if (opt === 'bl') {
+    return String(val).toLowerCase();
+  }
   if (opt === 'p') {
     return _.upperFirst(_.camelCase(val));
   }
   if (opt === 'u') {
     return _.snakeCase(val).toUpperCase();
+  }
+  if (opt === 'bu') {
+    return String(val).toUpperCase();
   }
   return val;
 }
