@@ -56,12 +56,12 @@ Options:
 -T, --skipTables         Space-separated names of tables to skip       [array]
 --caseModel, --cm        Set case of model names: c|l|bl|o|p|u|bu
                           c = camelCase
-                          l = lower_case (Snake Case)
-                          bl = lower_case (Basic)
+                          l = lower_case
+                          bl = lowercase
                           o = original (default)
                           p = PascalCase
-                          u = UPPER_CASE (Snake Case)
-                          bu = UPPER_CASE (Basic)
+                          u = UPPER_CASE
+                          bu = UPPERCASE
 --caseProp, --cp         Set case of property names: c|l|bl|o|p|u|bu
 --caseFile, --cf         Set case of file names: c|l|bl|o|p|u|bu|k
                           k = kebab-case
