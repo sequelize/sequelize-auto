@@ -77,7 +77,7 @@ export class AutoWriter {
       case 'esm':
         return this.createESMInitString(tableNames, assoc);
       case 'es6':
-          return this.createES5InitString(tableNames, assoc, "const");
+        return this.createES5InitString(tableNames, assoc, "const");
       default:
         return this.createES5InitString(tableNames, assoc, "var");
     }
@@ -104,7 +104,7 @@ export class AutoWriter {
     rels.forEach(rel => {
       if (rel.isM2M) {
         const asprop = recase(this.options.caseProp, pluralize(rel.childProp));
-        strBelongsToMany += `${sp}${rel.parentModel}.belongsToMany(${rel.childModel}, { as: '${asprop}', through: ${rel.joinModel}, foreignKey: "${rel.parentId}", otherKey: "${rel.childId}" });\n`;
+        strBelongsToMany += `${sp}${rel.parentModel}.belongsToMany(${rel.childModel}, { ${this.options.noAlias ? '' : `as: '${asprop}',`} through: ${rel.joinModel}, foreignKey: "${rel.parentId}", otherKey: "${rel.childId}" });\n`;
       } else {
         // const bAlias = (this.options.noAlias && rel.parentModel.toLowerCase() === rel.parentProp.toLowerCase()) ? '' : `as: "${rel.parentProp}", `;
         const asParentProp = recase(this.options.caseProp, rel.parentProp);
