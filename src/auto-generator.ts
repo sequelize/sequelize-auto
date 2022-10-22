@@ -324,6 +324,10 @@ export class AutoGenerator {
           defaultVal = null as any; // Override default NULL in MS SQL to javascript null
         }
 
+        if (defaultVal === "NULL") {
+          defaultVal = null as any;
+        }
+
         if (defaultVal === null || defaultVal === undefined) {
           return true;
         }
