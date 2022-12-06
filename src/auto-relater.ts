@@ -2,7 +2,7 @@
 import _ from "lodash";
 import { AutoOptions } from ".";
 import { FKSpec } from "./dialects/dialect-options";
-import { CaseOption, qNameJoin, qNameSplit, recase, Relation, TableData, singularize, pluralize } from "./types";
+import { CaseOption, qNameJoin, qNameSplit, recase, Relation, TableData, singularize, pluralize, modelBaseName } from "./types";
 
 /** Constructs entity relationships from TableData.foreignKeys and populates TableData.relations */
 export class AutoRelater {
@@ -10,6 +10,8 @@ export class AutoRelater {
   caseProp: CaseOption;
   singularize: boolean;
   pkSuffixes: string[];
+  prependSchema: boolean;
+  prependSchemaExclude: string[];
 
   relations: Relation[];
   private usedChildNames: Set<string>;
@@ -19,6 +21,8 @@ export class AutoRelater {
     this.caseProp = options.caseProp || 'o';
     this.singularize = options.singularize;
     this.pkSuffixes = options.pkSuffixes || [];
+    this.prependSchema = options.prependSchema || false;
+    this.prependSchemaExclude = options.prependSchemaExclude || [];
 
     if (!this.pkSuffixes || this.pkSuffixes.length == 0){
       this.pkSuffixes = ["id"];
@@ -52,9 +56,9 @@ export class AutoRelater {
 
     const [schemaName, tableName] = qNameSplit(table);
     const schema = schemaName as string;
-    const modelName = recase(this.caseModel, tableName, this.singularize);
+    const modelName = recase(this.caseModel, modelBaseName(table, this), this.singularize);
 
-    const targetModel = recase(this.caseModel, spec.foreignSources.target_table as string, this.singularize);
+    const targetModel = recase(this.caseModel, modelBaseName([spec.foreignSources.target_schema, spec.foreignSources.target_table as string], this), this.singularize);
     const alias = this.getAlias(fkFieldName, spec.foreignSources.target_table as string, spec.foreignSources.source_table as string);
     const childAlias = this.getChildAlias(fkFieldName, spec.foreignSources.source_table as string, spec.foreignSources.target_table as string);
     const sourceProp = recase(this.caseProp, fkFieldName);
@@ -80,7 +84,7 @@ export class AutoRelater {
       const otherKeys = _.filter(fkFields, k => k.isForeignKey && k.isPrimaryKey && k.source_column !== fkFieldName);
       if (otherKeys.length === 1) {
         const otherKey = otherKeys[0];
-        const otherModel = recase(this.caseModel, otherKey.foreignSources.target_table as string, this.singularize);
+        const otherModel = recase(this.caseModel, modelBaseName([otherKey.foreignSources.target_schema, otherKey.foreignSources.target_table as string], this), this.singularize);
         const otherProp = this.getAlias(otherKey.source_column, otherKey.foreignSources.target_table as string, otherKey.foreignSources.source_table as string, true);
         const otherId = recase(this.caseProp, otherKey.source_column);
 
