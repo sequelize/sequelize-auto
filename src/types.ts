@@ -163,6 +163,10 @@ export interface AutoOptions {
   password?: string;
   /** Database port */
   port?: number;
+  /** Prepend schema to file/class/types */
+  prependSchema?: boolean;
+  /** Schemas to not prepend */
+  prependSchemaExclude: string[];
   /** Database schema to export */
   schema?: string;
   /** Whether to singularize model names */
