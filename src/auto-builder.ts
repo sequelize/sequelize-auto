@@ -211,7 +211,10 @@ export class AutoBuilder {
     if(uniqueIndex) {
       const indexColumnName = uniqueIndex.fields[0].attribute.toLowerCase();
       const fieldName = _.keys(fields).find(f => f.toLowerCase() === indexColumnName);
-      return fieldName && fields[fieldName];
+      const field =  fieldName && fields[fieldName];
+      if(field && !field.allowNull) {
+        return field;
+      }
     }
   }
 

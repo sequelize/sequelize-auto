@@ -66,7 +66,7 @@ module.exports = {
         });
 
         test.ParanoidUser = test.sequelize.define('ParanoidUser', {
-            username: { type: Sequelize.STRING, unique: true }
+            username: { type: Sequelize.STRING, unique: true, allowNull: false }
           },
           {
             paranoid: true,
