@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Dialect, QueryInterface, QueryTypes, Sequelize } from "sequelize";
 import { AutoOptions } from ".";
 import { ColumnElementType, ColumnPrecision, DialectOptions, FKRow, FKSpec, TriggerCount } from "./dialects/dialect-options";
-import { dialects } from "./dialects/dialects";
+import { getDialect } from "./dialects/dialects";
 import { Field, IndexSpec, Table, TableData } from "./types";
 
 /** Queries the database and builds the tables, foreignKeys, indexes, and hasTriggerTables structures in TableData  */
@@ -19,7 +19,7 @@ export class AutoBuilder {
   constructor(sequelize: Sequelize, options: AutoOptions) {
     this.sequelize = sequelize;
     this.queryInterface = this.sequelize.getQueryInterface();
-    this.dialect = dialects[this.sequelize.getDialect() as Dialect];
+    this.dialect = getDialect(this.sequelize.getDialect() as Dialect);
     this.includeTables = options.tables;
     this.skipTables = options.skipTables;
     this.schema = options.schema;
