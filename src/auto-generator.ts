@@ -368,7 +368,7 @@ export class AutoGenerator {
           } else if (this.isNumber(field_type)) {
             if (defaultVal.match(/\(\)/g)) {
               // assume it's a server function if it contains parens
-              val_text = "Sequelize.Sequelize.literal('" + defaultVal + "')";
+              val_text = 'Sequelize.Sequelize.literal("' + defaultVal + '")';
             } else {
               // don't quote numbers
               val_text = defaultVal;
