@@ -376,7 +376,7 @@ export class AutoGenerator {
 
           } else if (defaultVal.match(/\(\)/g)) {
             // embedded function, pass as literal
-              val_text = 'Sequelize.Sequelize.literal("' + defaultVal + '")';
+            val_text = 'Sequelize.Sequelize.literal("' + defaultVal + '")';
 
           } else if (field_type.indexOf('date') === 0 || field_type.indexOf('timestamp') === 0) {
             if (_.includes(['current_timestamp', 'current_date', 'current_time', 'localtime', 'localtimestamp'], defaultVal.toLowerCase())) {
