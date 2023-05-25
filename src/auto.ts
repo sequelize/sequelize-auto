@@ -5,7 +5,7 @@ import { AutoBuilder } from "./auto-builder";
 import { AutoGenerator } from "./auto-generator";
 import { AutoRelater } from "./auto-relater";
 import { AutoWriter } from "./auto-writer";
-import { dialects } from "./dialects/dialects";
+import { getDialect } from "./dialects/dialects";
 import { AutoOptions, TableData } from "./types";
 
 export class SequelizeAuto {
@@ -72,7 +72,7 @@ export class SequelizeAuto {
   }
 
   generate(tableData: TableData) {
-    const dialect = dialects[this.sequelize.getDialect() as Dialect];
+    const dialect = getDialect(this.sequelize.getDialect() as Dialect);
     const generator = new AutoGenerator(tableData, dialect, this.options);
     return generator.generateText();
   }
