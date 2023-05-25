@@ -368,7 +368,7 @@ export class AutoGenerator {
           } else if (this.isNumber(field_type)) {
             if (defaultVal.match(/\(\)/g)) {
               // assume it's a server function if it contains parens
-              val_text = "Sequelize.Sequelize.literal('" + defaultVal + "')";
+              val_text = 'Sequelize.Sequelize.literal("' + defaultVal + '")';
             } else {
               // don't quote numbers
               val_text = defaultVal;
@@ -376,11 +376,11 @@ export class AutoGenerator {
 
           } else if (defaultVal.match(/\(\)/g)) {
             // embedded function, pass as literal
-            val_text = "Sequelize.Sequelize.literal('" + defaultVal + "')";
+            val_text = 'Sequelize.Sequelize.literal("' + defaultVal + '")';
 
           } else if (field_type.indexOf('date') === 0 || field_type.indexOf('timestamp') === 0) {
             if (_.includes(['current_timestamp', 'current_date', 'current_time', 'localtime', 'localtimestamp'], defaultVal.toLowerCase())) {
-              val_text = "Sequelize.Sequelize.literal('" + defaultVal + "')";
+              val_text = 'Sequelize.Sequelize.literal("' + defaultVal + '")';
             } else {
               val_text = quoteWrapper + defaultVal + quoteWrapper;
             }
