@@ -66,7 +66,7 @@ module.exports = {
         });
 
         test.ParanoidUser = test.sequelize.define('ParanoidUser', {
-            username: { type: Sequelize.STRING }
+            username: { type: Sequelize.STRING, unique: true, allowNull: false }
           },
           {
             paranoid: true,
@@ -74,6 +74,7 @@ module.exports = {
           }
         );
 
+        test.ParanoidUser.removeAttribute('id');
         test.ParanoidUser.belongsTo(test.User);
 
         // test data for relationships across schemas

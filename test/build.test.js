@@ -37,8 +37,9 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
 
     auto.build().then(tableData => {
       callback(tableData);
-    }).finally(() => {
       done();
+    }).catch((e) => {
+      done(e);
     })
   }
 
@@ -70,6 +71,9 @@ describe(helpers.getTestDialectTeaser("sequelize-auto build"), function() {
         const fkParanoidUsers = foreignKeys[isSnakeTables ? 'paranoid_users': 'ParanoidUsers'];
         const fkParents = foreignKeys[isSnakeTables ? 'parents': 'Parents'];
         const fkKids = foreignKeys[isSnakeTables ? 'kids': 'Kids'];
+
+        const paranoidPkColumn = tables[isSnakeTables ? 'paranoid_users': 'ParanoidUsers'].username;
+        expect(paranoidPkColumn.primaryKey).to.equal(true);
 
         if (helpers.getTestDialect() === "sqlite") {
           expect(foreignKeys).to.have.keys(['Kids', 'Parents', 'ParanoidUsers']);

@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { Dialect, QueryInterface, QueryTypes, Sequelize } from "sequelize";
+import { ColumnsDescription, Dialect, QueryInterface, QueryTypes, Sequelize } from 'sequelize';
 import { AutoOptions } from ".";
 import { ColumnElementType, ColumnPrecision, DialectOptions, FKRow, FKSpec, TriggerCount } from "./dialects/dialect-options";
 import { dialects } from "./dialects/dialects";
@@ -187,12 +187,11 @@ export class AutoBuilder {
       this.tableData.indexes[makeTableQName(table)] = await this.queryInterface.showIndex(
         { tableName: table.table_name, schema: table.table_schema }) as IndexSpec[];
 
-      // if there is no primaryKey, and `id` field exists, then make id the primaryKey (#480)
+      // if there is no primaryKey, and a single column unique index exists, or an `id` field exists, then make that field the primaryKey (#480)
       if (!_.some(fields, { primaryKey: true })) {
-        const idname = _.keys(fields).find(f => f.toLowerCase() === 'id');
-        const idfield = idname && fields[idname];
-        if (idfield) {
-          idfield.primaryKey = true;
+        const pkField = this.getUniqueIndexField(fields, this.tableData.indexes[makeTableQName(table)]) || this.getIdField(fields);
+        if (pkField) {
+          pkField.primaryKey = true;
         }
       }
 
@@ -205,6 +204,24 @@ export class AutoBuilder {
     } catch (err) {
       console.error(err);
     }
+  }
+
+  private getUniqueIndexField(fields: ColumnsDescription, tableIndexes: IndexSpec[]) {
+    const uniqueIndex = tableIndexes.find(index => index.unique && index.fields.length === 1 );
+    if(uniqueIndex) {
+      const indexColumnName = uniqueIndex.fields[0].attribute.toLowerCase();
+      const fieldName = _.keys(fields).find(f => f.toLowerCase() === indexColumnName);
+      const field =  fieldName && fields[fieldName];
+      if(field && !field.allowNull) {
+        return field;
+      }
+    }
+  }
+
+
+  private getIdField(fields: ColumnsDescription) {
+    const idname = _.keys(fields).find(f => f.toLowerCase() === 'id');
+   return idname && fields[idname];
   }
 
   private executeQuery<T>(query: string): Promise<T[]> {
