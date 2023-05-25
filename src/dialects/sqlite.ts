@@ -51,6 +51,18 @@ export const sqliteOptions: DialectOptions = {
              WHERE type = 'trigger'
                AND tbl_name = ${addTicks(tableName)}`;
   },
+
+  /**
+   * Determines if record entry from the getForeignKeysQuery
+   * results is an actual foreign key
+   *
+   * @param {Object} record The row entry from getForeignKeysQuery
+   * @return {Bool}
+   */
+  isForeignKey: (record: FKRow) => {
+    return _.isObject(record) && _.has(record, 'foreignKey');
+  },
+
   /**
    * Determines if record entry from the getForeignKeysQuery
    * results is an actual primary key
@@ -71,7 +83,7 @@ export const sqliteOptions: DialectOptions = {
    */
   isSerialKey: (record: FKRow) => {
     return (
-      _.isObject(record) && sqliteOptions.isPrimaryKey(record) && (!!record.type && record.type.toUpperCase() === 'INTEGER')
+      _.isObject(record) && sqliteOptions.isPrimaryKey(record) && !sqliteOptions.isForeignKey?.(record) && (!!record.type && record.type.toUpperCase() === 'INTEGER')
     );
   },
 
