@@ -163,7 +163,7 @@ export class AutoWriter {
     // return the models
     str += `\n${sp}return {\n`;
     modelNames.forEach(m => {
-      str += `${this.space[2]}${m}: ${m},\n`;
+      str += `${this.space[2]}${m},\n`;
     });
     str += `${sp}};\n`;
     str += '}\n';
