@@ -323,8 +323,7 @@ export class AutoGenerator {
         if (this.dialect.name === "mssql" && (["(NULL)", "NULL"].includes(defaultVal) || typeof defaultVal === "undefined")) {
           defaultVal = null as any; // Override default NULL in MS SQL to javascript null
         }
-
-        if (defaultVal === null || defaultVal === undefined) {
+        if ((defaultVal === null || defaultVal === undefined) && !fieldObj.primaryKey) {
           return true;
         }
         if (isSerialKey) {
@@ -396,6 +395,9 @@ export class AutoGenerator {
         // don't prepend N for MSSQL when building models...
         // defaultVal = _.trimStart(defaultVal, 'N');
 
+        if (fieldObj.primaryKey){
+          val_text = "DataTypes.UUIDV4";
+        }
         str += space[3] + attr + ": " + val_text;
 
       } else if (attr === "comment" && (!fieldObj[attr] || this.dialect.name === "mssql")) {
@@ -473,6 +475,9 @@ export class AutoGenerator {
   /** Get the sequelize type from the Field */
   private getSqType(fieldObj: Field, attr: string): string {
     const attrValue = (fieldObj as any)[attr];
+    if (fieldObj.primaryKey) {
+       return "DataTypes.UUID";
+    }
     if (!attrValue.toLowerCase) {
       console.log("attrValue", attr, attrValue);
       return attrValue;
