@@ -86,6 +86,19 @@ const argv = require('yargs')
     description: 'Set case of model names: c|l|o|p|u \n c = camelCase \n l = lower_case \n o = original (default) \n p = PascalCase \n u = UPPER_CASE',
     alias: 'cm'
   })
+  .option('caseModelPrefix', {
+    description: 'Set prefix of model names',
+    alias: 'cmp'
+  })
+  .option('caseModelSuffix', {
+    description: 'Set suffix of model names',
+    alias: 'cmf'
+  })
+  .option('retainStandardFields', {
+    description: 'Set Retain Sequelize standard fields',
+    alias: 'rsf',
+    type: 'boolean'
+  })
   .option('caseProp', {
     description: 'Set case of property names: c|l|o|p|u',
     alias: 'cp'
@@ -208,6 +221,9 @@ async function readPassword() {
   configFile.schema = argv.schema || configFile.schema;
   configFile.lang = argv.lang || configFile.lang || 'es5';
   configFile.caseModel = argv.caseModel || configFile.caseModel || 'o';
+  configFile.caseModelPrefix = argv.caseModelPrefix || configFile.caseModelPrefix || '';
+  configFile.caseModelSuffix = argv.caseModelSuffix || configFile.caseModelSuffix || '';
+  configFile.retainStandardFields = argv.retainStandardFields || configFile.retainStandardFields || '';
   configFile.caseFile = argv.caseFile || configFile.caseFile || 'o';
   configFile.caseProp = argv.caseProp || configFile.caseProp || 'o';
   configFile.noAlias = argv.noAlias || configFile.noAlias || false;

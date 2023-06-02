@@ -17,6 +17,10 @@ export class AutoGenerator {
     spaces?: boolean;
     lang?: LangOption;
     caseModel?: CaseOption;
+    caseModelPrefix?: string;
+    caseModelSuffix?: string;
+    // retain Sequelize standard fields
+    retainStandardFields?: boolean;
     caseProp?: CaseOption;
     caseFile?: CaseFileOption;
     skipFields?: string[];
@@ -85,7 +89,7 @@ export class AutoGenerator {
     tableNames.forEach(table => {
       let str = header;
       const [schemaName, tableNameOrig] = qNameSplit(table);
-      const tableName = makeTableName(this.options.caseModel, tableNameOrig, this.options.singularize, this.options.lang);
+      const tableName = makeTableName(this.options.caseModel, this.options.caseModelPrefix, this.options.caseModelSuffix, tableNameOrig, this.options.singularize, this.options.lang);
 
       if (this.options.lang === 'ts') {
         const associations = this.addTypeScriptAssociationMixins(table);
@@ -93,7 +97,7 @@ export class AutoGenerator {
         needed.forEach(fkTable => {
           const set = associations.needed[fkTable];
           const [fkSchema, fkTableName] = qNameSplit(fkTable);
-          const filename = recase(this.options.caseFile, fkTableName, this.options.singularize);
+          const filename = this.options.caseModelPrefix + recase(this.options.caseFile, fkTableName, this.options.singularize) + this.options.caseModelSuffix;
           str += 'import type { ';
           str += Array.from(set.values()).sort().join(', ');
           str += ` } from './${filename}';\n`;
@@ -237,7 +241,7 @@ export class AutoGenerator {
 
     // ignore Sequelize standard fields
     const additional = this.options.additional;
-    if (additional && (additional.timestamps !== false) && (this.isTimestampField(field) || this.isParanoidField(field))) {
+    if (this.options.retainStandardFields !== true && additional && (additional.timestamps !== false) && (this.isTimestampField(field) || this.isParanoidField(field))) {
       return '';
     }
 

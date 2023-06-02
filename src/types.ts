@@ -231,12 +231,15 @@ export function recase(opt: CaseOption | CaseFileOption | undefined, val: string
 }
 
 const tsNames = ["DataTypes", "Model", "Optional", "Sequelize"];
-export function makeTableName(opt: CaseOption | undefined, tableNameOrig: string | null, singular = false, lang = "es5") {
+export function makeTableName(opt: CaseOption | undefined, caseModelPrefix:string|undefined, caseModelSuffix:string|undefined, tableNameOrig: string | null, singular = false, lang = "es5") {
+  if(!caseModelPrefix) caseModelPrefix = ''
+  if(!caseModelSuffix) caseModelSuffix = ''
   let name = recase(opt, tableNameOrig, singular);
+  
   if (isReserved(name) || (lang == "ts" && tsNames.includes(name))) {
     name += "_";
   }
-  return name;
+  return caseModelPrefix + name + caseModelSuffix;
 }
 
 /** build the array of indentation strings */
