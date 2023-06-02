@@ -364,6 +364,8 @@ const auto = new SequelizeAuto('database', 'user', 'pass', {
     additional: {
         timestamps: false
         // ...options added to each model
+        // If you want to add createdAt and updatedAt timestamps to the model, also declare createAt and updatedAt like this. Otherwise the createdAt and updatedAt timestamps will not be automatically added to the model
+        // timestamps: true, createAt: true, updatedAt: true
     },
     tables: ['table1', 'table2', 'myschema.table3'] // use all tables, if omitted
     //...
