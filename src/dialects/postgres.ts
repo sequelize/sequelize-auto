@@ -18,7 +18,7 @@ export const postgresOptions: DialectOptions = {
     tc.constraint_schema as source_schema,
     tc.table_name as source_table,
     kcu.column_name as source_column,
-    CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.constraint_schema ELSE null END AS target_schema,
+    CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.table_schema ELSE null END AS target_schema,
     CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.table_name ELSE null END AS target_table,
     CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.column_name ELSE null END AS target_column,
     co.column_default as extra,
