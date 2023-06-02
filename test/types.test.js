@@ -12,4 +12,14 @@ describe('sequelize-auto types', function() {
     const recasedString = recase('u', 'related_product');
     expect(recasedString).to.be.equal('RELATED_PRODUCT');
   });
+
+  it('recase UPPERCASE', function() {
+    const recasedString = recase('bu', 'relatedProduct');
+    expect(recasedString).to.be.equal('RELATEDPRODUCT');
+  });
+
+  it('recase lowercase', function() {
+    const recasedString = recase('bl', 'relatedProduct');
+    expect(recasedString).to.be.equal('relatedproduct');
+  });
 });

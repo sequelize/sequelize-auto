@@ -54,14 +54,16 @@ Options:
     --indentation        Number of spaces to indent                   [number]
 -t, --tables             Space-separated names of tables to import     [array]
 -T, --skipTables         Space-separated names of tables to skip       [array]
---caseModel, --cm        Set case of model names: c|l|o|p|u
+--caseModel, --cm        Set case of model names: c|l|bl|o|p|u|bu
                           c = camelCase
                           l = lower_case
+                          bl = lowercase
                           o = original (default)
                           p = PascalCase
                           u = UPPER_CASE
---caseProp, --cp         Set case of property names: c|l|o|p|u
---caseFile, --cf         Set case of file names: c|l|o|p|u|k
+                          bu = UPPERCASE
+--caseProp, --cp         Set case of property names: c|l|bl|o|p|u|bu
+--caseFile, --cf         Set case of file names: c|l|bl|o|p|u|bu|k
                           k = kebab-case
 --noAlias                Avoid creating alias `as` property in relations
                                                                      [boolean]
