@@ -135,6 +135,17 @@ const argv = require('yargs')
     type: 'boolean',
     alias: 'sg'
   })
+  .option('prependSchema', {
+    description: 'Prepend the schema name to file, class and type names',
+    type: 'boolean',
+    alias: 'ps'
+  })
+  .option('prependSchemaExclude', {
+    description: 'Space-separated schema to not prepend to file, class and type names',
+    array: true,
+    type: 'string',
+    alias: 'pse',
+  })
   .check(argv => Boolean((argv.database && (argv.host || argv.dialect === 'sqlite')) || argv.config))
   .argv;
 
@@ -220,6 +231,8 @@ async function readPassword() {
   configFile.useDefine = argv.useDefine || configFile.useDefine || false;
   configFile.indentation = argv.indentation || configFile.indentation || 2;
   configFile.noIndexes = argv.noIndexes || configFile.noIndexes || false;
+  configFile.prependSchema = argv.prependSchema || configFile.prependSchema || false;
+  configFile.prependSchemaExclude = argv.prependSchemaExclude || configFile.prependSchemaExclude || [];
 
   console.log(_.omit(configFile, 'password'));
 

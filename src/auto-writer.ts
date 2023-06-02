@@ -3,7 +3,7 @@ import _ from "lodash";
 import path from "path";
 import util from "util";
 import { FKSpec, TableData } from ".";
-import { AutoOptions, CaseFileOption, CaseOption, LangOption, makeIndent, makeTableName, pluralize, qNameSplit, recase, Relation } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, fileBaseName, LangOption, makeIndent, makeTableName, modelBaseName, pluralize, qNameSplit, recase, Relation, shouldPrepend } from "./types";
 const mkdirp = require('mkdirp');
 
 /** Writes text into files from TableData.text, and writes init-models */
@@ -25,12 +25,14 @@ export class AutoWriter {
     useDefine?: boolean;
     spaces?: boolean;
     indentation?: number;
+    prependSchema?: boolean;
+    prependSchemaExclude: string[];
   };
   constructor(tableData: TableData, options: AutoOptions) {
+    this.options = options;
     this.tableText = tableData.text as { [name: string]: string };
     this.foreignKeys = tableData.foreignKeys;
     this.relations = tableData.relations;
-    this.options = options;
     this.space = makeIndent(this.options.spaces, this.options.indentation);
   }
 
@@ -52,16 +54,16 @@ export class AutoWriter {
     const isTypeScript = this.options.lang === 'ts';
     const assoc = this.createAssociations(isTypeScript);
 
-    // get table names without schema
-    // TODO: add schema to model and file names when schema is non-default for the dialect
-    const tableNames = tables.map(t => {
-      const [schemaName, tableName] = qNameSplit(t);
-      return tableName as string;
-    }).sort();
-
     // write the init-models file
     if (!this.options.noInitModels) {
-      const initString = this.createInitString(tableNames, assoc, this.options.lang);
+      const sortedTables = this.options.prependSchema
+        ? tables.sort((a, b) => { return a.localeCompare(b); })
+        : tables.sort((a, b) => {
+            const [_sa, ta] = qNameSplit(a) as [string,string];
+            const [_sb, tb] = qNameSplit(b) as [string,string];
+            return ta.localeCompare(tb);
+          });
+      const initString = this.createInitString(sortedTables, assoc, this.options.lang);
       const initFilePath = path.join(this.options.directory, "init-models" + (isTypeScript ? '.ts' : '.js'));
       const writeFile = util.promisify(fs.writeFile);
       const initPromise = writeFile(path.resolve(initFilePath), initString);
@@ -82,12 +84,14 @@ export class AutoWriter {
         return this.createES5InitString(tableNames, assoc, "var");
     }
   }
+  private modelBaseName(table: string) {
+    return makeTableName(this.options.caseModel, modelBaseName(table, this.options), this.options.singularize, this.options.lang)
+  }
   private createFile(table: string) {
     // FIXME: schema is not used to write the file name and there could be collisions. For now it
     // is up to the developer to pick the right schema, and potentially chose different output
     // folders for each different schema.
-    const [schemaName, tableName] = qNameSplit(table);
-    const fileName = recase(this.options.caseFile, tableName, this.options.singularize);
+    const fileName = recase(this.options.caseFile, fileBaseName(table, this.options), this.options.singularize);
     const filePath = path.join(this.options.directory, fileName + (this.options.lang === 'ts' ? '.ts' : '.js'));
 
     const writeFile = util.promisify(fs.writeFile);
@@ -130,8 +134,8 @@ export class AutoWriter {
     const modelNames: string[] = [];
     // import statements
     tables.forEach(t => {
-      const fileName = recase(this.options.caseFile, t, this.options.singularize);
-      const modelName = makeTableName(this.options.caseModel, t, this.options.singularize, this.options.lang);
+      const fileName = recase(this.options.caseFile, fileBaseName(t, this.options), this.options.singularize);
+      const modelName = this.modelBaseName(t);
       modelNames.push(modelName);
       str += `import { ${modelName} as _${modelName} } from "./${fileName}";\n`;
       str += `import type { ${modelName}Attributes, ${modelName}CreationAttributes } from "./${fileName}";\n`;
@@ -178,8 +182,8 @@ export class AutoWriter {
     const modelNames: string[] = [];
     // import statements
     tables.forEach(t => {
-      const fileName = recase(this.options.caseFile, t, this.options.singularize);
-      const modelName = makeTableName(this.options.caseModel, t, this.options.singularize, this.options.lang);
+      const fileName = recase(this.options.caseFile, fileBaseName(t, this.options), this.options.singularize);
+      const modelName = this.modelBaseName(t);
       modelNames.push(modelName);
       str += `${vardef} _${modelName} = require("./${fileName}");\n`;
     });
@@ -214,8 +218,8 @@ export class AutoWriter {
     const modelNames: string[] = [];
     // import statements
     tables.forEach(t => {
-      const fileName = recase(this.options.caseFile, t, this.options.singularize);
-      const modelName = makeTableName(this.options.caseModel, t, this.options.singularize, this.options.lang);
+      const fileName = recase(this.options.caseFile, fileBaseName(t, this.options), this.options.singularize);
+      const modelName = this.modelBaseName(t);
       modelNames.push(modelName);
       str += `import _${modelName} from  "./${fileName}.js";\n`;
     });

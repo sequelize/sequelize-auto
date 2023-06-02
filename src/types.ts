@@ -102,6 +102,21 @@ export function qNameSplit(qname: string) {
   return [null, qname];
 }
 
+
+export function shouldPrepend  (schema: string|undefined|null, options: { prependSchema?: boolean; prependSchemaExclude: string[]; }) {
+  return schema != null && options.prependSchema && !options.prependSchemaExclude.includes(schema);
+}
+
+export function modelBaseName(table: string|[string|null|undefined, string], options: { prependSchema?: boolean; prependSchemaExclude: string[]; } ) {
+  const [schemaName, tableName] = Array.isArray(table) ? table : qNameSplit(table) as [string|null, string];
+  return shouldPrepend(schemaName, options) ? schemaName+'_'+tableName : tableName;
+};
+
+export function fileBaseName(table: string|[string|null|undefined, string], options: { prependSchema?: boolean; prependSchemaExclude: string[]; }) {
+  const [schemaName, tableName] = Array.isArray(table) ? table : qNameSplit(table) as [string|null, string];
+  return shouldPrepend(schemaName, options) ? schemaName+'_'+tableName : tableName;
+}
+
 /** Get combined schema.table name */
 export function qNameJoin(schema: string | undefined, table: string | undefined) {
   return !!schema ? schema + "." + table : table as string;
@@ -163,6 +178,10 @@ export interface AutoOptions {
   password?: string;
   /** Database port */
   port?: number;
+  /** Prepend schema to file/class/types */
+  prependSchema?: boolean;
+  /** Schemas to not prepend */
+  prependSchemaExclude: string[];
   /** Database schema to export */
   schema?: string;
   /** Whether to singularize model names */

@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ColumnDescription } from "sequelize/types";
 import { DialectOptions, FKSpec } from "./dialects/dialect-options";
-import { AutoOptions, CaseFileOption, CaseOption, Field, IndexSpec, LangOption, makeIndent, makeTableName, pluralize, qNameJoin, qNameSplit, recase, Relation, singularize, TableData, TSField } from "./types";
+import { AutoOptions, CaseFileOption, CaseOption, Field, fileBaseName, IndexSpec, LangOption, makeIndent, makeTableName, modelBaseName, pluralize, qNameJoin, qNameSplit, recase, Relation, singularize, TableData, TSField } from "./types";
 
 /** Generates text from each table in TableData */
 export class AutoGenerator {
@@ -25,6 +25,8 @@ export class AutoGenerator {
     singularize: boolean;
     useDefine: boolean;
     noIndexes?: boolean;
+    prependSchema?: boolean;
+    prependSchemaExclude: string[];
   };
 
   constructor(tableData: TableData, dialect: DialectOptions, options: AutoOptions) {
@@ -84,16 +86,14 @@ export class AutoGenerator {
     const text: { [name: string]: string; } = {};
     tableNames.forEach(table => {
       let str = header;
-      const [schemaName, tableNameOrig] = qNameSplit(table);
-      const tableName = makeTableName(this.options.caseModel, tableNameOrig, this.options.singularize, this.options.lang);
+      const tableName = makeTableName(this.options.caseModel, modelBaseName(table, this.options), this.options.singularize, this.options.lang);
 
       if (this.options.lang === 'ts') {
         const associations = this.addTypeScriptAssociationMixins(table);
         const needed = _.keys(associations.needed).sort();
         needed.forEach(fkTable => {
           const set = associations.needed[fkTable];
-          const [fkSchema, fkTableName] = qNameSplit(fkTable);
-          const filename = recase(this.options.caseFile, fkTableName, this.options.singularize);
+          const filename = recase(this.options.caseFile, fileBaseName(fkTable, this.options), this.options.singularize);
           str += 'import type { ';
           str += Array.from(set.values()).sort().join(', ');
           str += ` } from './${filename}';\n`;
