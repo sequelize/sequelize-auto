@@ -1,0 +1,66 @@
+# Create database containers to simplify running tests.
+
+# NB: Init scripts are executed in alphabetic order, hence the renaming of files
+# within the container to ensure "model" migrations (i.e. those creating tables)
+# are executed before those to seed records. After making changes to any init
+# scripts you'll have to `docker-compose down` and `docker-compose up` to see
+# this reflected within the containers.
+
+# Database containers don't have persistent volumes. This means any changes you
+# make (eg. inserting records) will be lost after a `docker-compose down` and
+# `docker-compose up`.
+
+version: "3.5"
+
+services:
+  mssql:
+    build:
+      context: ./
+      dockerfile: mssql.Dockerfile
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      SA_PASSWORD: "Sequelizeauto!"
+    ports:
+      - 1433:1433
+    volumes:
+      - ./sample/dbscripts/mssql-sample-model.sql:/usr/db/mssql-sample-model.sql
+      - ./sample/dbscripts/mssql-sample-data.sql:/usr/db/mssql-sample-data.sql
+  mysql:
+    environment:
+      MYSQL_DATABASE: "northwind"
+      MYSQL_USER: "sequelizeauto"
+      MYSQL_PASSWORD: "Sequelizeauto!"
+      MYSQL_ROOT_PASSWORD: "Sequelizeauto!"
+    image: mysql:8.0
+    ports:
+      - 3306:3306
+    restart: always
+    volumes:
+      - ./sample/dbscripts/mysql-sample-model.sql:/docker-entrypoint-initdb.d/001.mysql-sample-model.sql
+      - ./sample/dbscripts/mysql-sample-data.sql:/docker-entrypoint-initdb.d/002.mysql-sample-data.sql
+  postgres:
+    environment:
+      POSTGRES_USER: "sequelizeauto"
+      POSTGRES_PASSWORD: "Sequelizeauto!"
+      POSTGRES_DB: "northwind"
+    image: postgres:12
+    ports:
+      - 5432:5432
+    restart: always
+    volumes:
+      - ./sample/dbscripts/postgres-sample-model.sql:/docker-entrypoint-initdb.d/001.postgres-sample-model.sql
+      - ./sample/dbscripts/postgres-sample-data.sql:/docker-entrypoint-initdb.d/002.postgres-sample-data.sql
+  # Unlike the other databases, sqlite doesn't require leaving a process
+  # running. This container is just responsible for writing out a sqlite3
+  # database file in `sample/northwind.sqlite`. It's normal for this to
+  # exit immediately after generating this file. (As with other databases
+  # this is wiped and recreated from scratch on `docker-compose up`)
+  sqlite:
+    build:
+      context: ./
+      dockerfile: sqlite3.Dockerfile
+    volumes:
+      - ./sample/dbscripts/sqlite-sample-model.sql:/usr/db/sqlite-sample-model.sql
+      - ./sample/dbscripts/sqlite-sample-data.sql:/usr/db/sqlite-sample-data.sql
+      - ./sample/northwind.sqlite:/usr/db/northwind.sqlite

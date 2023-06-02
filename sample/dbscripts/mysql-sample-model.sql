@@ -1,5 +1,7 @@
-CREATE DATABASE  IF NOT EXISTS `Northwind` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `Northwind`;
+CREATE DATABASE IF NOT EXISTS "sequelize_auto_test";
+
+CREATE DATABASE  IF NOT EXISTS `northwind` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `northwind`;
 
 DROP TABLE IF EXISTS `order_item`;
 DROP TABLE IF EXISTS `orderitem`;
