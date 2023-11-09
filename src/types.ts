@@ -181,6 +181,8 @@ export interface AutoOptions {
   username?: string;
   /** Whether to export views (default false) */
   views?: boolean;
+  /** Write function to use instead of the default. */
+  write?: (tableData: TableData, options: AutoOptions) => Promise<void>;
   /** Primary Key Suffixes to trim (default "id") */
   pkSuffixes?: string[];
   /** Use `sequelize.define` instead of `init` for model initialization.  See issues #527, #559, #573 */

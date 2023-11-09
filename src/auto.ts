@@ -78,6 +78,10 @@ export class SequelizeAuto {
   }
 
   write(tableData: TableData) {
+    const write = this.options.write;
+    if (write) {
+      return write(tableData, this.options);
+    }
     const writer = new AutoWriter(tableData, this.options);
     return writer.write();
   }
