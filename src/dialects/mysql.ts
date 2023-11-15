@@ -21,9 +21,13 @@ export const mysqlOptions: DialectOptions = {
       , K.REFERENCED_COLUMN_NAME AS target_column
       , C.EXTRA AS extra
       , C.COLUMN_KEY AS column_key
+      , R.UPDATE_RULE as rule_update
+      , R.DELETE_RULE as rule_delete
       FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS K
       LEFT JOIN INFORMATION_SCHEMA.COLUMNS AS C
         ON C.TABLE_NAME = K.TABLE_NAME AND C.COLUMN_NAME = K.COLUMN_NAME AND C.TABLE_SCHEMA = K.CONSTRAINT_SCHEMA
+      INNER JOIN information_schema.REFERENTIAL_CONSTRAINTS AS R ON
+          K.CONSTRAINT_NAME = R.CONSTRAINT_NAME
       WHERE K.TABLE_NAME = ${addTicks(tableName)}
             ${makeCondition('C.TABLE_SCHEMA', schemaName)}`;
   },

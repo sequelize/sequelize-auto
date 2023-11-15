@@ -101,7 +101,11 @@ export class AutoWriter {
     const sp = this.space[1];
 
     const rels = this.relations;
+    const fKeys = this.foreignKeys;
     rels.forEach(rel => {
+      const currentFk = fKeys[rel.childTable.split('.')[1]];
+      const currentFkColumn = currentFk[rel.parentId];
+
       if (rel.isM2M) {
         const asprop = recase(this.options.caseProp, pluralize(rel.childProp));
         strBelongsToMany += `${sp}${rel.parentModel}.belongsToMany(${rel.childModel}, { as: '${asprop}', through: ${rel.joinModel}, foreignKey: "${rel.parentId}", otherKey: "${rel.childId}" });\n`;
@@ -115,7 +119,15 @@ export class AutoWriter {
         // const hAlias = (this.options.noAlias && Utils.pluralize(rel.childModel.toLowerCase()) === rel.childProp.toLowerCase()) ? '' : `as: "${rel.childProp}", `;
         const asChildProp = recase(this.options.caseProp, rel.childProp);
         const hAlias = this.options.noAlias ? '' : `as: "${asChildProp}", `;
-        strBelongs += `${sp}${rel.parentModel}.${hasRel}(${rel.childModel}, { ${hAlias}foreignKey: "${rel.parentId}"});\n`;
+
+        const rules = [];
+        if(currentFkColumn.rule_update) {
+          rules.push(`onUpdate: '${currentFkColumn.rule_update}'`)
+        }
+        if(currentFkColumn.rule_delete) {
+          rules.push(`onDelete: '${currentFkColumn.rule_delete}'`)
+        }
+        strBelongs += `${sp}${rel.parentModel}.${hasRel}(${rel.childModel}, { ${hAlias}foreignKey: "${rel.parentId}"${rules.length ? `, ${rules.join()}`:''}});\n`;
       }
     });
 
