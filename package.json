@@ -1,6 +1,6 @@
 {
   "name": "@airporting/sequelize-auto",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publishConfig": {
     "tag": "latest"
   },
