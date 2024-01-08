@@ -4,7 +4,7 @@ import { Utils } from "sequelize";
 export interface DialectOptions {
   name: string;
   hasSchema: boolean;
-  
+
   getForeignKeysQuery: (tableName: string, schemaName: string) => string;
   remapForeignKeysRow?: (tableName: string, row: FKRow) => FKRelation;
   countTriggerQuery: (tableName: string, schemaName: string) => string;
@@ -60,6 +60,8 @@ export interface FKSpec extends FKRelation {
   };
   extra?: string;
   column_key?: string;
+  rule_update ?: string;
+  rule_delete ?: string;
 }
 
 export interface ColumnElementType {
