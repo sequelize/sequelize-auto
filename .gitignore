@@ -5,6 +5,7 @@ sample/models/*
 sample/northwind.sqlite
 sample/*-ts.js
 **/*.js.map
+models/*
 
 # Not checking this in
 package-lock.json

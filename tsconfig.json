@@ -6,6 +6,7 @@
     "declaration": true,
     "declarationDir": "types",
     "module": "commonjs",
+    "lib": ["es6", "dom", "es2016"],    
     "moduleResolution": "node",
     "noImplicitAny": true,
     "esModuleInterop": true,
