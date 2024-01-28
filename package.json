@@ -1,10 +1,10 @@
 {
-  "name": "sequelize-auto",
+  "name": "sequelize-auto-v2",
   "version": "0.8.7",
   "publishConfig": {
     "tag": "latest"
   },
-  "description": "Automatically generate bare sequelize models from your database.",
+  "description": "Enchanced for sequelize 6v  Automatically generate bare sequelize models from your database.",
   "main": "index.js",
   "types": "types",
   "keywords": [
@@ -74,6 +74,7 @@
     "@types/chai": "^4.2.17",
     "@types/lodash": "^4.14.168",
     "@types/mocha": "^8.2.2",
+    "@types/node": "^20.11.9",
     "@types/reserved-words": "0.1.0",
     "chai": "^4.3.4",
     "coveralls": "^3.1.0",
