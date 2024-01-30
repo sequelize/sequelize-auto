@@ -43,13 +43,13 @@ Options:
 -c, --config             Path to JSON file for Sequelize-Auto options and
                           Sequelize's constructor "options" flag object as
                           defined here:
-                          https://sequelize.org/master/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor
+                          https://sequelize.org/api/v6/class/src/sequelize.js~sequelize#instance-constructor-constructor
                                                                       [string]
 -o, --output             What directory to place the models.          [string]
 -e, --dialect            The dialect/engine that you're using: postgres,
                           mysql, sqlite, mssql                         [string]
 -a, --additional         Path to JSON file containing model options (for all
-                          tables). See the options: https://sequelize.org/master/class/lib/model.js~Model.html#static-method-init
+                          tables). See the options: https://sequelize.org/api/v6/class/src/model.js~model#static-method-init
                                                                       [string]
     --indentation        Number of spaces to indent                   [number]
 -t, --tables             Space-separated names of tables to import     [array]
