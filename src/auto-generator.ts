@@ -515,6 +515,8 @@ export class AutoGenerator {
       val = 'DataTypes.CHAR' + (!_.isNull(length) ? length : '');
     } else if (type.match(/^real/)) {
       val = 'DataTypes.REAL';
+    } else if (type.match(/longtext$/)) {
+      val = 'DataTypes.TEXT("long")';
     } else if (type.match(/text$/)) {
       val = 'DataTypes.TEXT' + (!_.isNull(length) ? length : '');
     } else if (type === "date") {
