@@ -1,9 +1,0 @@
-{
-  "dialect": "postgres",
-  "port": 5432,
-  "omitNull": true,
-  "additional" : {
-  	"freezeTableName" : true,
-  	"timestamps" : false
-  }
-}
